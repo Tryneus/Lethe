@@ -1,0 +1,15 @@
+Limitations between platforms:
+
+The items in the list are preventing certain features from being enabled, in that one platform supports the feature, but another plaform doesn't
+
+1. Linux events don't support automatic reset
+ - If fixed: add a boolean to the Event constructor to enable automatic reset on a successful wait
+ 
+2. Linux mutexes don't support automatic locking on a wait
+ - If fixed: add a getHandle function to Mutex objects
+ 
+3. No method in Linux to wait for all file descriptors in a set before returning
+ - If fixed: implement waitAll function in LinuxHandleSet
+ 
+4. WindowsTimers are cleared by setting the timer again to a very long timeout
+ - If fixed: No real impact, just kind of stupid

@@ -1,12 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Signaling", "Signaling\Signaling.vcproj", "{11A2CAF3-95F3-46F3-81F7-9F83DD16D0CD}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C58DF22D-5605-402A-849D-EECC4EC713BA} = {C58DF22D-5605-402A-849D-EECC4EC713BA}
-		{6FB08F84-4214-420B-86D2-04CDB4AE638E} = {6FB08F84-4214-420B-86D2-04CDB4AE638E}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libCommon", "libCommon\libCommon.vcproj", "{C58DF22D-5605-402A-849D-EECC4EC713BA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libThreadComm", "libThreadComm\libThreadComm.vcproj", "{6FB08F84-4214-420B-86D2-04CDB4AE638E}"
@@ -26,10 +20,6 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{11A2CAF3-95F3-46F3-81F7-9F83DD16D0CD}.Debug|Win32.ActiveCfg = Debug|Win32
-		{11A2CAF3-95F3-46F3-81F7-9F83DD16D0CD}.Debug|Win32.Build.0 = Debug|Win32
-		{11A2CAF3-95F3-46F3-81F7-9F83DD16D0CD}.Release|Win32.ActiveCfg = Release|Win32
-		{11A2CAF3-95F3-46F3-81F7-9F83DD16D0CD}.Release|Win32.Build.0 = Release|Win32
 		{C58DF22D-5605-402A-849D-EECC4EC713BA}.Debug|Win32.ActiveCfg = Debug|Win32
 		{C58DF22D-5605-402A-849D-EECC4EC713BA}.Debug|Win32.Build.0 = Debug|Win32
 		{C58DF22D-5605-402A-849D-EECC4EC713BA}.Release|Win32.ActiveCfg = Release|Win32

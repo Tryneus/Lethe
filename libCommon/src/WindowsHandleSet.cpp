@@ -1,4 +1,5 @@
 #include "WindowsHandleSet.h"
+#include "Exception.h"
 #include "stdint.h"
 
 WindowsHandleSet::WindowsHandleSet() :
@@ -16,9 +17,11 @@ WindowsHandleSet::~WindowsHandleSet()
 bool WindowsHandleSet::add(HANDLE handle)
 {
   if(m_handleSet.find(handle) != m_handleSet.end())
-    return false;
+    throw Exception("Failed to find handle in set");
 
-  m_handleSet.insert(handle);
+  if(!m_handleSet.insert(handle).second)
+    throw Exception("Failed to add handle to set");
+
   resizeEvents();
   return true;
 }
@@ -26,9 +29,11 @@ bool WindowsHandleSet::add(HANDLE handle)
 bool WindowsHandleSet::remove(HANDLE handle)
 {
   if(m_handleSet.find(handle) == m_handleSet.end())
-    return false;
+    throw Exception("Failed to find handle in set");
 
-  m_handleSet.erase(handle);
+  if(!m_handleSet.erase(handle))
+    throw Exception("Failed to remove handle from set");
+
   resizeEvents();
   return true;
 }

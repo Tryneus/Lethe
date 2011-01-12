@@ -9,7 +9,7 @@ int main()
 {
   // Seed RNG
   {
-    uint32_t randomSeed = seedRandom(0);
+    uint32_t randomSeed = seedRandom(3419073);
     LogInfo("Test seeded with " << randomSeed);
   }
 
@@ -24,7 +24,7 @@ int main()
     sender.start();
 
     // Let the threads run for 10 seconds, then stop them
-    Sleep(100000);
+    Sleep(10000);
 
     sender.stop();
     echo.stop();

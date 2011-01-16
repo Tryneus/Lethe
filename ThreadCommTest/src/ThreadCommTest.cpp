@@ -9,7 +9,7 @@ int main()
 {
   // Seed RNG
   {
-    uint32_t randomSeed = seedRandom(3419073);
+    uint32_t randomSeed = seedRandom(0);
     LogInfo("Test seeded with " << randomSeed);
   }
 

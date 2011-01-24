@@ -175,6 +175,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\WindowsPipe.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\WindowsSemaphore.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\WindowsThread.cpp"
 					>
 				</File>
@@ -226,6 +234,14 @@
 				</File>
 				<File
 					RelativePath=".\include\WindowsMutex.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\WindowsPipe.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\WindowsSemaphore.h"
 					>
 				</File>
 				<File

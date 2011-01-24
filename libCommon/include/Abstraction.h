@@ -9,51 +9,61 @@
   #include "stdint.h"
   #include "Windows.h"
 
-  class WindowsHandleSet; // Predeclaration in case of circular include
+  // Predeclarations in case of circular include
+  class WindowsHandleSet;
+  class WindowsEvent;
+  class WindowsMutex;
+  class WindowsSemaphore;
+  class WindowsPipe;
+  class WindowsThread;
+  class WindowsTimer;
+
   #include "WindowsHandleSet.h"
+  #include "WindowsEvent.h"
+  #include "WindowsMutex.h"
+  #include "WindowsSemaphore.h"
+  #include "WindowsPipe.h"
+  #include "WindowsThread.h"
+  #include "WindowsTimer.h"
+
   typedef WindowsHandleSet HandleSet;
   typedef HANDLE Handle;
-
-  class WindowsEvent; // Predeclaration in case of circular include
-  #include "WindowsEvent.h"
   typedef WindowsEvent Event;
-
-  class WindowsMutex; // Predeclaration in case of circular include
-  #include "WindowsMutex.h"
   typedef WindowsMutex Mutex;
-
-  class WindowsThread; // Predeclaration in case of circular include
-  #include "WindowsThread.h"
+  typedef WindowsSemaphore Semaphore;
+  typedef WindowsPipe Pipe;
   typedef WindowsThread Thread;
-  
-  class WindowsTimer; // Predeclaration in case of circular include
-  #include "WindowsTimer.h"
   typedef WindowsTimer Timer;
-  
+
 #elif defined(__linux__)
   #include <stdint.h>
   #include <stddef.h>
   #include <stdlib.h>
 
+  // Predeclarations in case of circular include
   class LinuxHandleSet;
+  class LinuxEvent;
+  class LinuxMutex;
+  class LinuxSemaphore;
+  class LinuxPipe;
+  class LinuxThread;
+  class LinuxTimer;
+
   #include "LinuxHandleSet.h"
+  #include "LinuxEvent.h"
+  #include "LinuxMutex.h"
+  #include "LinuxSemaphore.h"
+  #include "LinuxPipe.h"
+  #include "LinuxThread.h"
+  #include "LinuxTimer.h"
+
   typedef LinuxHandleSet HandleSet;
   typedef int Handle;
-
-  class LinuxEvent;
-  #include "LinuxEvent.h"
   typedef LinuxEvent Event;
-
-  class LinuxMutex; // Predeclaration in case of circular include
-  #include "LinuxMutex.h"
   typedef LinuxMutex Mutex;
-  
-  class LinuxThread; // Predeclaration in case of circular include
-  #include "LinuxThread.h"
+  typedef LinuxSemaphore Semaphore;
+  typedef LinuxPipe Pipe;
   typedef LinuxThread Thread;
-  
-  class LinuxTimer; // Predeclaration in case of circular include
-  #include "LinuxTimer.h"
   typedef LinuxTimer Timer;
 
   void Sleep(uint32_t timeout);
@@ -70,5 +80,7 @@ std::string getTimeString();
 uint32_t seedRandom(uint32_t seed = 0);
 
 int WaitForObject(Handle handle, uint32_t timeout);
+
+std::string lastError();
 
 #endif

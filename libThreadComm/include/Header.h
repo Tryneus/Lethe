@@ -9,7 +9,6 @@
 
 namespace ThreadComm
 {
-
   class Header
   {
   public:
@@ -26,21 +25,14 @@ namespace ThreadComm
 
   private:
     uint32_t m_size;
+    bool m_waitingToSend;
+    Semaphore m_semaphore;
+
     char* m_dataArea;
 
     ReceiveList m_receiveList;
     List m_releaseList;
     UnallocList m_unallocList;
-
-#if defined(_WIN32)
-    Handle m_semaphore;
-    bool m_waitingToSend;
-#elif defined(__linux__)
-    Handle m_pipeIn;
-    Handle m_pipeOut;
-#else
-  #error "Unsupported platform"
-#endif
   };
 
 }

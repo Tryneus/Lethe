@@ -10,6 +10,8 @@ using namespace ThreadComm;
 
 Header::Header(uint32_t size) :
   m_size(size),
+  m_waitingToSend(false),
+  m_semaphore(size / sizeof(Message), 0),
   m_dataArea(new char[size]),
   m_receiveList(m_dataArea),
   m_releaseList(m_dataArea + sizeof(Message)),
@@ -27,43 +29,21 @@ Header::Header(uint32_t size) :
 
   secondMessage->setLastOnStack(firstMessage);
   thirdMessage->setLastOnStack(secondMessage);
-
-#if defined(_WIN32)
-
-  m_semaphore = CreateSemaphore(NULL, 0, 2048, NULL);
-
-  if(m_semaphore == INVALID_HANDLE_VALUE)
-    throw Exception("Failed to create semaphore");
-
-  m_waitingToSend = false;
-
-#elif defined(__linux__)
-
-  int pipes[2];
-
-  if(pipe(pipes) == -1)
-    throw Exception("Failed to create pipe");
-
-  m_pipeIn = pipes[0];
-  m_pipeOut = pipes[1];
-
-#endif
 }
 
 Header::~Header()
 {
-#if defined(_WIN32)
-
-  CloseHandle(m_semaphore);
-
-#elif defined(__linux__)
-
-  close(m_pipeIn);
-  close(m_pipeOut);
-
-#endif
-
   delete [] m_dataArea;
+}
+
+void* Header::getEndPtr()
+{
+  return (m_dataArea + m_size);
+}
+
+Handle Header::getHandle()
+{
+  return m_semaphore.getHandle();
 }
 
 void* Header::getEndPtr()
@@ -97,50 +77,42 @@ Message* Header::allocate(uint32_t size)
 
 void Header::send(Message* message)
 {
-#if defined(_WIN32)
-
-  if(m_waitingToSend && !ReleaseSemaphore(m_semaphore, 1, NULL))
+  try
+  {
+    if(m_waitingToSend)
+      m_semaphore.unlock(1);
+    else
+      m_waitingToSend = false;
+  }
+  catch(...)
+  {
     throw Exception("Semaphore full, other side needs to wait on it");
-  else
-    m_waitingToSend = false;
-
-#endif
+  }
 
   message->setState(Message::Sent);
   m_receiveList.pushBack(message);
 
-#if defined(_WIN32)
-
-  if(!ReleaseSemaphore(m_semaphore, 1, NULL))
-    m_waitingToSend = true;
-
-#elif defined(__linux__)
-
-  if(write(m_pipeOut, "S", 1) != 1)
+  try
   {
-    // TODO: Add handling for a failed write
-    throw Exception("Failed to write to the pipe");
+    m_semaphore.unlock(1);
   }
-
-#endif
+  catch(...)
+  {
+    m_waitingToSend = true;
+  }
 }
 
 Message* Header::receive()
 {
-#if defined(_WIN32)
-
-  // TODO: anything to do here?  user should call wait
-
-#elif defined(__linux__)
-
-  char buffer[1];
-  if(read(m_pipeIn, buffer, 1) != 1)
+  // TODO: should we even both catching/throwing with different text?
+  try
   {
-    // TODO: Add handling for a failed read
-    throw Exception("Failed to read from the pipe");
+    m_semaphore.lock();
   }
-
-#endif
+  catch(...)
+  {
+    throw Exception("Receive called with nothing to receive");
+  }
 
   Message* extraMessage;
   Message* message = m_receiveList.receive(extraMessage);

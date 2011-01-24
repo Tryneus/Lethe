@@ -1,7 +1,7 @@
 #ifndef _THREADCOMM_UNALLOCLIST_H
 #define _THREADCOMM_UNALLOCLIST_H
 
-#include "stdint.h"
+#include "Abstraction.h"
 #include "List.h"
 #include "Message.h"
 

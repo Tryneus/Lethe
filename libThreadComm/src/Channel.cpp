@@ -17,6 +17,11 @@ Channel::~Channel()
   // Do nothing
 }
 
+Handle Channel::getHandle()
+{
+  return m_in.getHandle();
+}
+
 void* Channel::allocate(uint32_t size)
 {
   size += sizeof(Message);

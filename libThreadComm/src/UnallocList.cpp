@@ -1,5 +1,5 @@
 #include "UnallocList.h"
-#include "Abstraction.h"
+#include "Log.h"
 
 using namespace ThreadComm;
 
@@ -27,14 +27,19 @@ void UnallocList::unallocate(Message* message)
   Message* nextMessage = message->getNextOnStack();
 
   // Check if we can merge with the next buffer in memory
-  if(nextMessage < m_bufferEnd &&
-    nextMessage->getState() == Message::Free)
+  if(reinterpret_cast<void*>(nextMessage) != m_bufferEnd)
   {
-    remove(nextMessage);  
-    message->setSize(nextMessage->getSize() + message->getSize());
-  }
+    if(nextMessage->getState() == Message::Free)
+    {
+      remove(nextMessage);  
+      message->setSize(nextMessage->getSize() + message->getSize());
 
-  message->getNextOnStack()->setLastOnStack(message);
+      if(message->getNextOnStack() != m_bufferEnd)
+        message->getNextOnStack()->setLastOnStack(message);
+    }
+    else
+      message->getNextOnStack()->setLastOnStack(message);
+  }
 
   pushFront(message);
 }

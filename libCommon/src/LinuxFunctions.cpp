@@ -1,5 +1,7 @@
 #include "LinuxHandleSet.h"
+#include "Exception.h"
 #include <unistd.h>
+#include <stdlib.h>
 #include <sys/time.h>
 #include <poll.h>
 #include <string>
@@ -32,6 +34,8 @@ void getFileList(const std::string& directory,
                  std::vector<std::string>& fileList)
 {
   throw Exception("LinuxFunctions::getFileList not yet implemented");
+  directory.length();
+  fileList.size();
 }
 
 std::string getTimeString()

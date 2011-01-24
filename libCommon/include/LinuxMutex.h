@@ -13,9 +13,9 @@ public:
    void unlock();
 
 private:
-   pthread_t m_lockingThread;
-   int m_pipeRead;
-   int m_pipeWrite;
+//   pthread_t m_lockingThread;
+//   int m_pipeRead;
+//   int m_pipeWrite;
 };
 
 #endif

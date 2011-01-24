@@ -1,7 +1,7 @@
 #ifndef _THREADCOMM_MESSAGE_H
 #define _THREADCOMM_MESSAGE_H
 
-#include "stdint.h"
+#include "Abstraction.h"
 
 namespace ThreadComm
 {
@@ -39,27 +39,28 @@ namespace ThreadComm
   public:
     Message(Header* header, uint32_t size, State state);
 
-    Header* getHeader() { return m_header; };
-    Message* getPrev() { return m_prev; };
-    Message* getNext() { return m_next; };
-    Message* getLastOnStack() { return m_lastOnStack; };
-    Message* getNextOnStack() { return reinterpret_cast<Message*>(reinterpret_cast<char*>(this) + m_size); };
-    State getState() { return m_state; };
-    uint32_t getSize() { return m_size; };
+    Header* getHeader();
+    Message* getPrev();
+    Message* getNext();
+    Message* getLastOnStack();
+    Message* getNextOnStack();
+    State getState();
+    uint32_t getSize();
 
-    void* getDataArea() { return &m_data; };
-    static Message* getMessage(void* dataArea) { return reinterpret_cast<Message*>(reinterpret_cast<char*>(dataArea) - sizeof(Message) + sizeof(uint32_t)); };
+    void* getDataArea();
+    static Message* getMessage(void* dataArea);
 
-    void setSize(uint32_t size) { m_size = size; };
-    void setPrev(Message* prev) { m_prev = prev; };
-    void setNext(Message* next) { m_next = next; };
-    void setLastOnStack(Message* lastOnStack) { m_lastOnStack = lastOnStack; };
-    void setState(State state) { m_state = state; };
+    void setSize(uint32_t size);
+    void setPrev(Message* prev);
+    void setNext(Message* next);
+    void setLastOnStack(Message* lastOnStack);
+    void setState(State state);
 
     bool overflowCheck();
     Message* split(uint32_t size);
+
   private:
-    uint32_t& getSecondMagic() { return *reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(&m_data) + m_size - sizeof(Message)); };
+    uint32_t& getSecondMagic();
   };
 
 }

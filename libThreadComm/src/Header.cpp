@@ -1,5 +1,6 @@
 #include "Header.h"
 #include "Exception.h"
+#include "Log.h"
 
 #if defined(_WIN32)
 #include <new.h>
@@ -64,6 +65,22 @@ Header::~Header()
 
   delete [] m_dataArea;
 }
+
+void* Header::getEndPtr()
+{
+  return (m_dataArea + m_size);
+}
+
+Handle Header::getHandle()
+{
+#if defined(_WIN32)
+  return m_semaphore;
+#elif defined(__linux__)
+  return m_pipeIn;
+#endif
+}
+
+
 
 Message* Header::allocate(uint32_t size)
 {

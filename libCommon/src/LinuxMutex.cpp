@@ -2,6 +2,7 @@
 #include "Exception.h"
 #include <poll.h>
 
+/*
 LinuxMutex::LinuxMutex(bool locked) :
   m_lockingThread(pthread_self())
 {
@@ -62,5 +63,29 @@ void LinuxMutex::unlock()
   if(write(m_pipeWrite, "U", 1) != 1)
     throw Exception("Failed to write to the mutex pipe");
 }
+*/
 
+LinuxMutex::LinuxMutex(bool locked) :
+{
 
+}
+
+LinuxMutex::~LinuxMutex()
+{
+
+}
+
+void LinuxMutex::getHandle()
+{
+
+}
+
+void LinuxMutex::lock(int timeout)
+{
+
+}
+
+void LinuxMutex::unlock()
+{
+
+}

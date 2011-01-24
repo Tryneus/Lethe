@@ -19,7 +19,7 @@ namespace ThreadComm
     void* receive();
     void  release(void* msg);
 
-    Handle getHandle() { return m_in.getHandle(); };
+    Handle getHandle();
 
   private:
     Header& m_in;

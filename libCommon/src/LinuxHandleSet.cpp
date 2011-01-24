@@ -1,6 +1,7 @@
 #include "LinuxHandleSet.h"
 #include "Exception.h"
 #include <errno.h>
+#include <string.h>
 
 LinuxHandleSet::LinuxHandleSet() :
   m_epollSet(epoll_create(10)),
@@ -23,6 +24,7 @@ bool LinuxHandleSet::add(int fd)
     return false;
 
   epoll_event event;
+  memset(&event, 0, sizeof(event));
   event.events = EPOLLIN;
   event.data.fd = fd;
   epoll_ctl(m_epollSet, EPOLL_CTL_ADD, fd, &event);
@@ -78,6 +80,7 @@ uint32_t LinuxHandleSet::getSize() const
 int LinuxHandleSet::waitAll(uint32_t timeout, int& fd)
 {
   throw Exception("LinuxHandleSet::waitAll not yet implemented");
+  timeout = fd;
 }
 
 int LinuxHandleSet::waitAny(uint32_t timeout, int& fd)

@@ -2,6 +2,7 @@
 #define _WINDOWSPIPE_H
 
 #include "Windows.h"
+#include "stdint.h"
 
 class WindowsPipe
 {
@@ -9,8 +10,8 @@ public:
   WindowsPipe();
   ~WindowsPipe();
 
-  void send();
-  void receive();
+  void send(uint8_t* buffer, uint32_t bufferSize);
+  uint32_t receive(uint8_t* buffer, uint32_t bufferSize);
 
   HANDLE getHandle();
 

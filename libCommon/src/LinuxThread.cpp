@@ -36,8 +36,10 @@ void* LinuxThread::threadMain()
   {
     int fd;
 
-    while(WaitForObject(m_runEvent.getHandle(), INFINITE) != WaitError)
+    while(true)
     {
+      WaitForObject(m_runEvent.getHandle(), INFINITE);
+
       if(m_exit)
         break;
 
@@ -61,8 +63,6 @@ void* LinuxThread::threadMain()
         m_fdSet.remove(fd);
         break;
 
-      case WaitError:
-        throw Exception("Thread internal wait failed");
       default:
         throw Exception("Thread internal wait returned unexpected value");
       }
@@ -107,14 +107,14 @@ void* LinuxThread::threadHook(void* param)
   return reinterpret_cast<LinuxThread*>(param)->threadMain();
 }
 
-bool LinuxThread::addWaitObject(int fd)
+void LinuxThread::addWaitObject(int fd)
 {
-  return m_fdSet.add(fd);
+  m_fdSet.add(fd);
 }
 
-bool LinuxThread::removeWaitObject(int fd)
+void LinuxThread::removeWaitObject(int fd)
 {
-  return m_fdSet.remove(fd);
+  m_fdSet.remove(fd);
 }
 
 void LinuxThread::setWaitTimeout(uint32_t timeout)
@@ -122,8 +122,7 @@ void LinuxThread::setWaitTimeout(uint32_t timeout)
   m_timeout = timeout;
 }
 
-void LinuxThread::abandoned(int fd)
+void LinuxThread::abandoned(int fd __attribute__ ((unused)))
 {
   // Do nothing, optionally implemented by a derived class
-  fd = 0; // Stupid hack to avoid warning
 }

@@ -5,12 +5,13 @@ WindowsPipe::WindowsPipe() :
   m_pipe(INVALID_HANDLE_VALUE)
 {
   if(m_pipe == INVALID_HANDLE_VALUE)
-    throw Exception("Failed to create pipe");
+    throw Exception("Failed to create pipe: " + lastError());
 }
 
 WindowsPipe::~WindowsPipe()
 {
-  CloseHandle(m_pipe);
+  if(!CloseHandle(m_pipe))
+    throw Exception("Failed to close pipe: " + lastError());
 }
 
 uint32_t WindowsPipe::send()

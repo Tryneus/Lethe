@@ -8,32 +8,31 @@
 #define INFINITE -1
 
 #define WaitSuccess    0
-#define WaitError     -1
-#define WaitAbandoned -2
-#define WaitTimeout   -3
+#define WaitAbandoned -1
+#define WaitTimeout   -2
 
 class LinuxHandleSet
 {
 public:
-   LinuxHandleSet();
-   ~LinuxHandleSet();
+  LinuxHandleSet();
+  ~LinuxHandleSet();
 
-   bool add(int fd);
-   bool remove(int fd);
+  void add(int fd);
+  void remove(int fd);
 
-   uint32_t getSize() const;
+  uint32_t getSize() const;
 
-   int waitAll(uint32_t timeout, int& fd);
-   int waitAny(uint32_t timeout, int& fd);
+  int waitAll(uint32_t timeout, int& fd);
+  int waitAny(uint32_t timeout, int& fd);
 
 private:
-   void resizeEvents();
+  void resizeEvents();
 
-   int m_epollSet;
-   std::set<int> m_fdSet;
+  int m_epollSet;
+  std::set<int> m_fdSet;
 
-   epoll_event* m_events;
-   int m_eventCount;
+  epoll_event* m_events;
+  int m_eventCount;
 };
 
 #endif

@@ -14,4 +14,9 @@ private:
   std::string m_message;
 };
 
+class OutOfMemoryException : public Exception
+{
+public:
+  OutOfMemoryException(const std::string& info);
+};
 #endif

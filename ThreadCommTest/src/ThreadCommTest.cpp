@@ -4,9 +4,11 @@
 #include "Abstraction.h"
 #include "Exception.h"
 #include "Log.h"
+#include <iostream>
 
 int main()
 {
+  std::cout << "begin" << std::endl;
   // Seed RNG
   {
     uint32_t randomSeed = seedRandom(0);

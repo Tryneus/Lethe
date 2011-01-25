@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <poll.h>
+#include <string.h>
+#include <errno.h>
 #include <string>
 #include <vector>
 #include <sstream>
@@ -15,6 +17,14 @@ void Sleep(uint32_t timeout)
   usleep(timeout * 1000);
 }
 
+std::string lastError()
+{
+  int errorCode = errno;
+  char buffer[200];
+
+  return std::string(strerror_r(errorCode, buffer, 200));
+}
+
 uint32_t seedRandom(uint32_t seed)
 {
   if(seed == 0)
@@ -22,7 +32,7 @@ uint32_t seedRandom(uint32_t seed)
     timeval currentTime;
     gettimeofday(&currentTime, NULL);
 
-    seed = *reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(&currentTime) + sizeof(currentTime) - sizeof(uint32_t));
+    seed = currentTime.tv_usec | (currentTime.tv_sec << 20);
   }
 
   srand(seed);
@@ -66,11 +76,14 @@ int WaitForObject(int fd, uint32_t timeout)
   case 1:
     if(object.revents & (POLLERR | POLLNVAL | POLLHUP))
       return WaitAbandoned;
+
     return WaitSuccess;
+
   case 0:
     return WaitTimeout;
-  case -1:
+
   default:
-    return WaitError;
+    throw Exception("Failed to wait: " + lastError());
   }
 }
+

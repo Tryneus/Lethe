@@ -76,8 +76,7 @@ int WaitForObject(HANDLE handle, uint32_t timeout)
   case WAIT_OBJECT_0:    return WaitSuccess;
   case WAIT_ABANDONED_0: return WaitAbandoned;
   case WAIT_TIMEOUT:     return WaitTimeout;
-  case WAIT_FAILED:
-  default:               return WaitError;
+  default:               throw Exception("Failed to wait: " + lastError());
   }
 }
 

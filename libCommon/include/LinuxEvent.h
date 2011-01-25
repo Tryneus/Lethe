@@ -4,17 +4,16 @@
 class LinuxEvent
 {
 public:
-   LinuxEvent(bool initialState);
-   ~LinuxEvent();
+  LinuxEvent(bool initialState);
+  ~LinuxEvent();
    
-   int getHandle() const;
+  int getHandle() const;
    
-   void set();
-   void reset();
+  void set();
+  void reset();
    
 private:
-   int m_writeFd;
-   int m_readFd;
+  int m_event;
 };
 
 #endif

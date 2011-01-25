@@ -1,5 +1,6 @@
 #include "LinuxTimer.h"
 #include "Exception.h"
+#include "Abstraction.h"
 #include <sys/timerfd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -9,12 +10,13 @@ LinuxTimer::LinuxTimer() :
   m_fd(timerfd_create(CLOCK_MONOTONIC, O_NONBLOCK))
 {
   if(m_fd == -1)
-    throw Exception("Failed to create timer");
+    throw Exception("Failed to create timer: " + lastError());
 }
 
 LinuxTimer::~LinuxTimer()
 {
-  close(m_fd);
+  if(close(m_fd) != 0)
+    throw Exception("Failed to close timer: " + lastError());
 }
   
 int LinuxTimer::getHandle() const
@@ -32,7 +34,7 @@ void LinuxTimer::start(uint32_t timeout)
   elapseTime.it_value.tv_nsec = 0;
   
   if(timerfd_settime(m_fd, 0, &elapseTime, NULL) == -1)
-    throw Exception("Failed to start timer");
+    throw Exception("Failed to start timer: " + lastError());
 }
 
 void LinuxTimer::stop()
@@ -41,7 +43,7 @@ void LinuxTimer::stop()
   memset(&elapseTime, 0, sizeof(elapseTime));
 
   if(timerfd_settime(m_fd, 0, &elapseTime, NULL) == -1)
-    throw Exception("Failed to stop timer");
+    throw Exception("Failed to stop timer: " + lastError());
 }
 
 void LinuxTimer::clear()
@@ -50,5 +52,5 @@ void LinuxTimer::clear()
   
   uint64_t buffer;
   if(read(m_fd, &buffer, sizeof(buffer)) != sizeof(buffer))
-    throw Exception("Failed to read from timer fd");
+    throw Exception("Failed to clear timer: " + lastError());
 }

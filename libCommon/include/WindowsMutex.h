@@ -9,8 +9,10 @@ public:
   WindowsMutex(bool locked = false);
   ~WindowsMutex();
 
-  void lock();
+  void lock(uint32_t timeout = -1);
   void unlock();
+
+  HANDLE getHandle();
 
 private:
   HANDLE m_handle;

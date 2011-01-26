@@ -21,7 +21,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName)"
+			IntermediateDirectory="src\$(ConfigurationName).$(Platform)"
 			ConfigurationType="1"
 			CharacterSet="2"
 			>
@@ -61,8 +61,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).lib"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).exe"
+				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).$(Platform).lib"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).exe"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -91,7 +91,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName)"
+			IntermediateDirectory="src\$(ConfigurationName).$(Platform)"
 			ConfigurationType="1"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -132,8 +132,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).lib"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).exe"
+				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).$(Platform).lib"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).exe"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -164,7 +164,7 @@
 		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName)"
+			IntermediateDirectory="src\$(ConfigurationName).$(Platform)"
 			ConfigurationType="1"
 			CharacterSet="2"
 			>
@@ -205,8 +205,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).lib"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).exe"
+				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).$(Platform).lib"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).exe"
 				GenerateDebugInformation="true"
 				TargetMachine="17"
 			/>
@@ -235,7 +235,7 @@
 		<Configuration
 			Name="Release|x64"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName)"
+			IntermediateDirectory="src\$(ConfigurationName).$(Platform)"
 			ConfigurationType="1"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -277,8 +277,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).lib"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).exe"
+				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).$(Platform).lib"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).exe"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

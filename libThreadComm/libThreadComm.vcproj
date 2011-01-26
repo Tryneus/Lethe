@@ -21,7 +21,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName)"
+			IntermediateDirectory="src\$(ConfigurationName).$(Platform)"
 			ConfigurationType="4"
 			CharacterSet="2"
 			>
@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).lib"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -82,7 +82,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName)"
+			IntermediateDirectory="src\$(ConfigurationName).$(Platform)"
 			ConfigurationType="4"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -129,7 +129,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).lib"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -150,7 +150,7 @@
 		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName)"
+			IntermediateDirectory="src\$(ConfigurationName).$(Platform)"
 			ConfigurationType="4"
 			CharacterSet="2"
 			>
@@ -191,7 +191,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).lib"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -212,7 +212,7 @@
 		<Configuration
 			Name="Release|x64"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName)"
+			IntermediateDirectory="src\$(ConfigurationName).$(Platform)"
 			ConfigurationType="4"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -260,7 +260,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).lib"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"

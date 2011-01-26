@@ -4,9 +4,12 @@
 #include "Abstraction.h"
 #include "Exception.h"
 #include "Log.h"
+#include <iostream>
 
 int main()
 {
+  uint32_t testSeconds = 30;
+
   // Seed RNG
   {
     uint32_t randomSeed = seedRandom(0);
@@ -24,7 +27,7 @@ int main()
     sender.start();
 
     // Let the threads run for 10 seconds, then stop them
-    Sleep(10000);
+    Sleep(testSeconds * 1000);
 
     sender.stop();
     echo.stop();

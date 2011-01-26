@@ -9,7 +9,7 @@ WindowsThread::WindowsThread(uint32_t timeout) :
   m_runEvent(false), // Start out not running
   m_pauseEvent(false), // Pause event will be set when the thread is paused
   m_timeout(timeout),
-#pragma warning(disable:4355)
+#pragma warning(disable:4355) // Suppress warning about using 'this'
   m_handle(CreateThread(NULL, 0, threadHook, this, 0, NULL))
 #pragma warning(default:4355)
 {
@@ -33,8 +33,10 @@ DWORD WindowsThread::threadMain()
   {
     HANDLE handle;
 
-    while(WaitForObject(m_runEvent.getHandle(), INFINITE) != WaitError)
+    while(true)
     {
+      WaitForObject(m_runEvent.getHandle(), INFINITE);
+
       if(m_exit)
         break;
 
@@ -58,8 +60,6 @@ DWORD WindowsThread::threadMain()
         m_handleSet.remove(handle);
         break;
 
-      case WaitError:
-        throw Exception("Thread internal wait failed");
       default:
         throw Exception("Thread internal wait returned unexpected value");
       }
@@ -103,14 +103,14 @@ DWORD WINAPI WindowsThread::threadHook(void* param)
   return reinterpret_cast<WindowsThread*>(param)->threadMain();
 }
 
-bool WindowsThread::addWaitObject(HANDLE handle)
+void WindowsThread::addWaitObject(HANDLE handle)
 {
-  return m_handleSet.add(handle);
+  m_handleSet.add(handle);
 }
 
-bool WindowsThread::removeWaitObject(HANDLE handle)
+void WindowsThread::removeWaitObject(HANDLE handle)
 {
-  return m_handleSet.remove(handle);
+  m_handleSet.remove(handle);
 }
 
 void WindowsThread::setWaitTimeout(uint32_t timeout)

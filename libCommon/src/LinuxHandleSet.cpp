@@ -1,6 +1,8 @@
 #include "LinuxHandleSet.h"
 #include "Exception.h"
+#include "Abstraction.h"
 #include <errno.h>
+#include <string.h>
 
 LinuxHandleSet::LinuxHandleSet() :
   m_epollSet(epoll_create(10)),
@@ -8,45 +10,48 @@ LinuxHandleSet::LinuxHandleSet() :
   m_eventCount(0)
 {
   if(m_epollSet == -1)
-    throw Exception("Failed to create epoll set");
+    throw Exception("Failed to create epoll set: " + lastError());
 }
 
 LinuxHandleSet::~LinuxHandleSet()
 {
   delete [] m_events;
-  close(m_epollSet);
+
+  if(close(m_epollSet) != 0)
+    throw Exception("Failed to close epoll set: " + lastError());
 }
 
-bool LinuxHandleSet::add(int fd)
+void LinuxHandleSet::add(int fd)
 {
   if(m_fdSet.find(fd) != m_fdSet.end())
-    return false;
+    throw Exception("Failed to find handle in set");
 
   epoll_event event;
+  memset(&event, 0, sizeof(event));
   event.events = EPOLLIN;
   event.data.fd = fd;
-  epoll_ctl(m_epollSet, EPOLL_CTL_ADD, fd, &event);
+
+  if(epoll_ctl(m_epollSet, EPOLL_CTL_ADD, fd, &event) != 0)
+    throw Exception("Failed to add handle to set: " + lastError());
 
   m_fdSet.insert(fd);
   resizeEvents();
-
-  return true;
 }
 
-bool LinuxHandleSet::remove(int fd)
+void LinuxHandleSet::remove(int fd)
 {
   if(m_fdSet.find(fd) == m_fdSet.end())
-    return false;
+    throw Exception("Failed to find handle in set");
 
   epoll_event event;
   event.events = EPOLLIN;
   event.data.fd = fd;
-  epoll_ctl(m_epollSet, EPOLL_CTL_DEL, fd, &event);
+
+  if(epoll_ctl(m_epollSet, EPOLL_CTL_DEL, fd, &event) != 0)
+    throw Exception("Failed to remove handle from set: " + lastError());
 
   m_fdSet.erase(fd);
   resizeEvents();
-
-  return true;
 }
 
 void LinuxHandleSet::resizeEvents()
@@ -75,7 +80,8 @@ uint32_t LinuxHandleSet::getSize() const
   return m_fdSet.size();
 }
 
-int LinuxHandleSet::waitAll(uint32_t timeout, int& fd)
+int LinuxHandleSet::waitAll(uint32_t timeout __attribute__ ((unused)), 
+                            int& fd __attribute__ ((unused)))
 {
   throw Exception("LinuxHandleSet::waitAll not yet implemented");
 }
@@ -93,8 +99,7 @@ int LinuxHandleSet::waitAny(uint32_t timeout, int& fd)
     }
     else if(m_eventCount < 0)
     {
-      fd = INVALID_HANDLE_VALUE;
-      return WaitError;
+      throw Exception("Failed to wait: " + lastError());
     }
   }
 

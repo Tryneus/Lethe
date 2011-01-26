@@ -1,7 +1,7 @@
 #ifndef _THREADCOMM_UNALLOCLIST_H
 #define _THREADCOMM_UNALLOCLIST_H
 
-#include "stdint.h"
+#include "Abstraction.h"
 #include "List.h"
 #include "Message.h"
 
@@ -14,10 +14,10 @@ namespace ThreadComm
     UnallocList(void* firstMessage, void* bufferEnd);
 
     void unallocate(Message* message);
-    Message* allocate(uint32_t size);
+    Message& allocate(uint32_t size);
 
   private:
-    void remove(Message* message);
+    void remove(Message& message);
 
     void* m_bufferEnd;
   };

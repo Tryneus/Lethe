@@ -90,10 +90,13 @@ Log& Log::operator << (Log::Level level)
 ////////////////////////////////////
 // DisabledLogHandler implementation
 ////////////////////////////////////
+#if defined(__GNUG__)
+void Log::DisabledLogHandler::write(const std::string& statement __attribute__ ((unused)))
+#else
 void Log::DisabledLogHandler::write(const std::string& statement)
+#endif
 {
   // Do nothing
-  statement.size(); // stupid hack to supress unused variable error
 }
 
 ////////////////////////////////////

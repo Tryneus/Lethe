@@ -1,0 +1,7 @@
+#ifndef _EVENTFD_EXTENSION_H
+#define _EVENTFD_EXTENSION_H
+
+// #define EFD_WAITREAD 02000
+#define EFD_WAITREAD 0
+
+#endif

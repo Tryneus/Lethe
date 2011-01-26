@@ -1,27 +1,36 @@
 #include "LinuxSemaphore.h"
+#include "Exception.h"
 #include "Abstraction.h"
+#include <unistd.h>
+#include <sys/eventfd.h>
+#include "eventfd-extension.h"
 
-LinuxSemaphore(uint32_t maxCount, uint32_t initialCount) :
-  m_semaphore(eventfd(initialCount, EFD_SEMAPHORE | EFD_NONBLOCK))
+LinuxSemaphore::LinuxSemaphore(uint32_t maxCount __attribute__ ((unused)),
+                               uint32_t initialCount) :
+  m_semaphore(eventfd(initialCount, EFD_SEMAPHORE | EFD_WAITREAD))
 {
   if(m_semaphore == -1)
-    throw Exception("Failed to create Semaphore: " + lastError());
+    throw Exception("Failed to create semaphore: " + lastError());
 }
 
-~LinuxSemaphore()
+LinuxSemaphore::~LinuxSemaphore()
 {
-  close(m_semaphore);
+  if(close(m_semaphore) != 0)
+    throw Exception("Failed to close semaphore: " + lastError());
 }
 
-void lock()
+void LinuxSemaphore::lock(uint32_t timeout __attribute__ ((unused)))
 {
+  // TODO: Fix this for WAITREAD
+  //if(WaitForObject(m_semaphore, timeout) != WaitSuccess)
+  //  throw Exception("Failed to lock semaphore: " + lastError());
+
   uint64_t buffer;
-  
   if(read(m_semaphore, &buffer, sizeof(buffer)) != sizeof(buffer))
-    throw Exception("Failed to lock semaphore: " + lastError());
+    throw Exception("Failed to read semaphore: " + lastError());
 }
 
-void unlock(uint32_t count)
+void LinuxSemaphore::unlock(uint32_t count)
 {
   uint64_t internalCount(count);
   
@@ -29,7 +38,7 @@ void unlock(uint32_t count)
     throw Exception("Failed to unlock semaphore: " + lastError());
 }
 
-int getHandle()
+int LinuxSemaphore::getHandle()
 {
   return m_semaphore;
 }

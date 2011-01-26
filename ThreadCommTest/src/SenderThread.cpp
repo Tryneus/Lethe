@@ -38,24 +38,22 @@ void SenderThread::sendMessages()
   // Send a random number of messages, 1 - 400
   uint32_t messagesToSend = rand() % 400 + 1;
   uint32_t i = 0;
+  uint32_t* msg = NULL;
 
-  while(i++ < messagesToSend)
+  try
   {
-    uint32_t* msg;
-    try
+    while(i++ < messagesToSend)
     {
       msg = reinterpret_cast<uint32_t*>(m_channel.allocate(sizeof(uint32_t)));
       msg[0] = 1;
       m_channel.send(msg);
       ++m_messagesSent;
     }
-    catch(Exception& ex)
-    {
-      if(ex.what() == "Semaphore full, other side needs to wait on it") Sleep(10);
-      else if(isStopping()) break;
-      else throw;
-      LogInfo("Failed a send: " << m_messagesSent << " sent");
-    }      
+  }
+  catch(OutOfMemoryException&)
+  {
+    if(msg != NULL)
+      m_channel.release(msg);
   }
 }
 

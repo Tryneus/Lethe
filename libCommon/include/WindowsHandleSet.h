@@ -6,9 +6,8 @@
 #include <set>
 
 #define WaitSuccess    0
-#define WaitError     -1
-#define WaitAbandoned -2
-#define WaitTimeout   -3
+#define WaitAbandoned -1
+#define WaitTimeout   -2
 
 class WindowsHandleSet
 {
@@ -16,8 +15,8 @@ public:
   WindowsHandleSet();
   ~WindowsHandleSet();
 
-  bool add(HANDLE handle);
-  bool remove(HANDLE handle);
+  void add(HANDLE handle);
+  void remove(HANDLE handle);
 
   uint32_t getSize() const;
   const std::set<HANDLE>& getSet() const;

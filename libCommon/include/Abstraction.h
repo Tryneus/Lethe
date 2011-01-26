@@ -79,7 +79,7 @@ std::string getTimeString();
 
 uint32_t seedRandom(uint32_t seed = 0);
 
-int WaitForObject(Handle handle, uint32_t timeout);
+int WaitForObject(Handle handle, uint32_t timeout = -1);
 
 std::string lastError();
 

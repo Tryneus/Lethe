@@ -1,10 +1,25 @@
+#include "WindowsHandleSet.h"
+#include "Exception.h"
 #include "stdint.h"
 #include "Windows.h"
 #include <string>
 #include <vector>
 #include <sstream>
 #include <iomanip>
-#include "WindowsHandleSet.h"
+
+std::string lastError()
+{
+  TCHAR* buffer = NULL;
+
+  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+                NULL, GetLastError(), 0, (LPTSTR)&buffer, 0, NULL);
+
+  std::string retval(buffer);
+
+  LocalFree(buffer);
+
+  return retval;
+}
 
 void getFileList(const std::string& directory,
                  std::vector<std::string>& fileList)
@@ -76,7 +91,7 @@ int WaitForObject(HANDLE handle, uint32_t timeout)
   case WAIT_OBJECT_0:    return WaitSuccess;
   case WAIT_ABANDONED_0: return WaitAbandoned;
   case WAIT_TIMEOUT:     return WaitTimeout;
-  case WAIT_FAILED:
-  default:               return WaitError;
+  default:               throw Exception("Failed to wait: " + lastError());
   }
 }
+

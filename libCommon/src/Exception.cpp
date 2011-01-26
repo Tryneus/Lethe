@@ -11,3 +11,9 @@ const std::string& Exception::what() const
 {
   return m_message;
 }
+
+OutOfMemoryException::OutOfMemoryException(const std::string& info) :
+  Exception("Out of memory (" + info + ")")
+{
+  // Do nothing
+}

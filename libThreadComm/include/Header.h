@@ -15,10 +15,10 @@ namespace ThreadComm
     Header(uint32_t size);
     ~Header();
 
-    Message* allocate(uint32_t size);
-    void     send(Message* msg);
-    Message* receive();
-    bool     release(Message* msg);
+    Message& allocate(uint32_t size);
+    void     send(Message& msg);
+    Message& receive();
+    bool     release(Message& msg);
 
     void* getEndPtr();
     Handle getHandle();

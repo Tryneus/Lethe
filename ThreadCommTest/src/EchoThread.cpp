@@ -10,7 +10,7 @@ EchoThread::EchoThread(ThreadComm::Channel& channel) :
 {
   LogInfo("Echo thread handle: " << (uint32_t)getHandle());
   addWaitObject(m_channel.getHandle());
-  setWaitTimeout(200);
+  setWaitTimeout(INFINITE);
 }
 
 EchoThread::~EchoThread()
@@ -40,10 +40,10 @@ void EchoThread::receiveMessage()
 
 void EchoThread::sendReplies()
 {
+  uint32_t* msg = NULL;
+
   try
   {
-    uint32_t* msg;
-
     while(m_repliesToSend > 0)
     {
       msg = reinterpret_cast<uint32_t*>(m_channel.allocate(sizeof(uint32_t)));
@@ -52,9 +52,10 @@ void EchoThread::sendReplies()
       --m_repliesToSend;
     }
   }
-  catch(Exception& ex)
+  catch(OutOfMemoryException&)
   {
-    if(ex.what() != "Semaphore full, other side needs to wait on it") throw;
+    if(msg != NULL)
+      m_channel.release(msg);
   }
 }
 

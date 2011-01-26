@@ -1,5 +1,6 @@
 #include "Header.h"
 #include "Exception.h"
+#include "Log.h"
 
 #if defined(_WIN32)
 #include <new.h>
@@ -16,6 +17,7 @@ Header::Header(uint32_t size) :
   m_releaseList(m_dataArea + sizeof(Message)),
   m_unallocList(m_dataArea + 2 * sizeof(Message), &m_dataArea[size])
 {
+  LogInfo("Header initialized with " << (size / sizeof(Message)) << " max messages");
   // Initialize buffers
   Message* firstMessage = new (m_dataArea)
     Message(this, sizeof(Message), Message::Nil);
@@ -45,7 +47,7 @@ Handle Header::getHandle()
   return m_semaphore.getHandle();
 }
 
-Message* Header::allocate(uint32_t size)
+Message& Header::allocate(uint32_t size)
 {
   Message* message = m_releaseList.pop();
 
@@ -58,7 +60,7 @@ Message* Header::allocate(uint32_t size)
   return m_unallocList.allocate(size);
 }
 
-void Header::send(Message* message)
+void Header::send(Message& message)
 {
   try
   {
@@ -69,10 +71,10 @@ void Header::send(Message* message)
   }
   catch(...)
   {
-    throw Exception("Semaphore full, other side needs to wait on it");
+    throw OutOfMemoryException("threadComm");
   }
 
-  message->setState(Message::Sent);
+  message.setState(Message::Sent);
   m_receiveList.pushBack(message);
 
   try
@@ -85,7 +87,7 @@ void Header::send(Message* message)
   }
 }
 
-Message* Header::receive()
+Message& Header::receive()
 {
   // TODO: should we even both catching/throwing with different text?
   try
@@ -101,28 +103,31 @@ Message* Header::receive()
   Message* message = m_receiveList.receive(extraMessage);
 
   if(extraMessage != NULL)
-    m_releaseList.pushBack(extraMessage);
+    m_releaseList.pushBack(*extraMessage);
 
-  return message;
+  if(message == NULL)
+    throw Exception("Receive called with nothing to receive, but the semaphore said otherwise");
+
+  return *message;
 }
 
-bool Header::release(Message* message)
+bool Header::release(Message& message)
 {
-  if(reinterpret_cast<void*>(message) < reinterpret_cast<void*>(m_dataArea) ||
-    reinterpret_cast<void*>(message) > reinterpret_cast<void*>(m_dataArea + m_size))
+  if(reinterpret_cast<void*>(&message) < reinterpret_cast<void*>(m_dataArea) ||
+    reinterpret_cast<void*>(&message) > reinterpret_cast<void*>(m_dataArea + m_size))
     return false; // Message didn't belong to this side, but it might belong to the other side
 
-  switch(message->getState())
+  switch(message.getState())
   {
   case Message::Alloc:
-    m_unallocList.unallocate(message);
+    m_unallocList.unallocate(&message);
     break;
   case Message::Recv:
-    message->setState(Message::Pend);
+    message.setState(Message::Pend);
     m_releaseList.pushBack(message);
     break;
   case Message::Nil:
-    message->setState(Message::Pend);
+    message.setState(Message::Pend);
     break;
   default:
     throw Exception("Attempt to release a message in the wrong state");

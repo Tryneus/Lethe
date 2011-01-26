@@ -26,8 +26,8 @@ protected:
   virtual void iterate(HANDLE handle) = 0;
   virtual void abandoned(HANDLE handle);
 
-  bool addWaitObject(HANDLE handle);
-  bool removeWaitObject(HANDLE handle);
+  void addWaitObject(HANDLE handle);
+  void removeWaitObject(HANDLE handle);
   void setWaitTimeout(uint32_t timeout);
 
 private:

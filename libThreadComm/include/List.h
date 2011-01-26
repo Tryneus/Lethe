@@ -11,8 +11,8 @@ namespace ThreadComm
   public:
     List(void* firstMessage);
 
-    void pushBack(Message* message);
-    void pushFront(Message* message);
+    void pushBack(Message& message);
+    void pushFront(Message& message);
     Message* pop();
 
   protected:

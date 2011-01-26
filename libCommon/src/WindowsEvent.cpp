@@ -1,5 +1,6 @@
 #include "WindowsEvent.h"
 #include "Exception.h"
+#include "Abstraction.h"
 #include "Windows.h"
 #include <sstream>
 
@@ -7,16 +8,13 @@ WindowsEvent::WindowsEvent(bool initialState) :
   m_handle(CreateEvent(NULL, true, initialState, NULL))
 {
   if(m_handle == INVALID_HANDLE_VALUE)
-  {
-    std::stringstream errorText;
-    errorText << "Event creation failed, last error: " << GetLastError();
-    throw Exception(errorText.str());
-  }
+    throw Exception("Failed to create event: " + lastError());
 }
 
 WindowsEvent::~WindowsEvent()
 {
-  CloseHandle(m_handle);
+  if(!CloseHandle(m_handle))
+    throw Exception("Failed to close handle: " + lastError());
 }
 
 HANDLE WindowsEvent::getHandle() const
@@ -27,19 +25,11 @@ HANDLE WindowsEvent::getHandle() const
 void WindowsEvent::set()
 {
   if(!SetEvent(m_handle))
-  {
-    std::stringstream errorText;
-    errorText << "Set event failed, last error: " << GetLastError();
-    throw Exception(errorText.str());
-  }
+    throw Exception("Failed to set event: " + lastError());
 }
 
 void WindowsEvent::reset()
 {
   if(!ResetEvent(m_handle))
-  {
-    std::stringstream errorText;
-    errorText << "Reset event failed, last error: " << GetLastError();
-    throw Exception(errorText.str());
-  }
+    throw Exception("Failed to reset event: " + lastError());
 }

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libCommon"
-	ProjectGUID="{C58DF22D-5605-402A-849D-EECC4EC713BA}"
-	RootNamespace="libCommon"
+	Name="libThreadUtil"
+	ProjectGUID="{AE54056E-549E-404C-B08E-3293ACB8EA8F}"
+	RootNamespace="libThreadUtil"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -43,7 +43,6 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -106,7 +105,6 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -167,7 +165,6 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -231,7 +228,6 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -275,50 +271,6 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath=".\src\Exception.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Log.cpp"
-				>
-			</File>
-			<Filter
-				Name="Windows"
-				>
-				<File
-					RelativePath=".\src\WindowsEvent.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\WindowsFunctions.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\WindowsHandleSet.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\WindowsMutex.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\WindowsPipe.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\WindowsSemaphore.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\WindowsThread.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\WindowsTimer.cpp"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -326,61 +278,13 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\include\Abstraction.h"
+				RelativePath="..\include\CommRegistry.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\Exception.h"
+				RelativePath="..\include\ThreadRegistry.h"
 				>
 			</File>
-			<File
-				RelativePath=".\include\Log.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\Singleton.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\StaticSingleton.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\stdint.h"
-				>
-			</File>
-			<Filter
-				Name="Windows"
-				>
-				<File
-					RelativePath=".\include\WindowsEvent.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\WindowsHandleSet.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\WindowsMutex.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\WindowsPipe.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\WindowsSemaphore.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\WindowsThread.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\WindowsTimer.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"

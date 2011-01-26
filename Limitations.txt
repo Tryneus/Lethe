@@ -1,15 +1,22 @@
-Limitations between platforms:
+Known limitations or discrepancies between platforms:
 
-The items in the list are preventing certain features from being enabled, in that one platform supports the feature, but another plaform doesn't
+1. Linux events, semaphores, and mutexes don't support automatic reset
+ - Current plan is to add another creation flag to eventfd (which all of these use) to decrement or reset (effectively a read operation) the counter on a successful wait
+ - If fixed
+   - add a boolean to the constructors to enable automatic reset on a successful wait
+ 
+2. No method in Linux to wait for all file descriptors in a set before returning
+ - No plan on implementing this at the moment, seems too easy to deadlock in Linux, and this can be left up to the user if they want something equivalent
+ - This also means that waitAll should be disabled on Windows
+ 
+3. WindowsTimers are cleared by setting the timer again to a very long timeout
+ - No real impact, just kind of stupid
 
-1. Linux events don't support automatic reset
- - If fixed: add a boolean to the Event constructor to enable automatic reset on a successful wait
- 
-2. Linux mutexes don't support automatic locking on a wait
- - If fixed: add a getHandle function to Mutex objects
- 
-3. No method in Linux to wait for all file descriptors in a set before returning
- - If fixed: implement waitAll function in LinuxHandleSet
- 
-4. WindowsTimers are cleared by setting the timer again to a very long timeout
- - If fixed: No real impact, just kind of stupid
+4. Large pipe send operations may not complete without active traffic
+ - It is unacceptable to block in the Pipe::send() call
+ - If a user does a large write to a pipe that cannot be completed atomically, the system will write what it can and hold onto the rest
+ - At the moment the unwritten portion is only pushed through at the next send (or an OutOfMemory exception is thrown if it still can't be completed)
+ - This means that if there is never a 'next send', the data will remain unsent
+ - On Windows this may be fixed by using overlapping I/O with a Named Pipe (rather that the current anonymous pipe)
+ - On Linux this may be fixed by spawning a thread to perform wait/write cycles until the outgoing buffer is cleared
+ - Possible to fix by reimplementing pipes using shared memory with an eventfd semaphore or two?  Might have better performance, but reinventing the wheel is lame

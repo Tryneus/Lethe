@@ -22,7 +22,7 @@ libCommon
 libThreadComm
 libProcessComm
 libSocketComm
-  These libraries are meant to abstract both stream and datagram-based communications into a common interface, and the appropriate class may be instatiated based on the relation of the two end-points (libThreadComm for inter-thread, libProcessComm for inter-process, and libSocketComm for inter-machine).
+  These libraries are meant to abstract various stream and datagram-based communications into common interfaces, and the appropriate class may be instatiated based on the relation of the two end-points (libThreadComm for inter-thread, libProcessComm for inter-process, and libSocketComm for inter-machine).
   At the moment, only datagram-based inter-thread is implemented, and a design hasn't been decided on for the final interface.  The rest are rather straightforward, though, using pipes, TCP/IP, or UDP/IP.  Inter-process datagram will use shared memory (much like inter-thread), but the implementation will be slightly different due to limitations of shared memory.
 
 

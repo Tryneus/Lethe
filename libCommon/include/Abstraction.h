@@ -4,6 +4,16 @@
 #include <string>
 #include <vector>
 
+/*
+ * The Abstraction.h header is meant to be included on either the Windows or
+ *  Linux platform.  This will include the correct headers for the detected
+ *  platform and typedef the classes to platform-agnostic identifiers.
+ *
+ * This also includes stdint.h and provides a few 'utility' functions which may
+ *  differ in implementation/system calls across the platforms.  These functions
+ *  are implemented in WindowsFunctions.cpp and LinuxFunctions.cpp.
+ */
+
 #if defined(__WIN32__) || defined(_WIN32)
   #include <new.h>
   #include "stdint.h"

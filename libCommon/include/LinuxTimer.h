@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+/*
+ * The LinuxTimer class wraps the timerfd subsystem.  When the timer expires,
+ *  it remains triggered until reset.
+ */
 class LinuxTimer
 {
 public:

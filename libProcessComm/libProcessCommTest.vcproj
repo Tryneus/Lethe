@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="ThreadCommTest"
-	ProjectGUID="{7AC4E25D-4515-41A1-AF89-D872A5BD925F}"
-	RootNamespace="ThreadCommTest"
+	Name="libProcessCommTest"
+	ProjectGUID="{FC599098-162D-4BBA-9385-0F3760ADB1E0}"
+	RootNamespace="libProcessCommTest"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -43,7 +43,6 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include, ../libCommon/include, ../libThreadComm/include"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -61,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).$(Platform).lib"
+				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib bin/libProcessComm.$(ConfigurationName).$(Platform).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).exe"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
@@ -115,7 +114,6 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;../libCommon/include;../libThreadComm/include"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -132,7 +130,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).$(Platform).lib"
+				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib bin/libProcessComm.$(ConfigurationName).$(Platform).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).exe"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
@@ -187,7 +185,6 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include, ../libCommon/include, ../libThreadComm/include"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -205,7 +202,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).$(Platform).lib"
+				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib bin/libProcessComm.$(ConfigurationName).$(Platform).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).exe"
 				GenerateDebugInformation="true"
 				TargetMachine="17"
@@ -260,7 +257,6 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;../libCommon/include;../libThreadComm/include"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -277,7 +273,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).$(Platform).lib"
+				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib bin/libProcessComm.$(ConfigurationName).$(Platform).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).exe"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
@@ -315,32 +311,12 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath=".\src\EchoThread.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\SenderThread.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\ThreadCommTest.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\include\EchoThread.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\SenderThread.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

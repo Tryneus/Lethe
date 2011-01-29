@@ -4,6 +4,10 @@
 #include "Windows.h"
 #include "stdint.h"
 
+/*
+ * The WindowsTimer class wraps the CreateWaitableTimer system call. The handle
+ *  remains triggered until reset.
+ */
 class WindowsTimer
 {
 public:

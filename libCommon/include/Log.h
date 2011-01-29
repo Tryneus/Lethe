@@ -6,9 +6,35 @@
 #include <fstream>
 #include <sstream>
 
-#define LOG_BASE(level) level << Log::Time << ", " << __FILE__ << ":" << __LINE__ 
+/*
+ * The Log class provides an ostream-style interface for writing log statements of
+ *  various levels to different targets.  One target is selected at a time process-wide,
+ *  and one log-level is selected, which may filter out statements of lower severity.
+ *
+ * This class is implemented as a static singleton, meaning that it is created during
+ *  static initialization and destroyed when the process exits.  This means that as soon
+ *  as the main() function begins, logging is available.  The default is to write to the
+ *  console.  It is suggested to only use the Log* macros when writing a statement.
+ *  Using the Log class directly is rather cumbersome and not encouraged.
+ *
+ * Example:
+ *  LogInfo("text: " << value << ", more text");
+ *  LogError("panic");
+ *
+ * The Log class uses LogHandler subclasses to define the behavior in different modes.
+ *  At the moment, there are only modes for writing to the console, writing to a file,
+ *  or disabling all log statements outright.
+ *
+ * In the future, this may be extended to that a user may provide their own log handlers
+ *  to redirect output elsewhere or do other specialized tasks.
+ */
 
-// TODO: Add if statements here to skip the log statement if that level is disabled
+// The LOG_BASE may be overridden by a user who knows what they're doing (before including this file)
+#if !defined(LOG_BASE)
+  #define LOG_BASE(level) level << Log::Time << ", " << __FILE__ << ":" << __LINE__ 
+#endif
+
+// TODO: Add if statements here to skip the log statement if that level is turned off at runtime
 #ifndef DISABLE_LOG_ERROR
   #define LogError(a) do { Log& log = Log::getInstance(); \
                            log.lock(); \

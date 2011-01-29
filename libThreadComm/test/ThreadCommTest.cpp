@@ -26,7 +26,7 @@ int main()
     echo.start();
     sender.start();
 
-    // Let the threads run for 10 seconds, then stop them
+    // Let the threads run for some seconds, then stop them
     Sleep(testSeconds * 1000);
 
     sender.stop();

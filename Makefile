@@ -15,6 +15,10 @@ runTest:
 	cd libSocketComm; make runTest
 	cd libThreadUtil; make runTest
 
+# install is used to install the kernel module needed for mutex/semaphore/event auto-reset on linux
+install:
+	cd libCommon; make all
+
 clean:
 	cd libCommon; make clean
 	cd libThreadComm; make clean

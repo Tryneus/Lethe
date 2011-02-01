@@ -8,7 +8,7 @@
 
 int main()
 {
-  uint32_t testSeconds = 30;
+  uint32_t testSeconds = 3;
 
   // Seed RNG
   {

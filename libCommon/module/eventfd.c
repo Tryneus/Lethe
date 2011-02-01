@@ -18,7 +18,225 @@
 #include <linux/syscalls.h>
 #include <linux/module.h>
 #include <linux/kref.h>
-#include <linux/eventfd.h>
+#include <linux/unistd.h>
+#include <linux/kprobes.h>
+#include <asm/segment.h>
+#include <asm/uaccess.h>
+#include <asm/io.h>
+#include <linux/buffer_head.h>
+#include "eventfd-internal.h"
+
+// Since someone decided it would be a great idea to keep modules from accessing some symbols, attempt to find the locations of the symbols we want
+
+// symbols needed: sys_call_table, alloc_fd, and __wake_up_locked_key
+// alloc_fd - maybe use get_unused_fd ?
+// __wake_up_locked_key - exported wake functions don't look right
+// sys_call_table - any other way to add a new sys call
+
+void** sys_call_tablePtr; // offset from register_kprobes
+int (*alloc_fdPtr)(unsigned, unsigned); // offset from get_unused_fd
+void (*__wake_up_locked_keyPtr) (wait_queue_head_t *q, unsigned int mode, void *key); // offset from task_nice
+
+extern int task_nice(const struct task_struct *p);
+extern int get_unused_fd(void);
+extern int register_kprobes(struct kprobe **kps, int num);
+/*
+void logString(char* context, char* str)
+{
+  char buffer[500];
+  buffer[0] = '\0';
+
+  strcat(buffer, KERN_INFO);
+  strcat(buffer, context);
+  strcat(buffer, ": ");
+  strcat(buffer, str);
+  printk(buffer);
+}
+
+void logValue(char* context, unsigned int value, unsigned int base)
+{
+  char buffer[40];
+  unsigned int index;
+  buffer[39] = '\0';
+  index = 38;
+
+  if(value == 0)
+    buffer[index--] = '0';
+
+  while(value > 0)
+  {
+    if((value % base) > 9)
+      buffer[index] = 'A' + (value % base) - 10;
+    else
+      buffer[index] = '0' + (value % base);
+
+    --index;
+    value /= base;
+  }
+
+  if(base == 16)
+  {
+    buffer[index--] = 'x';
+    buffer[index--] = '0';
+  }
+  else if(base == 2)
+  {
+    buffer[index--] = 'b';
+    buffer[index--] = '0';
+  }
+
+  logString(context, &buffer[index + 1]);
+}
+*/
+bool isMatchAtEnd(char* str, char* substr)
+{
+  char* foundStr = strstr(str, substr);
+
+  if(foundStr != NULL && foundStr[strlen(substr)] == '\0')
+    return true;
+
+  return false;
+}
+
+struct file* file_open(const char* path, int flags, int rights)
+{
+  struct file* filp = NULL;
+  mm_segment_t oldfs;
+  int err = 0;
+
+  oldfs = get_fs();
+  set_fs(get_ds());
+  filp = filp_open(path, flags, rights);
+  set_fs(oldfs);
+  if(IS_ERR(filp))
+  {
+    err = PTR_ERR(filp);
+    return NULL;
+  }
+  return filp;
+}
+
+void file_close(struct file* file)
+{
+  filp_close(file, NULL);
+}
+
+int file_read(struct file* file, unsigned long long offset, unsigned char* data, unsigned int size)
+{
+  mm_segment_t oldfs;
+  int ret;
+
+  oldfs = get_fs();
+  set_fs(get_ds());
+
+  ret = vfs_read(file, data, size, &offset);
+
+  set_fs(oldfs);
+  return ret;
+}
+
+void* getAddress(char* line)
+{
+  unsigned int address = 0;
+  unsigned int index = 0;
+  unsigned int length;
+  char* addressString = strsep(&line, " ");
+  length = strlen(addressString);  
+
+  if(length > 8)
+    return NULL;
+  
+  while(index < length)
+  {
+    if(addressString[index] >= 'a' && addressString[index] <= 'f')
+      address |= (addressString[index] - 'a' + 10) << ((length - index - 1) * 4);
+    else if(addressString[index] >= 'A' && addressString[index] <= 'F')
+      address |= (addressString[index] - 'A' + 10) << ((length - index - 1) * 4);
+    else if(addressString[index] >= '0' && addressString[index] <= '9')
+      address |= (addressString[index] - '0') << ((length - index - 1) * 4);
+
+    ++index;
+  }
+
+  return (void*)address;
+}
+
+bool getExternals(void)
+{
+  char buffer[401];
+  char* buffPtr;
+  char temp[401];
+  ssize_t readBytes;
+  char* str = NULL;
+  char* lastStr = NULL;
+  void* taskNice = NULL;
+  void* getUnusedFd = NULL;
+  void* registerKprobes = NULL;
+  void* sysCallTable = NULL;
+  void* allocFd = NULL;
+  void* wakeUpLockedKey = NULL;
+  struct file* symsFile = file_open("/proc/kallsyms", O_RDONLY, 0);
+  unsigned long long fileOffset;
+
+  if(symsFile == NULL)
+  {
+    printk(KERN_INFO "Failed to open file");
+    return false;
+  }
+
+  readBytes = file_read(symsFile, 0, buffer, 400);
+  buffer[readBytes] = '\0';
+  temp[0] = '\0';
+
+  fileOffset = readBytes;
+
+  while(readBytes > 0)
+  {
+    buffPtr = buffer;
+    str = strsep(&buffPtr, "\n");
+
+    if(strlen(temp) != 0)
+    {
+      strcat(temp, str);
+      str = temp;
+    }
+
+    while(str != NULL)
+    {
+      if(isMatchAtEnd(str, " task_nice")) taskNice = getAddress(str);
+      if(isMatchAtEnd(str, " get_unused_fd")) getUnusedFd = getAddress(str);
+      if(isMatchAtEnd(str, " register_kprobes")) registerKprobes = getAddress(str);
+      if(isMatchAtEnd(str, " sys_call_table")) sysCallTable = getAddress(str);
+      if(isMatchAtEnd(str, " alloc_fd")) allocFd = getAddress(str);
+      if(isMatchAtEnd(str, " __wake_up_locked_key")) wakeUpLockedKey = getAddress(str);
+
+      lastStr = str;
+      str = strsep(&buffPtr, "\n");
+    }
+
+    strcpy(temp, lastStr);
+
+    readBytes = file_read(symsFile, fileOffset, buffer, 400);
+    buffer[readBytes] = '\0';
+    fileOffset += readBytes;
+  }
+
+  file_close(symsFile);
+
+  if(taskNice == NULL ||
+     getUnusedFd == NULL ||
+     registerKprobes == NULL ||
+     sysCallTable == NULL ||
+     allocFd == NULL ||
+     wakeUpLockedKey == NULL)
+    return false;
+
+  sys_call_tablePtr = (void*)register_kprobes + ((void*)sysCallTable - (void*)registerKprobes);
+  alloc_fdPtr = (void*)get_unused_fd + ((void*)allocFd - (void*)getUnusedFd);
+  __wake_up_locked_keyPtr = (void*)task_nice + ((void*)wakeUpLockedKey - (void*)taskNice);
+
+  return true;
+}
 
 struct eventfd_ctx {
   struct kref kref;
@@ -62,12 +280,11 @@ int eventfd_signal(struct eventfd_ctx *ctx, int n)
     n = (int) (ULLONG_MAX - ctx->count);
   ctx->count += n;
   if (waitqueue_active(&ctx->wqh))
-    wake_up_locked_poll(&ctx->wqh, POLLIN);
+    __wake_up_locked_keyPtr(&ctx->wqh, TASK_NORMAL, (void *) (POLLIN));
   spin_unlock_irqrestore(&ctx->wqh.lock, flags);
 
   return n;
 }
-EXPORT_SYMBOL_GPL(eventfd_signal);
 
 static void eventfd_free_ctx(struct eventfd_ctx *ctx)
 {
@@ -92,7 +309,6 @@ struct eventfd_ctx *eventfd_ctx_get(struct eventfd_ctx *ctx)
   kref_get(&ctx->kref);
   return ctx;
 }
-EXPORT_SYMBOL_GPL(eventfd_ctx_get);
 
 /**
  * eventfd_ctx_put - Releases a reference to the internal eventfd context.
@@ -105,7 +321,6 @@ void eventfd_ctx_put(struct eventfd_ctx *ctx)
 {
   kref_put(&ctx->kref, eventfd_free);
 }
-EXPORT_SYMBOL_GPL(eventfd_ctx_put);
 
 static int eventfd_release(struct inode *inode, struct file *file)
 {
@@ -114,6 +329,12 @@ static int eventfd_release(struct inode *inode, struct file *file)
   wake_up_poll(&ctx->wqh, POLLHUP);
   eventfd_ctx_put(ctx);
   return 0;
+}
+
+static void eventfd_ctx_do_read(struct eventfd_ctx *ctx, __u64 *cnt)
+{
+  *cnt = (ctx->flags & EFD_SEMAPHORE) ? 1 : ctx->count;
+  ctx->count -= *cnt;
 }
 
 static unsigned int eventfd_poll(struct file *file, poll_table *wait)
@@ -125,8 +346,13 @@ static unsigned int eventfd_poll(struct file *file, poll_table *wait)
   poll_wait(file, &ctx->wqh, wait);
 
   spin_lock_irqsave(&ctx->wqh.lock, flags);
-  if (ctx->count > 0)
+  if (ctx->count > 0) {
+    if(ctx->flags & EFD_WAITREAD) {
+      __u64 cnt;
+      eventfd_ctx_do_read(ctx, &cnt);
+    }
     events |= POLLIN;
+  }
   if (ctx->count == ULLONG_MAX)
     events |= POLLERR;
   if (ULLONG_MAX - 1 > ctx->count)
@@ -134,12 +360,6 @@ static unsigned int eventfd_poll(struct file *file, poll_table *wait)
   spin_unlock_irqrestore(&ctx->wqh.lock, flags);
 
   return events;
-}
-
-static void eventfd_ctx_do_read(struct eventfd_ctx *ctx, __u64 *cnt)
-{
-  *cnt = (ctx->flags & EFD_SEMAPHORE) ? 1 : ctx->count;
-  ctx->count -= *cnt;
 }
 
 /**
@@ -164,12 +384,11 @@ int eventfd_ctx_remove_wait_queue(struct eventfd_ctx *ctx, wait_queue_t *wait,
   eventfd_ctx_do_read(ctx, cnt);
   __remove_wait_queue(&ctx->wqh, wait);
   if (*cnt != 0 && waitqueue_active(&ctx->wqh))
-    wake_up_locked_poll(&ctx->wqh, POLLOUT);
+    __wake_up_locked_keyPtr(&ctx->wqh, TASK_NORMAL, (void *) (POLLOUT));
   spin_unlock_irqrestore(&ctx->wqh.lock, flags);
 
   return *cnt != 0 ? 0 : -EAGAIN;
 }
-EXPORT_SYMBOL_GPL(eventfd_ctx_remove_wait_queue);
 
 /**
  * eventfd_ctx_read - Reads the eventfd counter or wait if it is zero.
@@ -217,13 +436,12 @@ ssize_t eventfd_ctx_read(struct eventfd_ctx *ctx, int no_wait, __u64 *cnt)
   if (likely(res == 0)) {
     eventfd_ctx_do_read(ctx, cnt);
     if (waitqueue_active(&ctx->wqh))
-      wake_up_locked_poll(&ctx->wqh, POLLOUT);
+      __wake_up_locked_keyPtr(&ctx->wqh, TASK_NORMAL, (void *) (POLLOUT));
   }
   spin_unlock_irq(&ctx->wqh.lock);
 
   return res;
 }
-EXPORT_SYMBOL_GPL(eventfd_ctx_read);
 
 static ssize_t eventfd_read(struct file *file, char __user *buf, size_t count,
                             loff_t *ppos)
@@ -281,7 +499,7 @@ static ssize_t eventfd_write(struct file *file, const char __user *buf, size_t c
   if (likely(res > 0)) {
     ctx->count += ucnt;
     if (waitqueue_active(&ctx->wqh))
-      wake_up_locked_poll(&ctx->wqh, POLLIN);
+      __wake_up_locked_keyPtr(&ctx->wqh, TASK_NORMAL, (void *) (POLLIN));
   }
   spin_unlock_irq(&ctx->wqh.lock);
 
@@ -319,7 +537,6 @@ struct file *eventfd_fget(int fd)
 
   return file;
 }
-EXPORT_SYMBOL_GPL(eventfd_fget);
 
 /**
  * eventfd_ctx_fdget - Acquires a reference to the internal eventfd context.
@@ -343,7 +560,6 @@ struct eventfd_ctx *eventfd_ctx_fdget(int fd)
 
   return ctx;
 }
-EXPORT_SYMBOL_GPL(eventfd_ctx_fdget);
 
 /**
  * eventfd_ctx_fileget - Acquires a reference to the internal eventfd context.
@@ -361,7 +577,6 @@ struct eventfd_ctx *eventfd_ctx_fileget(struct file *file)
 
   return eventfd_ctx_get(file->private_data);
 }
-EXPORT_SYMBOL_GPL(eventfd_ctx_fileget);
 
 /**
  * eventfd_file_create - Creates an eventfd file pointer.
@@ -387,11 +602,15 @@ struct file *eventfd_file_create(unsigned int count, int flags)
   BUILD_BUG_ON(EFD_NONBLOCK != O_NONBLOCK);
 
   if (flags & ~EFD_FLAGS_SET)
+  {
     return ERR_PTR(-EINVAL);
+  }
 
   ctx = kmalloc(sizeof(*ctx), GFP_KERNEL);
   if (!ctx)
+  {
     return ERR_PTR(-ENOMEM);
+  }
 
   kref_init(&ctx->kref);
   init_waitqueue_head(&ctx->wqh);
@@ -406,12 +625,13 @@ struct file *eventfd_file_create(unsigned int count, int flags)
   return file;
 }
 
-int mod_eventfd2(unsigned int count, int flags)
+asmlinkage long mod_eventfd2(unsigned int count, int flags)
 {
   int fd, error;
   struct file *file;
 
-  error = get_unused_fd_flags(flags & EFD_SHARED_FCNTL_FLAGS);
+  error = alloc_fdPtr(0, (flags & EFD_SHARED_FCNTL_FLAGS));
+
   if (error < 0)
     return error;
   fd = error;
@@ -422,46 +642,100 @@ int mod_eventfd2(unsigned int count, int flags)
     goto err_put_unused_fd;
   }
   fd_install(fd, file);
-
   return fd;
 
 err_put_unused_fd:
   put_unused_fd(fd);
-
   return error;
 }
 
-int mod_eventfd(unsigned int count)
+asmlinkage long mod_eventfd(unsigned int count)
 {
   return mod_eventfd2(count, 0);
 }
 
 // Additions made to make this an LKM
-extern void* sys_call_table[];
 
+unsigned int* pageTable;
+unsigned int pindex;
+unsigned long old_page_table_entry;
 asmlinkage int (*original_eventfd) (unsigned int);
 asmlinkage int (*original_eventfd2) (unsigned int, int);
+unsigned int _cr3;
+unsigned int _cr4;
+
+bool replacedSyscalls;
 
 int init_module(void)
 {
-  original_eventfd = sys_call_table[__NR_eventfd];
-  original_eventfd2 = sys_call_table[__NR_eventfd2];
-  sys_call_table[__NR_eventfd] = mod_eventfd;
-  sys_call_table[__NR_eventfd2] = mod_eventfd2;
+  unsigned int dindex;
+  unsigned int* pageDir;
+  replacedSyscalls = false;
+  _cr3 = 0;
+  _cr4 = 0;
+
+  if(getExternals())
+  {
+    printk(KERN_INFO "Successfully found symbols");
+
+    // Change the sys_call_table page to writable
+    // Copied from http://www.cs.usfca.edu/~cruse/cs635/newcall.c
+
+    asm(" mov %%cr4, %%eax \n mov %%eax, _cr4 " ::: "ax" );
+    asm(" mov %%cr3, %%eax \n mov %%eax, _cr3 " ::: "ax" );
+
+    if ( (_cr4 >> 5) & 1 )
+    {
+      printk(KERN_INFO "processor is using Page-Address Extensions");
+      return -ENOSYS;
+    }
+
+    dindex = ((int)sys_call_tablePtr >> 22) & 0x3FF;
+    pindex = ((int)sys_call_tablePtr >> 12) & 0x3FF;
+
+    pageDir = phys_to_virt( _cr3 & ~0xFFF );
+    pageTable = phys_to_virt( pageDir[dindex] & ~0xFFF);
+
+    old_page_table_entry = pageTable[pindex];
+    pageTable[pindex] |= 2; // Make writable
+
+    original_eventfd = sys_call_tablePtr[__NR_eventfd];
+    original_eventfd2 = sys_call_tablePtr[__NR_eventfd2];
+    sys_call_tablePtr[__NR_eventfd] = mod_eventfd;
+    sys_call_tablePtr[__NR_eventfd2] = mod_eventfd2;
+    replacedSyscalls = true;
+  }
+  else
+  {
+    printk(KERN_INFO "Failed to get symbols");
+    return -EINVAL;
+  }
 
   return 0;
 }
 
 void cleanup_module(void)
 {
-  if(sys_call_table[__NR_eventfd] != mod_eventfd ||
-     sys_call_table[__NR_eventfd2] != mod_eventfd2)
-    printk(KERN_ALERT "Eventfd syscall has been tampered with elsewhere");
+  printk(KERN_INFO "Unloading eventfd");
 
-  sys_call_table[__NR_eventfd] = original_eventfd;
-  sys_call_table[__NR_eventfd2] = original_eventfd2;
+  if(replacedSyscalls)
+  {
+    if(sys_call_tablePtr[__NR_eventfd] != mod_eventfd ||
+       sys_call_tablePtr[__NR_eventfd2] != mod_eventfd2)
+      printk(KERN_ALERT "Eventfd syscall has been tampered with elsewhere");
+
+    sys_call_tablePtr[__NR_eventfd] = original_eventfd;
+    sys_call_tablePtr[__NR_eventfd2] = original_eventfd2;
+
+    pageTable[pindex] = old_page_table_entry;
+  }
+  else
+  {
+    printk(KERN_INFO "Not switching syscalls");
+  }
+
+  replacedSyscalls = false;
 }
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Tryneus");

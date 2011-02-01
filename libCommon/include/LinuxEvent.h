@@ -14,7 +14,7 @@
 class LinuxEvent
 {
 public:
-  LinuxEvent(bool initialState);
+  LinuxEvent(bool initialState, bool autoReset);
   ~LinuxEvent();
    
   int getHandle() const;

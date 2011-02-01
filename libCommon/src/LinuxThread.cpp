@@ -5,9 +5,9 @@
 
 LinuxThread::LinuxThread(uint32_t timeout) :
   m_exit(false),
-  m_runEvent(false), // Start out not running
-  m_pauseEvent(false),
-  m_exitedEvent(false),
+  m_runEvent(false, false), // Start out not running
+  m_pauseEvent(false, true),
+  m_exitedEvent(false, false),
   m_timeout(timeout)
 {
   pthread_attr_t attr;
@@ -48,9 +48,10 @@ void* LinuxThread::threadMain()
       case WaitSuccess:
         if(fd == m_pauseEvent.getHandle())
         {
-          m_pauseEvent.reset();
+          // m_pauseEvent.reset(); // TODO: remove this once EFD_WAITREAD works
           break;
-        }
+        }  
+
       case WaitTimeout:
         iterate(fd);
         break;
@@ -81,7 +82,6 @@ void LinuxThread::start()
 {
   // Check if there is a problem with the thread
   if(!m_error.empty()) throw Exception("Thread exited with exception: " + m_error);
-  m_pauseEvent.reset();
   m_runEvent.set();
 }
 

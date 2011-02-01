@@ -92,7 +92,8 @@ Message& Header::receive()
   // TODO: should we even both catching/throwing with different text?
   try
   {
-    m_semaphore.lock();
+    // This should be done due a wait
+    // m_semaphore.lock();
   }
   catch(...)
   {

@@ -3,12 +3,12 @@
 #include "Abstraction.h"
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/eventfd.h>
+#include "eventfd.h"
 #include <errno.h>
-#include "eventfd-extension.h"
 
-LinuxEvent::LinuxEvent(bool initialState) :
-  m_event(eventfd(initialState, EFD_NONBLOCK | (true ? 0 : EFD_WAITREAD)))
+LinuxEvent::LinuxEvent(bool initialState, bool autoReset) :
+  m_event(eventfd(initialState,
+                  EFD_NONBLOCK | (autoReset ? EFD_WAITREAD : 0)))
 {
   if(m_event == -1)
     throw Exception("Failed to create event: " + lastError());

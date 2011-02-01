@@ -3,7 +3,7 @@
 #include <poll.h>
 
 LinuxMutex::LinuxMutex(bool locked) :
-  LinuxSemaphore(1, locked ? 0 : 1)
+  LinuxSemaphore(1, (locked ? 0 : 1))
 {
   // Do nothing
 }

@@ -7,10 +7,6 @@ obj-m := eventfd.o
 all:
 	make -C $(KERNEL_SRC) M=`pwd` modules
 
-tester: test.cpp
-	g++ -lpthread -I../include -o tester test.cpp ../bin/libCommon.a
-
-
 clean:
 	rm -rf eventfd.ko eventfd.o eventfd.mod.c eventfd.mod.o modules.order Module.symvers
 

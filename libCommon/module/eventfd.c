@@ -347,9 +347,11 @@ static unsigned int eventfd_poll(struct file *file, poll_table *wait)
 
   spin_lock_irqsave(&ctx->wqh.lock, flags);
   if (ctx->count > 0) {
-    if(ctx->flags & EFD_WAITREAD) {
-      __u64 cnt;
-      eventfd_ctx_do_read(ctx, &cnt);
+    if (ctx->flags & EFD_WAITREAD) {
+      __u64 dummy;
+      eventfd_ctx_do_read(ctx, &dummy);
+      if (waitqueue_active(&ctx->wqh))
+        __wake_up_locked_keyPtr(&ctx->wqh, TASK_NORMAL, (void *) (POLLOUT));
     }
     events |= POLLIN;
   }

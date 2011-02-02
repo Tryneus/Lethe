@@ -1,5 +1,1 @@
-// Placeholder until tests are implemented
-int main(int, char**)
-{
-  return 0;
-}
+#include "catch_with_main.hpp"

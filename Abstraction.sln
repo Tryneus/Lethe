@@ -4,6 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libCommon", "libCommon\libCommon.vcproj", "{C58DF22D-5605-402A-849D-EECC4EC713BA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libCommonTest", "libCommon\libCommonTest.vcproj", "{9A61EDD0-01D1-4701-9F53-DC266AAC51A4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5720FF05-8734-41C0-9EC5-DB9753C48C41} = {5720FF05-8734-41C0-9EC5-DB9753C48C41}
+		{C58DF22D-5605-402A-849D-EECC4EC713BA} = {C58DF22D-5605-402A-849D-EECC4EC713BA}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libThreadComm", "libThreadComm\libThreadComm.vcproj", "{6FB08F84-4214-420B-86D2-04CDB4AE638E}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -12,6 +16,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libThreadComm", "libThreadC
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libThreadCommTest", "libThreadComm\libThreadCommTest.vcproj", "{7AC4E25D-4515-41A1-AF89-D872A5BD925F}"
 	ProjectSection(ProjectDependencies) = postProject
+		{5720FF05-8734-41C0-9EC5-DB9753C48C41} = {5720FF05-8734-41C0-9EC5-DB9753C48C41}
 		{C58DF22D-5605-402A-849D-EECC4EC713BA} = {C58DF22D-5605-402A-849D-EECC4EC713BA}
 		{6FB08F84-4214-420B-86D2-04CDB4AE638E} = {6FB08F84-4214-420B-86D2-04CDB4AE638E}
 	EndProjectSection
@@ -22,6 +27,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libProcessComm", "libProces
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libProcessCommTest", "libProcessComm\libProcessCommTest.vcproj", "{FC599098-162D-4BBA-9385-0F3760ADB1E0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5720FF05-8734-41C0-9EC5-DB9753C48C41} = {5720FF05-8734-41C0-9EC5-DB9753C48C41}
+		{C58DF22D-5605-402A-849D-EECC4EC713BA} = {C58DF22D-5605-402A-849D-EECC4EC713BA}
+		{D2A5BC3E-F1A8-453D-8991-BA1BBA67F243} = {D2A5BC3E-F1A8-453D-8991-BA1BBA67F243}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libSocketComm", "libSocketComm\libSocketComm.vcproj", "{612469FA-7E4E-46D9-9B39-9E95192D4FD8}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -29,6 +39,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libSocketComm", "libSocketC
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libSocketCommTest", "libSocketComm\libSocketCommTest.vcproj", "{437A40EF-64C4-4207-BB43-DE624584EB56}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5720FF05-8734-41C0-9EC5-DB9753C48C41} = {5720FF05-8734-41C0-9EC5-DB9753C48C41}
+		{C58DF22D-5605-402A-849D-EECC4EC713BA} = {C58DF22D-5605-402A-849D-EECC4EC713BA}
+		{612469FA-7E4E-46D9-9B39-9E95192D4FD8} = {612469FA-7E4E-46D9-9B39-9E95192D4FD8}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libThreadUtil", "libThreadUtil\libThreadUtil.vcproj", "{AE54056E-549E-404C-B08E-3293ACB8EA8F}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -39,6 +54,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libThreadUtil", "libThreadU
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libThreadUtilTest", "libThreadUtil\libThreadUtilTest.vcproj", "{6D2886AC-838E-40F0-8AC7-2114A9D0CA22}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5720FF05-8734-41C0-9EC5-DB9753C48C41} = {5720FF05-8734-41C0-9EC5-DB9753C48C41}
+		{C58DF22D-5605-402A-849D-EECC4EC713BA} = {C58DF22D-5605-402A-849D-EECC4EC713BA}
+		{D2A5BC3E-F1A8-453D-8991-BA1BBA67F243} = {D2A5BC3E-F1A8-453D-8991-BA1BBA67F243}
+		{AE54056E-549E-404C-B08E-3293ACB8EA8F} = {AE54056E-549E-404C-B08E-3293ACB8EA8F}
+		{6FB08F84-4214-420B-86D2-04CDB4AE638E} = {6FB08F84-4214-420B-86D2-04CDB4AE638E}
+		{612469FA-7E4E-46D9-9B39-9E95192D4FD8} = {612469FA-7E4E-46D9-9B39-9E95192D4FD8}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "thirdParty", "thirdParty\thirdParty.vcproj", "{5720FF05-8734-41C0-9EC5-DB9753C48C41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -104,6 +129,13 @@ Global
 		{6D2886AC-838E-40F0-8AC7-2114A9D0CA22}.Debug|x64.ActiveCfg = Debug|x64
 		{6D2886AC-838E-40F0-8AC7-2114A9D0CA22}.Release|Win32.ActiveCfg = Release|Win32
 		{6D2886AC-838E-40F0-8AC7-2114A9D0CA22}.Release|x64.ActiveCfg = Release|Win32
+		{5720FF05-8734-41C0-9EC5-DB9753C48C41}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5720FF05-8734-41C0-9EC5-DB9753C48C41}.Debug|Win32.Build.0 = Debug|Win32
+		{5720FF05-8734-41C0-9EC5-DB9753C48C41}.Debug|x64.ActiveCfg = Debug|x64
+		{5720FF05-8734-41C0-9EC5-DB9753C48C41}.Debug|x64.Build.0 = Debug|x64
+		{5720FF05-8734-41C0-9EC5-DB9753C48C41}.Release|Win32.ActiveCfg = Release|Win32
+		{5720FF05-8734-41C0-9EC5-DB9753C48C41}.Release|Win32.Build.0 = Release|Win32
+		{5720FF05-8734-41C0-9EC5-DB9753C48C41}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

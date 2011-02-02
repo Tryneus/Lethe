@@ -37,7 +37,7 @@ public:
   void add(HANDLE handle);
   void remove(HANDLE handle);
 
-  uint32_t getSize() const;
+  size_t getSize() const;
   const std::set<HANDLE>& getSet() const;
 
   int waitAll(uint32_t timeout, HANDLE& handle);

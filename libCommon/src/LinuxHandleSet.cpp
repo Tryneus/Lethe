@@ -75,10 +75,16 @@ void LinuxHandleSet::resizeEvents()
   delete [] oldEvents;
 }
 
-uint32_t LinuxHandleSet::getSize() const
+size_t LinuxHandleSet::getSize() const
 {
   return m_fdSet.size();
 }
+
+const std::set<int>& LinuxHandleSet::getSet() const
+{
+  return m_handleSet;
+}
+
 
 int LinuxHandleSet::waitAll(uint32_t timeout __attribute__ ((unused)), 
                             int& fd __attribute__ ((unused)))

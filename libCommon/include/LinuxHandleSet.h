@@ -37,7 +37,8 @@ public:
   void add(int fd);
   void remove(int fd);
 
-  uint32_t getSize() const;
+  size_t getSize() const;
+  const std::set<int>& getSet() const;
 
   int waitAll(uint32_t timeout, int& fd);
   int waitAny(uint32_t timeout, int& fd);

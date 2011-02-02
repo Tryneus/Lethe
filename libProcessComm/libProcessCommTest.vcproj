@@ -21,7 +21,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName).$(Platform)"
+			IntermediateDirectory="src\$(ConfigurationName).$(PlatformName)"
 			ConfigurationType="1"
 			CharacterSet="2"
 			>
@@ -43,6 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="include;../libCommon/include;../thirdParty/catch"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -60,8 +61,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib bin/libProcessComm.$(ConfigurationName).$(Platform).lib"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).exe"
+				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libProcessComm.$(ConfigurationName).$(PlatformName).lib"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -88,9 +89,80 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Debug|x64"
+			OutputDirectory="bin"
+			IntermediateDirectory="src\$(ConfigurationName).$(PlatformName)"
+			ConfigurationType="1"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="include;../libCommon/include;../thirdParty/catch"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libProcessComm.$(ConfigurationName).$(PlatformName).lib"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
+				GenerateDebugInformation="true"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName).$(Platform)"
+			IntermediateDirectory="src\$(ConfigurationName).$(PlatformName)"
 			ConfigurationType="1"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -114,6 +186,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="include;../libCommon/include;../thirdParty/catch"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -130,8 +203,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib bin/libProcessComm.$(ConfigurationName).$(Platform).lib"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).exe"
+				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libProcessComm.$(ConfigurationName).$(PlatformName).lib"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -160,79 +233,9 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Debug|x64"
-			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName).$(Platform)"
-			ConfigurationType="1"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib bin/libProcessComm.$(ConfigurationName).$(Platform).lib"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).exe"
-				GenerateDebugInformation="true"
-				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
 			Name="Release|x64"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName).$(Platform)"
+			IntermediateDirectory="src\$(ConfigurationName).$(PlatformName)"
 			ConfigurationType="1"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -257,6 +260,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="include;../libCommon/include;../thirdParty/catch"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -273,8 +277,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(Platform).lib bin/libProcessComm.$(ConfigurationName).$(Platform).lib"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(Platform).exe"
+				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libProcessComm.$(ConfigurationName).$(PlatformName).lib"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -311,6 +315,10 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
+			<File
+				RelativePath=".\test\testMain.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

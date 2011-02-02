@@ -37,7 +37,7 @@ void WindowsHandleSet::remove(HANDLE handle)
   resizeEvents();
 }
 
-uint32_t WindowsHandleSet::getSize() const
+size_t WindowsHandleSet::getSize() const
 {
   return m_handleSet.size();
 }

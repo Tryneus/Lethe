@@ -21,7 +21,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName).$(PlatformName)"
+			IntermediateDirectory="test\$(ConfigurationName).$(PlatformName)"
 			ConfigurationType="1"
 			CharacterSet="2"
 			>
@@ -47,8 +47,9 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				WarningLevel="3"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -63,7 +64,6 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libProcessComm.$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
-				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -91,7 +91,7 @@
 		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName).$(PlatformName)"
+			IntermediateDirectory="test\$(ConfigurationName).$(PlatformName)"
 			ConfigurationType="1"
 			CharacterSet="2"
 			>
@@ -118,6 +118,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -134,7 +135,6 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libProcessComm.$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
-				GenerateDebugInformation="true"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -162,7 +162,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName).$(PlatformName)"
+			IntermediateDirectory="test\$(ConfigurationName).$(PlatformName)"
 			ConfigurationType="1"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -189,6 +189,7 @@
 				AdditionalIncludeDirectories="include;../libCommon/include;../thirdParty/catch"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
+				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -205,7 +206,6 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libProcessComm.$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
-				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -235,7 +235,7 @@
 		<Configuration
 			Name="Release|x64"
 			OutputDirectory="bin"
-			IntermediateDirectory="src\$(ConfigurationName).$(PlatformName)"
+			IntermediateDirectory="test\$(ConfigurationName).$(PlatformName)"
 			ConfigurationType="1"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -263,6 +263,7 @@
 				AdditionalIncludeDirectories="include;../libCommon/include;../thirdParty/catch"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
+				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -279,7 +280,6 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libProcessComm.$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
-				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="17"

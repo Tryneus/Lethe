@@ -1,4 +1,4 @@
-INCLUDE_FLAGS=-I../include -I../../libCommon/include
+INCLUDE_FLAGS=-I../include -I../../libCommon/include -I../../thirdParty/catch
 INCLUDE_DIRS=$(subst -I,,$(INCLUDE_FLAGS))
 HEADER_FILES=$(shell find $(INCLUDE_DIRS) -name "*.h")
 COMPILE_FLAGS=-c -Wall -Wextra -Werror -fno-default-inline -O3 -g $(INCLUDE_FLAGS)

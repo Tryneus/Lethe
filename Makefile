@@ -1,23 +1,26 @@
 
-all:
+all: prepare
 	cd libCommon; make all
 	cd libThreadComm; make all
 	cd libProcessComm; make all
 	cd libSocketComm; make all
 	cd libThreadUtil; make all
 
+prepare:
+	cd thirdParty; make prepare
+
 # install is used to install the kernel module needed for mutex/semaphore/event auto-reset on linux
-install:
+install: all
 	cd libCommon; make install
 
-runTest:
+runTest: all
 	cd libCommon; make runTest
 	cd libThreadComm; make runTest
 	cd libProcessComm; make runTest
 	cd libSocketComm; make runTest
 	cd libThreadUtil; make runTest
 
-valTest:
+valTest: all
 	cd libCommon; make valTest
 	cd libThreadComm; make valTest
 	cd libProcessComm; make valTest

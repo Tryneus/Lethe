@@ -6,7 +6,7 @@
 
 LinuxSemaphore::LinuxSemaphore(uint32_t maxCount __attribute__ ((unused)),
                                uint32_t initialCount) :
-  m_semaphore(eventfd(initialCount, (EFD_SEMAPHORE | EFD_WAITREAD)))
+  m_semaphore(eventfd(initialCount, (EFD_NONBLOCK | EFD_SEMAPHORE | EFD_WAITREAD)))
 {
   if(m_semaphore == -1)
     throw Exception("Failed to create semaphore: " + lastError());
@@ -18,15 +18,10 @@ LinuxSemaphore::~LinuxSemaphore()
     throw Exception("Failed to close semaphore: " + lastError());
 }
 
-void LinuxSemaphore::lock(uint32_t timeout __attribute__ ((unused)))
+void LinuxSemaphore::lock(uint32_t timeout)
 {
   if(WaitForObject(m_semaphore, timeout) != WaitSuccess)
     throw Exception("Failed to lock semaphore: " + lastError());
-
-  // Code to use eventfd without WAITREAD
-  // uint64_t buffer;
-  // if(read(m_semaphore, &buffer, sizeof(buffer)) != sizeof(buffer))
-  //   throw Exception("Failed to read semaphore: " + lastError());
 }
 
 void LinuxSemaphore::unlock(uint32_t count)

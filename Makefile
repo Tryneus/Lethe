@@ -28,6 +28,7 @@ valTest: all
 	cd libThreadUtil; make valTest
 
 clean:
+	cd thirdParty; make clean
 	cd libCommon; make clean
 	cd libThreadComm; make clean
 	cd libProcessComm; make clean

@@ -6,7 +6,8 @@ LINKER_FLAGS=-L/usr/lib/gcc/i486-linux-gnu/4.3.2/ -lrt -lstdc++
 BINARY_DIR=../bin
 BINARY_FILE=libCommonTest
 
-OBJECT_FILES=testMain.o
+OBJECT_FILES=testMain.o \
+             testMutex.o
 
 INCLUDE_LIBS=../bin/libCommon.a
 

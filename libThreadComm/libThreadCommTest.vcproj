@@ -324,7 +324,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\test\ThreadCommTest.cpp"
+				RelativePath=".\test\testMain.cpp"
 				>
 			</File>
 		</Filter>

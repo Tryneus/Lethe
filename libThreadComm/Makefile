@@ -1,8 +1,11 @@
 all:
 	cd src; make all
 
-runTest:
-	cd test; make test
+runTest: all
+	cd test; make runTest
+
+valTest: all
+	cd test; make valTest
 
 clean:
 	cd src; make clean

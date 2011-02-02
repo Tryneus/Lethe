@@ -1,3 +1,4 @@
+
 all:
 	cd libCommon; make all
 	cd libThreadComm; make all
@@ -5,6 +6,7 @@ all:
 	cd libSocketComm; make all
 	cd libThreadUtil; make all
 
+# install is used to install the kernel module needed for mutex/semaphore/event auto-reset on linux
 install:
 	cd libCommon; make install
 
@@ -15,9 +17,12 @@ runTest:
 	cd libSocketComm; make runTest
 	cd libThreadUtil; make runTest
 
-# install is used to install the kernel module needed for mutex/semaphore/event auto-reset on linux
-install:
-	cd libCommon; make all
+valTest:
+	cd libCommon; make valTest
+	cd libThreadComm; make valTest
+	cd libProcessComm; make valTest
+	cd libSocketComm; make valTest
+	cd libThreadUtil; make valTest
 
 clean:
 	cd libCommon; make clean

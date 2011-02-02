@@ -30,7 +30,7 @@ libThreadUtil
   libThreadUtil is just a placeholder at the moment, but the current plan involves two classes: ThreadRegistry and CommRegistry, which are meant to act as central points for creating/looking up threads and IPC.
 
 
-ThreadCommTest
+libThreadComm/test
   The only test application at the moment, this spawns two types of threads (sender and echo), which bounce messages back and forth until the test expires.  This is an alright surface-level test as it contains most of the classes in libCommon, but a more in-depth test suite is needed in the future.
 
 

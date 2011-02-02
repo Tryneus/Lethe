@@ -1,17 +1,18 @@
-INCLUDE_FLAGS=-I../include -I../../libCommon/include
+INCLUDE_FLAGS=-I../include
 INCLUDE_DIRS=$(subst -I,,$(INCLUDE_FLAGS))
 HEADER_FILES=$(shell find $(INCLUDE_DIRS) -name "*.h")
 COMPILE_FLAGS=-c -Wall -Wextra -Werror -fno-default-inline -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS=-L/usr/lib/gcc/i486-linux-gnu/4.3.2/ -lrt -lstdc++
 BINARY_DIR=../bin
-BINARY_FILE=libThreadCommTest
+BINARY_FILE=libThreadUtilTest
 
-OBJECT_FILES=testMain.o \
-             EchoThread.o \
-             SenderThread.o
+OBJECT_FILES=testMain.o
 
-INCLUDE_LIBS=../bin/libThreadComm.a \
-             ../../libCommon/bin/libCommon.a
+INCLUDE_LIBS=../bin/libThreadUtil.a \
+             ../../libCommon/bin/libCommon.a \
+             ../../libThreadComm/bin/libThreadComm.a \
+             ../../libProcessComm/bin/libProcessComm.a \
+             ../../libSocketComm/bin/libSocketComm.a
 
 all: $(BINARY_DIR)/$(BINARY_FILE)
 

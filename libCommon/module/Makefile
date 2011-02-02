@@ -8,5 +8,5 @@ all:
 	make -C $(KERNEL_SRC) M=`pwd` modules
 
 clean:
-	rm -rf eventfd.ko eventfd.o eventfd.mod.c eventfd.mod.o modules.order Module.symvers
+	rm -rf eventfd.ko eventfd.o eventfd.mod.c eventfd.mod.o modules.order Module.symvers .eventfd.ko.cmd .eventfd.mod.o.cmd .eventfd.o.cmd .tmp_versions
 

@@ -338,6 +338,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\AbstractionBasic.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\AbstractionComplex.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\AbstractionFunctions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\BaseThread.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\Exception.h"
 				>
 			</File>
@@ -361,31 +377,31 @@
 				Name="Windows"
 				>
 				<File
-					RelativePath=".\include\WindowsEvent.h"
+					RelativePath=".\include\windows\WindowsEvent.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\WindowsHandleSet.h"
+					RelativePath=".\include\windows\WindowsHandleSet.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\WindowsMutex.h"
+					RelativePath=".\include\windows\WindowsMutex.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\WindowsPipe.h"
+					RelativePath=".\include\windows\WindowsPipe.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\WindowsSemaphore.h"
+					RelativePath=".\include\windows\WindowsSemaphore.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\WindowsThread.h"
+					RelativePath=".\include\windows\WindowsThread.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\WindowsTimer.h"
+					RelativePath=".\include\windows\WindowsTimer.h"
 					>
 				</File>
 			</Filter>

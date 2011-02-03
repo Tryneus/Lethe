@@ -316,7 +316,47 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\test\testEvent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\test\testException.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\test\testFunctions.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\test\testHandleSet.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\test\testLog.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\test\testMain.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\test\testMutex.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\test\testPipe.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\test\testSemaphore.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\test\testThread.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\test\testTimer.cpp"
 				>
 			</File>
 		</Filter>

@@ -1,7 +1,6 @@
-#include "catch.hpp"
 #include "Abstraction.h"
 #include "Exception.h"
-
+#include "catch.hpp"
 
 /**
  *
@@ -17,7 +16,7 @@ TEST_CASE("mutex/structor", "Test construction/destruction")
 
   for(uint32_t i = 0; i < numMutexes; ++i)
   { 
-    REQUIRE_NOTHROW(mutexArray[i] = new Mutex((bool)(i % 2)));
+    REQUIRE_NOTHROW(mutexArray[i] = new Mutex(!(i % 2)));
   }
 
   for(uint32_t i = 0; i < numMutexes; ++i)
@@ -67,8 +66,9 @@ private:
     m_iterating = false;
   };
 
-  void abandoned(Handle handle __attribute__((unused)))
+  void abandoned(Handle handle)
   {
+    handle = INVALID_HANDLE_VALUE;
     throw Exception("Mutex abandoned");
   };
 
@@ -163,8 +163,9 @@ private:
     stop();
   };
 
-  void abandoned(Handle handle __attribute__((unused)))
+  void abandoned(Handle handle)
   {
+    handle = INVALID_HANDLE_VALUE;
     throw Exception("Mutex abandoned");
   };
 };
@@ -180,13 +181,35 @@ TEST_CASE("mutex/exception", "Test that thread id is enforced")
 {
   Mutex mutex(true);
   Event event(false, true);
-  ExceptionTestThread thread(mutex);
 
   {
+    ExceptionTestThread thread(mutex);
     thread.start();
 
     REQUIRE(WaitForObject(thread.getHandle(), 1000) == WaitSuccess);
     REQUIRE(thread.isStopping());
-    REQUIRE(thread.getError() == "Cannot unlock mutex from a different thread");
+    REQUIRE(thread.getError() == "Failed to unlock mutex: Attempt to release mutex not owned by caller. ");
   }
+
+  mutex.unlock();
+  {
+    ExceptionTestThread thread(mutex);
+    thread.start();
+
+    REQUIRE(WaitForObject(thread.getHandle(), 1000) == WaitSuccess);
+    REQUIRE(thread.isStopping());
+    REQUIRE(thread.getError() == "Failed to unlock mutex: Attempt to release mutex not owned by caller. ");
+  }
+  
+  mutex.lock();
+  {
+    ExceptionTestThread thread(mutex);
+    thread.start();
+
+    REQUIRE(WaitForObject(thread.getHandle(), 1000) == WaitSuccess);
+    REQUIRE(thread.isStopping());
+    REQUIRE(thread.getError() == "Failed to unlock mutex: Attempt to release mutex not owned by caller. ");
+  }
+  
+  // TODO: add more tests that use waitlock (will not throw an exception as of now)
 }

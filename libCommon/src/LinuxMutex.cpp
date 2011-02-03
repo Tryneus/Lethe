@@ -34,7 +34,7 @@ void LinuxMutex::unlock()
     // TODO: this exception will only be thrown if the mutex is explicitly
     //  locked() by a different thread.  A waitlock will not keep track of the
     //  thread id.
-    throw Exception("Cannot unlock mutex from a different thread");
+    throw Exception("Failed to unlock mutex: Attempt to release mutex not owned by caller.");
 }
 
 int LinuxMutex::getHandle()

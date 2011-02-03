@@ -1,0 +1,27 @@
+# Build directories
+*/bin
+thirdParty/*/
+
+# Linux build results
+*.o
+*.a
+*.ko
+
+# Windows build results
+*.lib
+*.exe
+
+# Code Blocks files
+*.cbp
+*.depend
+*.layout
+
+# Visual Studio files
+*.ncb
+*.suo
+*.vcproj*.user
+*/src/Debug*
+*/src/Release*
+*/test/Debug*
+*/test/Release*
+

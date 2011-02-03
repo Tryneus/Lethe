@@ -11,8 +11,15 @@ std::string lastError()
 {
   TCHAR* buffer = NULL;
 
-  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-                NULL, GetLastError(), 0, (LPTSTR)&buffer, 0, NULL);
+  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                FORMAT_MESSAGE_FROM_SYSTEM |
+                FORMAT_MESSAGE_MAX_WIDTH_MASK,
+                NULL,
+                GetLastError(),
+                0,
+                (LPTSTR)&buffer,
+                0,
+                NULL);
 
   std::string retval(buffer);
 

@@ -22,6 +22,7 @@ public:
 
 private:
   HANDLE m_handle;
+  DWORD m_ownerThread;
 };
 
 #endif

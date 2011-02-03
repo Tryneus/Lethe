@@ -4,7 +4,8 @@
 #include <Windows.h>
 
 WindowsMutex::WindowsMutex(bool locked) :
-  m_handle(CreateMutex(NULL, locked, NULL))
+  m_handle(CreateMutex(NULL, locked, NULL)),
+  m_ownerThread(locked ? GetCurrentThreadId() : 0)
 {
   if(m_handle == INVALID_HANDLE_VALUE)
     throw Exception("Failed to create mutex: " + lastError());
@@ -18,14 +19,24 @@ WindowsMutex::~WindowsMutex()
 
 void WindowsMutex::lock(uint32_t timeout)
 {
-  if(WaitForObject(m_handle, timeout) != WaitSuccess)
-    throw Exception("Failed to lock mutex: " + lastError());
+  if(m_ownerThread != GetCurrentThreadId())
+  {
+    if(WaitForObject(m_handle, timeout) != WaitSuccess)
+      throw Exception("Failed to lock mutex: " + lastError());
+    m_ownerThread = GetCurrentThreadId();
+  }
 }
 
 void WindowsMutex::unlock()
 {
-  if(!ReleaseMutex(m_handle))
-    throw Exception("Failed to unlock mutex: " + lastError());
+  if(m_ownerThread == GetCurrentThreadId())
+  {
+    if(!ReleaseMutex(m_handle))
+      throw Exception("Failed to unlock mutex: " + lastError());
+    m_ownerThread = 0;
+  }
+  else
+    throw Exception("Cannot unlock mutex from a different thread");
 }
 
 

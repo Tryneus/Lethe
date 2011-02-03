@@ -14,8 +14,7 @@ LinuxThread::LinuxThread(uint32_t timeout) :
 
 LinuxThread::~LinuxThread()
 {
-  // This shouldn't be necessary, but it's fun
-  pthread_detach(m_thread);
+  // Do nothing
 }
 
 void* LinuxThread::threadHook(void* param)

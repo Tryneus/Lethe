@@ -2,6 +2,7 @@
 #define _LINUXMUTEX_H
 
 #include "LinuxSemaphore.h"
+#include <pthread.h>
 #include <stdint.h>
 
 /*
@@ -23,6 +24,9 @@ public:
    void unlock();
 
    int getHandle();
+
+private:
+   pthread_t m_ownerThread;
 };
 
 #endif

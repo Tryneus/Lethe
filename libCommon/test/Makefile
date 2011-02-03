@@ -7,20 +7,29 @@ BINARY_DIR=../bin
 BINARY_FILE=libCommonTest
 
 OBJECT_FILES=testMain.o \
-             testMutex.o
+             testException.o \
+             testFunctions.o \
+             testHandleSet.o \
+             testPipe.o \
+             testTimer.o \
+             testEvent.o \
+             testThread.o \
+             testSemaphore.o \
+             testMutex.o \
+             testLog.o
 
 INCLUDE_LIBS=../bin/libCommon.a
 
 all: $(BINARY_DIR)/$(BINARY_FILE)
 
 clean:
-	rm -rf $(BINARY_DIR)/$(BINARY_FILE) $(OBJECT_FILES)
+	rm -rf $(BINARY_DIR)/$(BINARY_FILE) $(OBJECT_FILES) runTest.log valTest.log
 
 runTest: all
-	$(BINARY_DIR)/$(BINARY_FILE)
+	$(BINARY_DIR)/$(BINARY_FILE) 2>&1 | tee runTest.log
 
 valTest: all
-	valgrind --track-origins=yes --track-fds=yes $(BINARY_DIR)/$(BINARY_FILE)
+	valgrind --track-origins=yes --track-fds=yes $(BINARY_DIR)/$(BINARY_FILE) 2>&1 | tee valTest.log
 
 $(BINARY_DIR)/$(BINARY_FILE): $(OBJECT_FILES) $(INCLUDE_LIBS)
 	mkdir -p $(BINARY_DIR)

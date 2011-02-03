@@ -50,7 +50,6 @@ void* BaseThread::threadMain()
           throw Exception("Pause event abandoned");
 
         abandoned(handle);
-        m_handleSet.remove(handle);
         break;
 
       default:
@@ -63,6 +62,7 @@ void* BaseThread::threadMain()
     m_error = ex.what();
   }
 
+  m_exit = true;
   m_exitedEvent.set();
   return NULL;
 }

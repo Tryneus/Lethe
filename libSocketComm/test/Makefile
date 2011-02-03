@@ -1,4 +1,4 @@
-INCLUDE_FLAGS=-I../include -I../../thirdParty/catch
+INCLUDE_FLAGS=-I../include -I../../thirdParty/catch -I../../libCommon/include
 INCLUDE_DIRS=$(subst -I,,$(INCLUDE_FLAGS))
 HEADER_FILES=$(shell find $(INCLUDE_DIRS) -name "*.h")
 COMPILE_FLAGS=-c -Wall -Wextra -Werror -fno-default-inline -O3 -g $(INCLUDE_FLAGS)
@@ -14,13 +14,13 @@ INCLUDE_LIBS=../bin/libSocketComm.a \
 all: $(BINARY_DIR)/$(BINARY_FILE)
 
 clean:
-	rm -rf $(BINARY_DIR)/$(BINARY_FILE) $(OBJECT_FILES)
+	rm -rf $(BINARY_DIR)/$(BINARY_FILE) $(OBJECT_FILES) runTest.log valTest.log
 
 runTest: all
-	$(BINARY_DIR)/$(BINARY_FILE)
+	$(BINARY_DIR)/$(BINARY_FILE) 2>&1 | tee runTest.log
 
 valTest: all
-	valgrind --track-origins=yes --track-fds=yes $(BINARY_DIR)/$(BINARY_FILE)
+	valgrind --track-origins=yes --track-fds=yes $(BINARY_DIR)/$(BINARY_FILE) 2>&1 | tee valTest.log
 
 $(BINARY_DIR)/$(BINARY_FILE): $(OBJECT_FILES) $(INCLUDE_LIBS)
 	mkdir -p $(BINARY_DIR)

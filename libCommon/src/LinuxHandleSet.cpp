@@ -82,9 +82,8 @@ size_t LinuxHandleSet::getSize() const
 
 const std::set<int>& LinuxHandleSet::getSet() const
 {
-  return m_handleSet;
+  return m_fdSet;
 }
-
 
 int LinuxHandleSet::waitAll(uint32_t timeout __attribute__ ((unused)), 
                             int& fd __attribute__ ((unused)))

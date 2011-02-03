@@ -1,4 +1,5 @@
 #include "windows/WindowsMutex.h"
+#include "AbstractionFunctions.h"
 #include "Exception.h"
 #include <Windows.h>
 

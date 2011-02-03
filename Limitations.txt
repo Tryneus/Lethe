@@ -3,19 +3,21 @@ Known limitations or discrepancies between platforms:
 1. Linux events, semaphores, and mutexes don't support automatic reset
  - This has been fixed by use of a loadable kernel module (libCommon/module) which must be installed to use Mutexes, Semaphores, and Auto-Reset Events in Linux (otherwise their constructors will throw an exception)
  - Working on testing and submitting a kernel patch to add this functionality to the base kernel 
- 
-2. No method in Linux to wait for all file descriptors in a set before returning
- - No plan on implementing this at the moment, seems too easy to deadlock in Linux, and this can be left up to the user if they want something equivalent
- - This also means that waitAll should be disabled on Windows
- 
+
+2. LinuxTimers do not support automatic reset
+ - If the eventfd change goes over well, consider implementing the same thing for timerfd
+
 3. WindowsTimers are cleared by setting the timer again to a very long timeout
  - No real impact, just kind of stupid
 
-4. Large pipe send operations may not complete without active traffic
+4. No method in Linux to wait for all file descriptors in a set before returning
+ - No plan on implementing this at the moment, seems too easy to deadlock in Linux, and this can be left up to the user if they want something equivalent
+ - This also means that waitAll should be disabled on Windows
+
+5. Large pipe send operations may not complete without active traffic
  - It is unacceptable to block in the Pipe::send() call
  - If a user does a large write to a pipe that cannot be completed atomically, the system will write what it can and hold onto the rest
  - At the moment the unwritten portion is only pushed through at the next send (or an OutOfMemory exception is thrown if it still can't be completed)
  - This means that if there is never a 'next send', the data will remain unsent
- - On Windows this may be fixed by using overlapping I/O with a Named Pipe (rather that the current anonymous pipe)
- - On Linux this may be fixed by spawning a thread to perform wait/write cycles until the outgoing buffer is cleared
- - Possible to fix by reimplementing pipes using shared memory with an eventfd semaphore or two?  Might have better performance, but reinventing the wheel is lame
+ - On Windows this may be fixed by using overlapped I/O with a Named Pipe (rather that the current anonymous pipe)
+ - On Linux this may be fixed by using asynchronous I/O with an eventfd

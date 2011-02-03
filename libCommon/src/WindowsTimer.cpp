@@ -1,4 +1,5 @@
 #include "windows/WindowsTimer.h"
+#include "AbstractionFunctions.h"
 #include "Exception.h"
 #include <Windows.h>
 

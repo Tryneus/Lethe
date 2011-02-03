@@ -20,5 +20,5 @@ WindowsThread::~WindowsThread()
 
 DWORD WINAPI WindowsThread::threadHook(void* param)
 {
-  return reinterpret_cast<WindowsThread*>(param)->threadMain();
+  return (DWORD)reinterpret_cast<WindowsThread*>(param)->threadMain();
 }

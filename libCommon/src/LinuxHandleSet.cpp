@@ -1,7 +1,7 @@
-#include "LinuxHandleSet.h"
+#include "linux/LinuxHandleSet.h"
+#include "AbstractionFunctions.h"
 #include "Exception.h"
-#include "Abstraction.h"
-#include <errno.h>
+#include <sys/epoll.h>
 #include <string.h>
 
 LinuxHandleSet::LinuxHandleSet() :
@@ -88,6 +88,8 @@ int LinuxHandleSet::waitAll(uint32_t timeout __attribute__ ((unused)),
 
 int LinuxHandleSet::waitAny(uint32_t timeout, int& fd)
 {
+  // TODO: save end time, and rewait if EINTR
+
   if(m_eventCount == 0)
   {
     m_eventCount = epoll_wait(m_epollSet, m_events, m_fdSet.size(), timeout);

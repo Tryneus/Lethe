@@ -1,6 +1,6 @@
-#include "LinuxPipe.h"
+#include "linux/LinuxPipe.h"
+#include "AbstractionFunctions.h"
 #include "Exception.h"
-#include "Abstraction.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>

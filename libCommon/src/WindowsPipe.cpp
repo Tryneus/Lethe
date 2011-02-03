@@ -1,6 +1,6 @@
-#include "WindowsPipe.h"
+#include "windows/WindowsPipe.h"
 #include "Exception.h"
-#include "Abstraction.h"
+#include <Windows.h>
 
 WindowsPipe::WindowsPipe() :
   m_pipeRead(INVALID_HANDLE_VALUE),

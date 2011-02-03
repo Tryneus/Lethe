@@ -2,7 +2,7 @@
 #define _SINGLETON_H
 
 #include <cstddef>
-#include "Abstraction.h"
+#include "AbstractionBasic.h"
 
 /*
  * The Singleton template is provided as a thread-safe implementation of

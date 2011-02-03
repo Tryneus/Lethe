@@ -1,6 +1,6 @@
-#include "WindowsTimer.h"
+#include "windows/WindowsTimer.h"
 #include "Exception.h"
-#include "Abstraction.h"
+#include <Windows.h>
 
 // TODO: This is a bit of a hack to clear a timer
 //  we just reset it with a really long timeout

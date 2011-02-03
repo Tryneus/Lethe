@@ -2,7 +2,7 @@
 #define _LOG_H
 
 #include "StaticSingleton.h"
-#include "Abstraction.h"
+#include "AbstractionBasic.h"
 #include <fstream>
 #include <sstream>
 

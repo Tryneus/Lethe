@@ -1,9 +1,8 @@
-#include "LinuxTimer.h"
+#include "linux/LinuxTimer.h"
+#include "AbstractionFunctions.h"
 #include "Exception.h"
-#include "Abstraction.h"
 #include <sys/timerfd.h>
 #include <fcntl.h>
-#include <errno.h>
 #include <cstring>
 
 LinuxTimer::LinuxTimer() :

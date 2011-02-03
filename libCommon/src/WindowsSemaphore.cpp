@@ -1,6 +1,6 @@
-#include "WindowsSemaphore.h"
-#include "Abstraction.h"
+#include "windows/WindowsSemaphore.h"
 #include "Exception.h"
+#include <Windows.h>
 
 WindowsSemaphore::WindowsSemaphore(uint32_t maxCount, uint32_t initialCount) :
   m_semaphore(CreateSemaphore(NULL, initialCount, maxCount, NULL))

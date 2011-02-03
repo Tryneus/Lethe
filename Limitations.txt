@@ -1,9 +1,8 @@
 Known limitations or discrepancies between platforms:
 
 1. Linux events, semaphores, and mutexes don't support automatic reset
- - Current plan is to add another creation flag to eventfd (which all of these use) to decrement or reset (effectively a read operation) the counter on a successful wait
- - If fixed
-   - add a boolean to the constructors to enable automatic reset on a successful wait
+ - This has been fixed by use of a loadable kernel module (libCommon/module) which must be installed to use Mutexes, Semaphores, and Auto-Reset Events in Linux (otherwise their constructors will throw an exception)
+ - Working on testing and submitting a kernel patch to add this functionality to the base kernel 
  
 2. No method in Linux to wait for all file descriptors in a set before returning
  - No plan on implementing this at the moment, seems too easy to deadlock in Linux, and this can be left up to the user if they want something equivalent

@@ -1,8 +1,6 @@
-#include "WindowsMutex.h"
+#include "windows/WindowsMutex.h"
 #include "Exception.h"
-#include "Abstraction.h"
-#include "Windows.h"
-#include <sstream>
+#include <Windows.h>
 
 WindowsMutex::WindowsMutex(bool locked) :
   m_handle(CreateMutex(NULL, locked, NULL))

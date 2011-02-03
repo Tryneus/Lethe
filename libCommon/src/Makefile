@@ -4,7 +4,7 @@ COMPILE_FLAGS=-c -Wall -Wextra -Werror -fno-default-inline -O3 -g $(INCLUDE_FLAG
 LINKER_FLAGS=-rcv
 LIBRARY_DIR=../bin
 LIBRARY_FILE=libCommon.a
-OBJECT_FILES=Exception.o Log.o LinuxTimer.o LinuxEvent.o LinuxFunctions.o LinuxSemaphore.o LinuxMutex.o LinuxPipe.o LinuxThread.o LinuxHandleSet.o
+OBJECT_FILES=Exception.o Log.o LinuxTimer.o LinuxEvent.o LinuxFunctions.o LinuxSemaphore.o LinuxMutex.o LinuxPipe.o LinuxThread.o LinuxHandleSet.o BaseThread.o
 HEADER_FILES=$(shell find $(INCLUDE_DIRS) -name "*.h")
 
 all: $(LIBRARY_DIR)/$(LIBRARY_FILE)

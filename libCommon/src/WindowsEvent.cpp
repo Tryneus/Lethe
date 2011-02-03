@@ -1,11 +1,9 @@
-#include "WindowsEvent.h"
+#include "windows/WindowsEvent.h"
 #include "Exception.h"
-#include "Abstraction.h"
-#include "Windows.h"
-#include <sstream>
+#include <Windows.h>
 
-WindowsEvent::WindowsEvent(bool initialState) :
-  m_handle(CreateEvent(NULL, true, initialState, NULL))
+WindowsEvent::WindowsEvent(bool initialState, bool autoReset) :
+  m_handle(CreateEvent(NULL, !autoReset, initialState, NULL))
 {
   if(m_handle == INVALID_HANDLE_VALUE)
     throw Exception("Failed to create event: " + lastError());

@@ -1,7 +1,7 @@
-#include "WindowsHandleSet.h"
+#include "AbstractionFunctions.h"
+#include "AbstractionBasic.h"
 #include "Exception.h"
-#include "stdint.h"
-#include "Windows.h"
+#include <Windows.h>
 #include <string>
 #include <vector>
 #include <sstream>

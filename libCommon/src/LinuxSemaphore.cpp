@@ -1,6 +1,6 @@
-#include "LinuxSemaphore.h"
+#include "linux/LinuxSemaphore.h"
+#include "AbstractionFunctions.h"
 #include "Exception.h"
-#include "Abstraction.h"
 #include <unistd.h>
 #include "eventfd.h"
 

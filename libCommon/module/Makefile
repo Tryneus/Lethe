@@ -4,7 +4,9 @@ OS_ARCH := $(shell uname -m)
 KERNEL_SRC := /lib/modules/`uname -r`/build
 obj-m := eventfd.o
 
-all:
+all: eventfd.ko
+
+eventfd.ko: eventfd.c eventfd-internal.h
 	make -C $(KERNEL_SRC) M=`pwd` modules
 
 clean:

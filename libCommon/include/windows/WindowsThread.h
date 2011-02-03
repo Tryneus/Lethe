@@ -3,6 +3,7 @@
 
 #include <set>
 #include <string>
+#include "BaseThread.h"
 #include "WindowsEvent.h"
 #include "WindowsHandleSet.h"
 #include "Windows.h"
@@ -37,43 +38,32 @@
  *  problem with a user-provided handle.  Thread will not automatically remove this handle,
  *  but the user needs to fix or remove it, or abandoned will keep getting called.
  */
-class WindowsThread
+class WindowsThread : private BaseThread
 {
 public:
   WindowsThread(uint32_t timeout = 0);
   virtual ~WindowsThread();
 
-  void start();
-  void pause();
-  void stop();
+  using BaseThread::start;
+  using BaseThread::pause;
+  using BaseThread::stop;
 
-  bool isStopping() const { return m_exit; };
-  HANDLE getHandle() const { return m_handle; };
-  const std::string& getError() const { return m_error; };
+  using BaseThread::isStopping;
+  using BaseThread::getHandle;
+  using BaseThread::getError;
 
 protected:
-  virtual void iterate(HANDLE handle) = 0;
-  virtual void abandoned(HANDLE handle);
+  using BaseThread::iterate;
+  using BaseThread::abandoned;
 
-  void addWaitObject(HANDLE handle);
-  void removeWaitObject(HANDLE handle);
-  void setWaitTimeout(uint32_t timeout);
+  using BaseThread::addWaitObject;
+  using BaseThread::removeWaitObject;
+  using BaseThread::setWaitTimeout;
 
 private:
-  DWORD threadMain();
-
   static DWORD WINAPI threadHook(void*);
 
-  bool m_exit; // Tells the thread to exit its main loop
-
-  WindowsEvent m_runEvent; // This serves to tell the thread when it should be running
-  WindowsEvent m_pauseEvent; // This serves to switch the thread to wait for a run event
-
-  WindowsHandleSet m_handleSet; // A list of all handles provided by the implementation along with the pause event
-  uint32_t m_timeout;
-
   HANDLE m_handle; // The WIN32 handle of the thread
-  std::string m_error; // The text of any exception that gets to the main loop
 };
 
 #endif

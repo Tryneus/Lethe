@@ -16,7 +16,7 @@
 class WindowsEvent
 {
 public:
-  WindowsEvent(bool initialState);
+  WindowsEvent(bool initialState, bool autoReset);
   ~WindowsEvent();
 
   HANDLE getHandle() const;

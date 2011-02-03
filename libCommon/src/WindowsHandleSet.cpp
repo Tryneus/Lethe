@@ -1,7 +1,6 @@
-#include "WindowsHandleSet.h"
+#include "windows/WindowsHandleSet.h"
 #include "Exception.h"
-#include "Abstraction.h"
-#include "stdint.h"
+#include <Windows.h>
 
 WindowsHandleSet::WindowsHandleSet() :
   m_handleArray(NULL),

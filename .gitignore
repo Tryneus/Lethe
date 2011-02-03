@@ -1,11 +1,23 @@
 # Build directories
-*/bin
-thirdParty/*/
+/*/bin
+/thirdParty/*/
 
 # Linux build results
 *.o
 *.a
 *.ko
+
+# Linux kernel module build results
+/libCommon/module/*.ko.cmd
+/libCommon/module/*.o.cmd
+/libCommon/module/*.mod.c
+/libCommon/module/.tmp_versions/
+/libCommon/module/Module.symvers
+/libCommon/module/modules.order
+
+# Linux test results
+*/test/runTest.log
+*/test/valTest.log
 
 # Windows build results
 *.lib
@@ -17,8 +29,8 @@ thirdParty/*/
 *.layout
 
 # Visual Studio files
-*.ncb
-*.suo
+/*.ncb
+/*.suo
 *.vcproj*.user
 */src/Debug*
 */src/Release*

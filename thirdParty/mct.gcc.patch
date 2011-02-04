@@ -1,0 +1,44 @@
+*** mct/include/mct/impl/closed-hash-table.hpp	2011-02-04 21:13:27.437759824 +0100
+--- mct/include/mct/impl/closed-hash-table.hpp	2011-02-04 21:14:06.404756588 +0100
+***************
+*** 261,271 ****
+        {  return 0;  }
+  
+        void
+!       store_hash (std::size_t hash)
+        { }
+  
+        void
+!       copy_hash (const hash_storage& that)
+        { }
+  
+  
+--- 261,271 ----
+        {  return 0;  }
+  
+        void
+!       store_hash (std::size_t hash __attribute__((unused)))
+        { }
+  
+        void
+!       copy_hash (const hash_storage& that __attribute__((unused)))
+        { }
+  
+  
+***************
+*** 497,503 ****
+      public:
+  
+        bool
+!       used_and_matches (std::size_t hash) const
+        {  return !is_empty_or_debris ();  }
+  
+        bool
+--- 497,503 ----
+      public:
+  
+        bool
+!       used_and_matches (std::size_t hash __attribute__((unused))) const
+        {  return !is_empty_or_debris ();  }
+  
+        bool

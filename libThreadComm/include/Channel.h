@@ -7,7 +7,7 @@
 namespace ThreadComm
 {
 
-  class Channel
+  class Channel : public WaitObject
   {
   public:
     Channel(Header& in,
@@ -19,7 +19,7 @@ namespace ThreadComm
     void* receive();
     void  release(void* msg);
 
-    Handle getHandle();
+    // TODO: implement postWaitCallback to notify Header that there is a message ready
 
   private:
     Header& m_in;

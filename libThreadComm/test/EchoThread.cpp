@@ -9,12 +9,26 @@ EchoThread::EchoThread(ThreadComm::Channel& channel) :
   m_repliesToSend(0)
 {
   LogInfo("Echo thread handle: " << (uint32_t)getHandle());
-  addWaitObject(m_channel.getHandle());
+  addWaitObject(m_channel);
   setWaitTimeout(INFINITE);
 }
 
 EchoThread::~EchoThread()
 {
+  // Try to push through any messages left on the line, if we run out of space, oh well
+  try
+  {
+    while(true)
+      receiveMessage();
+  }
+  catch(Exception& ex)
+  {
+    if(ex.what() != "Receive called with nothing to receive")
+      throw;
+  }
+
+  sendReplies();
+
   LogInfo("Echo thread performed " << m_iterationCount << " iterations");
 }
 
@@ -52,11 +66,7 @@ void EchoThread::sendReplies()
       --m_repliesToSend;
     }
   }
-  catch(OutOfMemoryException&)
-  {
-    if(msg != NULL)
-      m_channel.release(msg);
-  }
+  catch(OutOfMemoryException&) { }
 }
 
 void EchoThread::abandoned(Handle handle)

@@ -10,7 +10,6 @@ using namespace ThreadComm;
 
 Header::Header(uint32_t size) :
   m_size(size),
-  m_waitingToSend(false),
   m_semaphore(size / sizeof(Message), 0),
   m_dataArea(new char[size]),
   m_receiveList(m_dataArea),
@@ -62,44 +61,14 @@ Message& Header::allocate(uint32_t size)
 
 void Header::send(Message& message)
 {
-  try
-  {
-    if(m_waitingToSend)
-      m_semaphore.unlock(1);
-    else
-      m_waitingToSend = false;
-  }
-  catch(...)
-  {
-    throw OutOfMemoryException("threadComm");
-  }
-
   message.setState(Message::Sent);
   m_receiveList.pushBack(message);
 
-  try
-  {
-    m_semaphore.unlock(1);
-  }
-  catch(...)
-  {
-    m_waitingToSend = true;
-  }
+  m_semaphore.unlock(1);
 }
 
 Message& Header::receive()
 {
-  // TODO: should we even both catching/throwing with different text?
-  try
-  {
-    // This should be done due a wait
-    // m_semaphore.lock();
-  }
-  catch(...)
-  {
-    throw Exception("Receive called with nothing to receive");
-  }
-
   Message* extraMessage;
   Message* message = m_receiveList.receive(extraMessage);
 
@@ -107,7 +76,7 @@ Message& Header::receive()
     m_releaseList.pushBack(*extraMessage);
 
   if(message == NULL)
-    throw Exception("Receive called with nothing to receive, but the semaphore said otherwise");
+    throw Exception("Receive called with nothing to receive");
 
   return *message;
 }

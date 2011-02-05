@@ -25,7 +25,6 @@ namespace ThreadComm
 
   private:
     uint32_t m_size;
-    bool m_waitingToSend;
     Semaphore m_semaphore;
 
     char* m_dataArea;

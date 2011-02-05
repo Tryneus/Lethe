@@ -10,14 +10,31 @@ SenderThread::SenderThread(ThreadComm::Channel& channel) :
   m_messagesReleased(0)
 {
   LogInfo("Sender thread handle: " << (uint32_t)getHandle());
-  addWaitObject(m_channel.getHandle());
+  addWaitObject(m_channel);
   setWaitTimeout(200);
 }
 
 SenderThread::~SenderThread()
 {
+  // Receive any messages left on the line before exiting
+  try
+  {
+    while(true)
+      receiveMessage();
+  }
+  catch(Exception& ex)
+  {
+    if(ex.what() != "Receive called with nothing to receive")
+      throw;
+  }
+
   LogInfo("Sender thread performed " << m_iterationCount << " iterations");
   LogInfo("Sender sent " << m_messagesSent << ", received " << m_messagesReleased);
+
+  if(m_messagesSent != m_messagesReleased)
+  {
+    LogError("Did not receive all replies");
+  }
 }
 
 void SenderThread::iterate(Handle handle)
@@ -50,11 +67,7 @@ void SenderThread::sendMessages()
       ++m_messagesSent;
     }
   }
-  catch(OutOfMemoryException&)
-  {
-    if(msg != NULL)
-      m_channel.release(msg);
-  }
+  catch(OutOfMemoryException&) { }
 }
 
 void SenderThread::abandoned(Handle handle)

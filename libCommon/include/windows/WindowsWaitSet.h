@@ -8,7 +8,7 @@
 // Prototype of the hash map, so users don't need the include
 namespace mct
 {
-  template<typename, typename>
+  template<typename, typename, typename, typename, typename, bool>
   class closed_hash_map;
 }
 
@@ -49,7 +49,13 @@ public:
 private:
   void resizeEvents();
 
-  mct::closed_hash_map<Handle, WaitObject*>* m_waitObjects;
+  mct::closed_hash_map<Handle,
+                       WaitObject*,
+                       std::tr1::hash<Handle>,
+                       std::equal_to<Handle>,
+                       std::allocator<std::pair<const Handle, WaitObject*> >,
+                       false>* m_waitObjects;
+
   Handle* m_handleArray;
   uint32_t m_offset;
 };

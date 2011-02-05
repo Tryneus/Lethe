@@ -36,7 +36,7 @@ void LinuxWaitSet::add(WaitObject& obj)
 
   epoll_event event;
   memset(&event, 0, sizeof(event));
-  event.events = EPOLLIN;
+  event.events = EPOLLIN | EPOLLERR | EPOLLHUP;
   event.data.fd = obj.getHandle();
 
   if(epoll_ctl(m_epollSet, EPOLL_CTL_ADD, event.data.fd, &event) != 0)
@@ -50,15 +50,20 @@ void LinuxWaitSet::add(WaitObject& obj)
 
 void LinuxWaitSet::remove(WaitObject& obj)
 {
+  remove(obj.getHandle());
+}
+
+void LinuxWaitSet::remove(Handle handle)
+{
   std::string error;
 
-  if(!m_waitObjects->erase(obj.getHandle()))
+  if(!m_waitObjects->erase(handle))
     error += "Failed to remove handle from hash map";
 
   epoll_event event;
   memset(&event, 0, sizeof(event));
-  event.events = EPOLLIN;
-  event.data.fd = obj.getHandle();
+  event.events = EPOLLIN | EPOLLERR | EPOLLHUP;
+  event.data.fd = handle;
 
   if(epoll_ctl(m_epollSet, EPOLL_CTL_DEL, event.data.fd, &event) != 0)
   {
@@ -71,22 +76,6 @@ void LinuxWaitSet::remove(WaitObject& obj)
 
   if(error.length() != 0)
     throw Exception(error);
-}
-
-void LinuxWaitSet::remove(Handle handle)
-{
-  WaitObject* obj;
-
-  try
-  {
-    obj = m_waitObjects->at(handle);
-  }
-  catch(std::out_of_range& ex)
-  {
-    throw Exception("Failed to find handle in hash map");
-  }
-
-  remove(*obj);
 }
 
 void LinuxWaitSet::resizeEvents()

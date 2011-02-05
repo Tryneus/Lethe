@@ -4,27 +4,44 @@
 #include <Windows.h>
 
 WindowsMutex::WindowsMutex(bool locked) :
-  m_handle(CreateMutex(NULL, locked, NULL))
+  WaitObject(CreateMutex(NULL, locked, NULL)),
+  m_ownerThread(locked ? GetCurrentThreadId() : -1)
 {
-  if(m_handle == INVALID_HANDLE_VALUE)
+  if(getHandle() == INVALID_HANDLE_VALUE)
     throw Exception("Failed to create mutex: " + lastError());
 }
 
 WindowsMutex::~WindowsMutex()
 {
-  if(!CloseHandle(m_handle))
+  if(!CloseHandle(getHandle()))
     throw Exception("Failed to close mutex: " + lastError());
 }
 
 void WindowsMutex::lock(uint32_t timeout)
 {
-  if(WaitForObject(m_handle, timeout) != WaitSuccess)
-    throw Exception("Failed to lock mutex: " + lastError());
+  if(m_ownerThread != GetCurrentThreadId())
+  {
+    if(WaitForObject(getHandle(), timeout) != WaitSuccess)
+      throw Exception("Failed to lock mutex: " + lastError());
+    m_ownerThread = GetCurrentThreadId();
+  }
 }
 
 void WindowsMutex::unlock()
 {
-  if(!ReleaseMutex(m_handle))
-    throw Exception("Failed to unlock mutex: " + lastError());
+  if(m_ownerThread == GetCurrentThreadId())
+  {
+    if(!ReleaseMutex(getHandle()))
+      throw Exception("Failed to unlock mutex: " + lastError());
+
+    m_ownerThread = -1;
+  }
+  else
+    throw Exception("Failed to unlock mutex: locked by a different thread");
 }
 
+void WindowsMutex::postWaitCallback(WaitResult result)
+{
+  if(result == WaitSuccess)
+    m_ownerThread = GetCurrentThreadId();
+}

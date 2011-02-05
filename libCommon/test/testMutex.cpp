@@ -12,10 +12,10 @@ TEST_CASE("mutex/structor", "Test construction/destruction")
 {
   // Create a lot of mutexes
   const uint32_t numMutexes(1000);
-  Mutex** mutexArray(new Mutex*[numMutexes]);
+  Mutex** mutexArray = new Mutex*[numMutexes];
 
   for(uint32_t i(0); i < numMutexes; ++i)
-  { 
+  {
     REQUIRE_NOTHROW(mutexArray[i] = new Mutex(!(i % 2)));
   }
 
@@ -188,7 +188,7 @@ TEST_CASE("mutex/exception", "Test that thread id is enforced")
 
     REQUIRE(WaitForObject(thread.getHandle(), 1000) == WaitSuccess);
     REQUIRE(thread.isStopping());
-    REQUIRE(thread.getError() == "Failed to unlock mutex: Attempt to release mutex not owned by caller. ");
+    REQUIRE(thread.getError() == "Failed to unlock mutex: locked by a different thread");
   }
 
   mutex.unlock();
@@ -198,7 +198,7 @@ TEST_CASE("mutex/exception", "Test that thread id is enforced")
 
     REQUIRE(WaitForObject(thread.getHandle(), 1000) == WaitSuccess);
     REQUIRE(thread.isStopping());
-    REQUIRE(thread.getError() == "Failed to unlock mutex: Attempt to release mutex not owned by caller. ");
+    REQUIRE(thread.getError() == "Failed to unlock mutex: locked by a different thread");
   }
   
   mutex.lock();
@@ -208,7 +208,7 @@ TEST_CASE("mutex/exception", "Test that thread id is enforced")
 
     REQUIRE(WaitForObject(thread.getHandle(), 1000) == WaitSuccess);
     REQUIRE(thread.isStopping());
-    REQUIRE(thread.getError() == "Failed to unlock mutex: Attempt to release mutex not owned by caller. ");
+    REQUIRE(thread.getError() == "Failed to unlock mutex: locked by a different thread");
   }
   
   // TODO: add more tests that use waitlock (will not throw an exception as of now)

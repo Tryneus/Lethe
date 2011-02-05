@@ -8,15 +8,15 @@
 const int64_t WindowsTimer::s_resetTimeout(-315360000000000);
 
 WindowsTimer::WindowsTimer() :
-  m_handle(CreateWaitableTimer(NULL, true, NULL))
+  WaitObject(CreateWaitableTimer(NULL, true, NULL))
 {
-  if(m_handle == INVALID_HANDLE_VALUE)
+  if(getHandle() == INVALID_HANDLE_VALUE)
     throw Exception("Failed to create timer: " + lastError());
 }
 
 WindowsTimer::~WindowsTimer()
 {
-  if(!CloseHandle(m_handle))
+  if(!CloseHandle(getHandle()))
     throw Exception("Failed to close timer: " + lastError());
 }
 
@@ -25,13 +25,13 @@ void WindowsTimer::start(uint32_t timeout)
   LARGE_INTEGER elapseTime;
   elapseTime.QuadPart = -(static_cast<int64_t>(timeout) * 10000);
 
-  if(!SetWaitableTimer(m_handle, &elapseTime, 0, NULL, NULL, false))
+  if(!SetWaitableTimer(getHandle(), &elapseTime, 0, NULL, NULL, false))
     throw Exception("Failed to start timer: " + lastError());
 }
 
 void WindowsTimer::stop()
 {
-  if(!CancelWaitableTimer(m_handle))
+  if(!CancelWaitableTimer(getHandle()))
     throw Exception("Failed to stop timer: " + lastError());
 }
 
@@ -40,6 +40,6 @@ void WindowsTimer::clear()
   LARGE_INTEGER elapseTime;
   elapseTime.QuadPart = s_resetTimeout;
 
-  if(!SetWaitableTimer(m_handle, &elapseTime, 0, NULL, NULL, false))
+  if(!SetWaitableTimer(getHandle(), &elapseTime, 0, NULL, NULL, false))
     throw Exception("Failed to clear timer: " + lastError());
 }

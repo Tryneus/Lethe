@@ -17,6 +17,12 @@ public:
 
   void lock(uint32_t timeout = INFINITE);
   void unlock();
+
+protected:
+  void postWaitCallback(WaitResult result);
+
+private:
+  DWORD m_ownerThread;
 };
 
 #endif

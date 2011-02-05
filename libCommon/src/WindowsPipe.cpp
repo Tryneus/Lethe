@@ -4,6 +4,7 @@
 #include <Windows.h>
 
 WindowsPipe::WindowsPipe() :
+  WaitObject(INVALID_HANDLE_VALUE),
   m_pipeRead(INVALID_HANDLE_VALUE),
   m_pipeWrite(INVALID_HANDLE_VALUE),
   m_pendingData(NULL),
@@ -12,9 +13,9 @@ WindowsPipe::WindowsPipe() :
 {
   if(!CreatePipe(&m_pipeRead, &m_pipeWrite, NULL, 16384))
     throw Exception("Failed to create pipe: " + lastError());
-  
+
   DWORD nonBlocking(PIPE_NOWAIT);
-  
+
   if(!SetNamedPipeHandleState(m_pipeRead, &nonBlocking, NULL, NULL) ||
      !SetNamedPipeHandleState(m_pipeWrite, &nonBlocking, NULL, NULL))
   {
@@ -23,6 +24,8 @@ WindowsPipe::WindowsPipe() :
     CloseHandle(m_pipeWrite);
     throw Exception("Failed to set pipe flags: " + errorString);
   }
+
+  setWaitHandle(m_pipeRead);
 }
 
 WindowsPipe::~WindowsPipe()

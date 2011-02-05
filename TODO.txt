@@ -1,0 +1,11 @@
+Features:
+  libCommon:
+    Add thread restart() function to allow a closed thread to begin again
+    Enforce limits on semaphore value
+    Allow mutexes to accumulate locks when relocked by the same thread
+    Add LinuxWaitSet::waitAll implementation
+
+Fixes (see limitations):
+  eventfd linux kernel patch
+  timerfd linux kernel patch
+  pipe asynchronous write

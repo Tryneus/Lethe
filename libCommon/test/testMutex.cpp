@@ -56,7 +56,7 @@ private:
       throw Exception("Iterate called with invalid parameter");
     }
 
-    if(WaitForObject(m_event.getHandle(), 2000) != WaitSuccess)
+    if(WaitForObject(m_event, 2000) != WaitSuccess)
     {
       m_iterating = false;
       throw Exception("Thread did not receive secondary event");
@@ -115,8 +115,8 @@ TEST_CASE("mutex/autolock", "Test auto-lock and unlock with multiple waiting thr
     uint32_t iterateCount(0);
     Handle exitedThread;
 
-    // Wait some time time make sure no threads exit prematurely
-    REQUIRE(activeThreads.waitAny(250, exitedThread) == WaitTimeout);
+    // Wait some time to make sure no threads exit prematurely
+    REQUIRE(activeThreads.waitAny(100, exitedThread) == WaitTimeout);
 
     // Loop through the threads, make sure exactly one is in iterate
     for(uint32_t i(0); i < threadCount; ++i)
@@ -178,39 +178,67 @@ ExceptionTestThread::ExceptionTestThread(Mutex& mutex) :
   // Do nothing
 }
 
-TEST_CASE("mutex/exception", "Test that thread id is enforced")
+// Helper function to cut down on copy-paste
+void runExceptionThread(Mutex& mutex)
 {
-  Mutex mutex(true);
-  Event event(false, true);
+  ExceptionTestThread thread(mutex);
+  thread.start();
 
-  {
-    ExceptionTestThread thread(mutex);
-    thread.start();
+  REQUIRE(WaitForObject(thread, 1000) == WaitSuccess);
+  REQUIRE(thread.isStopping());
+  REQUIRE(thread.getError() == "Failed to unlock mutex: this thread is not the owner");
+}
 
-    REQUIRE(WaitForObject(thread.getHandle(), 1000) == WaitSuccess);
-    REQUIRE(thread.isStopping());
-    REQUIRE(thread.getError() == "Failed to unlock mutex: locked by a different thread");
-  }
+void runExceptionTest(bool initialState)
+{
+  // Start with a locked mutex
+  Mutex mutex(initialState);
+  runExceptionThread(mutex);
 
-  mutex.unlock();
-  {
-    ExceptionTestThread thread(mutex);
-    thread.start();
-
-    REQUIRE(WaitForObject(thread.getHandle(), 1000) == WaitSuccess);
-    REQUIRE(thread.isStopping());
-    REQUIRE(thread.getError() == "Failed to unlock mutex: locked by a different thread");
-  }
+  if(initialState)
+    mutex.unlock();
+  runExceptionThread(mutex);
 
   mutex.lock();
-  {
-    ExceptionTestThread thread(mutex);
-    thread.start();
+  runExceptionThread(mutex);
 
-    REQUIRE(WaitForObject(thread.getHandle(), 1000) == WaitSuccess);
-    REQUIRE(thread.isStopping());
-    REQUIRE(thread.getError() == "Failed to unlock mutex: locked by a different thread");
-  }
+  mutex.unlock();
+  runExceptionThread(mutex);
 
-  // TODO: add more tests that use waitlock (will not throw an exception as of now)
+  // Autolock tests
+  WaitForObject(mutex);
+  runExceptionThread(mutex);
+
+  mutex.unlock();
+  runExceptionThread(mutex);
+
+  WaitForObject(mutex);
+  runExceptionThread(mutex);
+
+  // Manual lock tests again to make sure it isn't in a bad state
+  mutex.unlock();
+  runExceptionThread(mutex);
+
+  mutex.lock();
+  runExceptionThread(mutex);
+
+  mutex.unlock();
+  runExceptionThread(mutex);
+}
+
+TEST_CASE("mutex/exception", "Test that thread id is enforced")
+{
+  // Try the same test with both initial states
+  runExceptionTest(true);
+  runExceptionTest(false);
+}
+
+TEST_CASE("mutex/lock", "Test manual locking behavior")
+{
+  // TODO: implement mutex/lock
+}
+
+TEST_CASE("mutex/timeout", "Test timeout behavior")
+{
+  // TODO: implement mutex/timeout
 }

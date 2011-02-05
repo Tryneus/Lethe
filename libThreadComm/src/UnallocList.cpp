@@ -1,6 +1,5 @@
 #include "UnallocList.h"
 #include "Exception.h"
-#include "Log.h"
 
 using namespace ThreadComm;
 

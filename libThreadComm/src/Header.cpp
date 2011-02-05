@@ -1,6 +1,5 @@
 #include "Header.h"
 #include "Exception.h"
-#include "Log.h"
 
 #if defined(_WIN32)
 #include <new.h>

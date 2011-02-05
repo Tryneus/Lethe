@@ -24,6 +24,7 @@ void LinuxMutex::lock(uint32_t timeout)
   {
     if(WaitForObject(getHandle(), timeout) != WaitSuccess)
       throw Exception("Failed to lock mutex: " + lastError());
+
     m_ownerThread = pthread_self();
   }
 }
@@ -32,12 +33,11 @@ void LinuxMutex::unlock()
 {
   if(m_ownerThread == pthread_self())
   {
-    uint64_t count(1);
+    m_ownerThread = -1;
 
+    uint64_t count(1);
     if(write(getHandle(), &count, sizeof(count)) != sizeof(count))
       throw Exception("Failed to unlock mutex: " + lastError());
-
-    m_ownerThread = -1;
   }
   else
     throw Exception("Failed to unlock mutex: locked by a different thread");

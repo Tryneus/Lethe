@@ -31,10 +31,10 @@ void WindowsMutex::unlock()
 {
   if(m_ownerThread == GetCurrentThreadId())
   {
+    m_ownerThread = -1;
+
     if(!ReleaseMutex(getHandle()))
       throw Exception("Failed to unlock mutex: " + lastError());
-
-    m_ownerThread = -1;
   }
   else
     throw Exception("Failed to unlock mutex: locked by a different thread");

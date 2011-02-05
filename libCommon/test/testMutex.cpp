@@ -1,5 +1,6 @@
 #include "Abstraction.h"
 #include "Exception.h"
+#include "Log.h"
 #include "catch.hpp"
 
 /**
@@ -127,7 +128,16 @@ TEST_CASE("mutex/autolock", "Test auto-lock and unlock with multiple waiting thr
     event.set();
 
     // Check that the thread finishes
-    REQUIRE(activeThreads.waitAny(100, exitedThread) == WaitSuccess);
+    //REQUIRE(activeThreads.waitAny(1000, exitedThread) == WaitSuccess);
+    if(activeThreads.waitAny(1000, exitedThread) != WaitSuccess)
+    {
+      for(uint32_t i(0); i < threadCount; ++i)
+        if(threadArray[i]->getError().length() != 0)
+          LogError(threadArray[i]->getError());
+
+      REQUIRE(false);
+    }
+
     activeThreads.remove(exitedThread);
   }
 

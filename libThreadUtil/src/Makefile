@@ -1,18 +1,26 @@
-INCLUDE_FLAGS=-I../include -I../../libCommon/include -I../../libThreadComm/include -I../../libProcessComm/include -I../../libSocketComm/include
-INCLUDE_DIRS=$(subst -I,,$(INCLUDE_FLAGS))
-COMPILE_FLAGS=-c -Wall -Wextra -Werror -fno-default-inline -O3 -g $(INCLUDE_FLAGS)
-LINKER_FLAGS=-rcv
-LIBRARY_DIR=../bin
-LIBRARY_FILE=libThreadUtil.a
-OBJECT_FILES=
-HEADER_FILES=$(shell find $(INCLUDE_DIRS) -name "*.h")
+INCLUDE_FLAGS:=-I../include \
+               -I../../libCommon/include \
+               -I../../libThreadComm/include \
+               -I../../libProcessComm/include \
+               -I../../libSocketComm/include
 
-all: $(LIBRARY_DIR)/$(LIBRARY_FILE)
+INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
+HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')
+
+COMPILE_FLAGS:=-c -Wall -Wextra -Werror -fno-default-inline -O3 -g $(INCLUDE_FLAGS)
+LINKER_FLAGS :=-rcv
+
+LIBRARY_DIR  :=../bin
+LIBRARY_FILE :=$(LIBRARY_DIR)/libThreadUtil.a
+
+OBJECT_FILES :=
+
+all: $(LIBRARY_FILE)
 
 clean:
-	rm -rf $(LIBRARY_DIR)/$(LIBRARY_FILE) $(OBJECT_FILES)
+	rm -rf $(LIBRARY_FILE) $(OBJECT_FILES)
 
-$(LIBRARY_DIR)/$(LIBRARY_FILE): $(OBJECT_FILES)
+$(LIBRARY_FILE): $(OBJECT_FILES)
 	mkdir -p $(LIBRARY_DIR)
 	ar $(LINKER_FLAGS) $@ $(OBJECT_FILES)
 

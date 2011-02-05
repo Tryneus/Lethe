@@ -19,12 +19,12 @@
  *  initialization before it has been created.
  *
  * Example:
- *   class Foo : public StaticSingleton<Foo>
- *   {
- *   private:
- *     friend class StaticSingleton<Foo>;
- *     Foo();
- *   };
+ *  class Foo : public StaticSingleton<Foo>
+ *  {
+ *  private:
+ *    friend class StaticSingleton<Foo>;
+ *    Foo();
+ *  };
  */
 template <class T>
 class StaticSingleton

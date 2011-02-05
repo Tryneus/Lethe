@@ -13,12 +13,12 @@
  *  an instance of your class).
  *
  * Example:
- *   class Foo : public Singleton<Foo>
- *   {
- *   private:
- *     friend class Singleton<Foo>;
- *     Foo();
- *   };
+ *  class Foo : public Singleton<Foo>
+ *  {
+ *  private:
+ *    friend class Singleton<Foo>;
+ *    Foo();
+ *  };
  */
 template <class T>
 class Singleton
@@ -52,7 +52,7 @@ private:
 };
 
 template <class T>
-T* Singleton<T>::s_instance = NULL;
+T* Singleton<T>::s_instance(NULL);
 
 template <class T>
 Mutex Singleton<T>::s_mutex;

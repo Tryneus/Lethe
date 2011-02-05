@@ -1,7 +1,10 @@
 Use Makefiles on Linux (gcc) or Visual Studio for Windows (tested on 2008)
 
-The Linux build requires eventfd with EFD_SEMAPHORE support (should be 2.6.30 or later)
-
+Requirements:
+  Linux:
+    Requires the eventfd kernel module to be loaded (libCommon/module)
+    'make' requires 'scons' and 'python-docutils' to be installed (due to thirdParty/mct)
+    'make valTest' requires 'valgrind' to be installed
 
 Modules:
 
@@ -16,7 +19,7 @@ libCommon
     Event
     Timer
 
-  Also included are HandleSets (used to aggregate the synchronization objects above to perform multiplexed waits), a Log class (providing a thread-safe ostream-style interface), a base Exception class (nothing special), and a base Singleton class.
+  Also included are WaitSets (used to aggregate the synchronization objects above to perform multiplexed waits), a Log class (providing a thread-safe ostream-style interface), a base Exception class (nothing special), and a base Singleton class.
 
 
 libThreadComm

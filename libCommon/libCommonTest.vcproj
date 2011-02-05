@@ -328,7 +328,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\test\testHandleSet.cpp"
+				RelativePath=".\test\testWaitSet.cpp"
 				>
 			</File>
 			<File

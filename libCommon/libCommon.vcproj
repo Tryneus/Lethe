@@ -303,7 +303,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsHandleSet.cpp"
+					RelativePath=".\src\WindowsWaitSet.cpp"
 					>
 				</File>
 				<File
@@ -381,7 +381,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\include\windows\WindowsHandleSet.h"
+					RelativePath=".\include\windows\WindowsWaitSet.h"
 					>
 				</File>
 				<File

@@ -4,13 +4,19 @@ INCLUDE_FLAGS:=-I../include \
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
 HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')
 
-COMPILE_FLAGS:=-c -Wall -Wextra -Werror -fno-default-inline -O3 -g $(INCLUDE_FLAGS)
+COMPILE_FLAGS:=-c -Wall -Wextra -Werror -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS :=-rcv
 
 LIBRARY_DIR  :=../bin
 LIBRARY_FILE :=$(LIBRARY_DIR)/libThreadComm.a
 
-OBJECT_FILES :=Channel.o Connection.o Header.o List.o Message.o ReceiveList.o UnallocList.o
+OBJECT_FILES :=Channel.o \
+               Connection.o \
+               Header.o \
+               List.o \
+               Message.o \
+               ReceiveList.o \
+               UnallocList.o
 
 all: $(LIBRARY_FILE)
 

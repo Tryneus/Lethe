@@ -1,5 +1,6 @@
-#include "AbstractionFunctions.h"
+#include "AbstractionTypes.h"
 #include "AbstractionBasic.h"
+#include "AbstractionFunctions.h"
 #include "Exception.h"
 #include <Windows.h>
 #include <string>
@@ -9,7 +10,7 @@
 
 std::string lastError()
 {
-  TCHAR* buffer = NULL;
+  TCHAR* buffer(NULL);
 
   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
                 FORMAT_MESSAGE_FROM_SYSTEM |
@@ -31,10 +32,10 @@ std::string lastError()
 void getFileList(const std::string& directory,
                  std::vector<std::string>& fileList)
 {
-  fileList.clear();
   WIN32_FIND_DATA fileData;
+  Handle findHandle(FindFirstFile(directory.c_str(), &fileData));
 
-  HANDLE findHandle = FindFirstFile(directory.c_str(), &fileData);
+  fileList.clear();
 
   if(findHandle != INVALID_HANDLE_VALUE)
   {
@@ -91,7 +92,7 @@ uint32_t seedRandom(uint32_t seed)
   return seed;
 }
 
-int WaitForObject(HANDLE handle, uint32_t timeout)
+WaitResult WaitForObject(Handle handle, uint32_t timeout)
 {
   switch(WaitForSingleObject(handle, timeout))
   {

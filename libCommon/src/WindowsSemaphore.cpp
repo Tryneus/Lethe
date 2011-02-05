@@ -18,18 +18,12 @@ WindowsSemaphore::~WindowsSemaphore()
 
 void WindowsSemaphore::lock(uint32_t timeout)
 {
-  // TODO: get WAITREAD working on linux, the lock happens at wait
-  // if(WaitForObject(m_semaphore, timeout) != WaitSuccess)
-  //   throw Exception("Failed to lock semaphore: " + lastError());
+  if(WaitForObject(m_semaphore, timeout) != WaitSuccess)
+    throw Exception("Failed to lock semaphore: " + lastError());
 }
 
 void WindowsSemaphore::unlock(uint32_t count)
 {
   if(!ReleaseSemaphore(m_semaphore, count, NULL))
     throw Exception("Failed to release semaphore: " + lastError());
-}
-
-HANDLE WindowsSemaphore::getHandle()
-{
-  return m_semaphore;
 }

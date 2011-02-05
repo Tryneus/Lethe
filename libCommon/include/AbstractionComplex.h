@@ -23,7 +23,7 @@
   #include "linux/LinuxThread.h"
 
 #else
-  #error Platform not detected
+  #error "Platform not detected"
 #endif
 
 #endif

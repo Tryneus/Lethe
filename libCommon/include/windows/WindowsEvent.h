@@ -1,7 +1,7 @@
 #ifndef _WINDOWSEVENT_H
 #define _WINDOWSEVENT_H
 
-#include "Windows.h"
+#include "WaitObject.h"
 
 /*
  * The WindowsEvent class provides a waitable event wrapper class for Windows.
@@ -13,19 +13,14 @@
  *  the eventfd subsystem in Linux, and a kernel module is under development for
  *  this purpose.
  */
-class WindowsEvent
+class WindowsEvent : public WaitObject
 {
 public:
   WindowsEvent(bool initialState, bool autoReset);
   ~WindowsEvent();
 
-  HANDLE getHandle() const;
-
   void set();
   void reset();
-
-private:
-  HANDLE m_handle;
 };
 
 #endif

@@ -28,7 +28,3 @@ void WindowsMutex::unlock()
     throw Exception("Failed to unlock mutex: " + lastError());
 }
 
-HANDLE WindowsMutex::getHandle()
-{
-  return m_handle;
-}

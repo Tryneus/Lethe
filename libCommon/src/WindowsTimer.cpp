@@ -20,11 +20,6 @@ WindowsTimer::~WindowsTimer()
     throw Exception("Failed to close timer: " + lastError());
 }
 
-HANDLE WindowsTimer::getHandle() const
-{
-  return m_handle;
-}
-
 void WindowsTimer::start(uint32_t timeout)
 {
   LARGE_INTEGER elapseTime;

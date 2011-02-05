@@ -35,32 +35,16 @@
  *  problem with a user-provided handle.  Thread will not automatically remove this handle,
  *  but the user needs to fix or remove it, or abandoned will keep getting called.
  */
-class LinuxThread : private BaseThread
+class LinuxThread : public BaseThread
 {
 public:
   LinuxThread(uint32_t timeout = 0);
   virtual ~LinuxThread();
-   
-  using BaseThread::start;
-  using BaseThread::pause;
-  using BaseThread::stop;
-   
-  using BaseThread::isStopping;
-  using BaseThread::getHandle;
-  using BaseThread::getError;
-   
-protected:
-  using BaseThread::iterate;
-  using BaseThread::abandoned;
-  
-  using BaseThread::addWaitObject;
-  using BaseThread::removeWaitObject;
-  using BaseThread::setWaitTimeout;
 
 private:
   static void* threadHook(void*);
 
-  pthread_t m_thread;      
+  pthread_t m_thread;
 };
 
 #endif

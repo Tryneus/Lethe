@@ -34,30 +34,29 @@
   #define LOG_BASE(level) level << Log::Time << ", " << __FILE__ << ":" << __LINE__ 
 #endif
 
-// TODO: Add if statements here to skip the log statement if that level is turned off at runtime
 #ifndef DISABLE_LOG_ERROR
-  #define LogError(a) do { Log& log = Log::getInstance(); \
+  #define LogError(a) do { Log& log = Log::getInstance(); if(log.getLevel() >= Log::Error) { \
                            log.lock(); \
                            log << LOG_BASE(Log::Error) << " Error - " << a << Log::Commit; \
-                           log.unlock(); } while(0)
+                           log.unlock(); } } while(0)
 #else
   #define LogError(...) do { ; } while(0)
 #endif
 
 #ifndef DISABLE_LOG_INFO
-  #define LogInfo(a)  do { Log& log = Log::getInstance(); \
+  #define LogInfo(a)  do { Log& log = Log::getInstance(); if(log.getLevel() >= Log::Info) { \
                            log.lock(); \
                            log << LOG_BASE(Log::Info) << " Info - " << a << Log::Commit; \
-                           log.unlock(); } while(0)
+                           log.unlock(); } } while(0)
 #else
   #define LogInfo(...) do { ; } while(0)
 #endif
 
 #ifndef DISABLE_LOG_DEBUG
-  #define LogDebug(a) do { Log& log = Log::getInstance(); \
+  #define LogDebug(a) do { Log& log = Log::getInstance(); if(log.getLevel() >= Log::Debug) { \
                            log.lock(); \
                            log << LOG_BASE(Log::Debug) << " Debug - " << a << Log::Commit; \
-                           log.unlock(); } while(0)
+                           log.unlock(); } } while(0)
 #else
   #define LogDebug(...) do { ; } while(0)
 #endif
@@ -73,6 +72,9 @@ public:
     Debug = 2,
     NumLevels = 3
   };
+
+  Level getLevel() const;
+  void setLevel(Level level);
 
   void disable();
   void setStdoutMode(Level level = Debug);

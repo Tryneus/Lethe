@@ -1,32 +1,29 @@
 #ifndef _LINUXMUTEX_H
 #define _LINUXMUTEX_H
 
-#include "LinuxSemaphore.h"
+#include "WaitObject.h"
+#include "AbstractionTypes.h"
 #include <pthread.h>
-#include <stdint.h>
 
 /*
- * The LinuxMutex class is a specialization of LinuxSemaphore, being a
- *  semaphore with a maximum value of 1.  Once a wait has been completed
- *  on the Mutex handle, the user must call lock() to obtain the lock.
+ * The LinuxMutex class is extremely similar to LinuxSemaphore, being a
+ *  semaphore with a maximum value of 1.
  *
- * In the future, this will be extended to automatically lock on a wait,
- *  but that will require a change to the eventfd subsystem in Linux.  A
- *  kernel module is in development to extend eventfd (see ../module).
  */
-class LinuxMutex : private LinuxSemaphore
+class LinuxMutex : public WaitObject
 {
 public:
-   LinuxMutex(bool locked = false);
-   ~LinuxMutex();
+  LinuxMutex(bool locked = false);
+  ~LinuxMutex();
 
-   void lock(uint32_t timeout = -1);
-   void unlock();
+  void lock(uint32_t timeout = INFINITE);
+  void unlock();
 
-   int getHandle();
+protected:
+  void postWaitCallback(WaitResult result);
 
 private:
-   pthread_t m_ownerThread;
+  pthread_t m_ownerThread;
 };
 
 #endif

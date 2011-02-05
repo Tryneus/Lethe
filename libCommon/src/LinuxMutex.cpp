@@ -1,44 +1,50 @@
 #include "linux/LinuxMutex.h"
+#include "AbstractionFunctions.h"
 #include "Exception.h"
 #include <pthread.h>
+#include "eventfd.h"
 
 LinuxMutex::LinuxMutex(bool locked) :
-  LinuxSemaphore(1, (locked ? 0 : 1)),
+  WaitObject(eventfd((locked ? 0 : 1), (EFD_NONBLOCK | EFD_SEMAPHORE | EFD_WAITREAD))),
   m_ownerThread(locked ? pthread_self() : -1)
 {
-  // Do nothing
+  if(getHandle() == INVALID_HANDLE_VALUE)
+    throw Exception("Failed to create mutex: " + lastError());
 }
 
 LinuxMutex::~LinuxMutex()
 {
-  // Do nothing
+  if(close(getHandle()) != 0)
+    throw Exception("Failed to close mutex: " + lastError());
 }
 
 void LinuxMutex::lock(uint32_t timeout)
 {
   if(m_ownerThread != pthread_self())
   {
-    LinuxSemaphore::lock(timeout);
+    if(WaitForObject(getHandle(), timeout) != WaitSuccess)
+      throw Exception("Failed to lock mutex: " + lastError());
     m_ownerThread = pthread_self();
   }
 }
 
 void LinuxMutex::unlock()
 {
-  if(m_ownerThread == (pthread_t)(-1) || m_ownerThread == pthread_self())
+  if(m_ownerThread == pthread_self())
   {
-    LinuxSemaphore::unlock(1);
-    m_ownerThread = -1;
+    uint64_t count(1);
+
+    if(write(getHandle(), &count, sizeof(count)) != sizeof(count))
+      throw Exception("Failed to unlock mutex: " + lastError());
   }
   else
-    // TODO: this exception will only be thrown if the mutex is explicitly
-    //  locked() by a different thread.  A waitlock will not keep track of the
-    //  thread id.
-    throw Exception("Failed to unlock mutex: Attempt to release mutex not owned by caller.");
+    throw Exception("Failed to unlock mutex: Attempt to release mutex not owned by caller. ");
 }
 
-int LinuxMutex::getHandle()
+void LinuxMutex::postWaitCallback(WaitResult result)
 {
-  return LinuxSemaphore::getHandle();
+  if(result == WaitSuccess)
+  {
+    m_ownerThread = pthread_self();
+  }
 }
-

@@ -1,19 +1,21 @@
-#ifndef _LINUXHANDLESET_H
-#define _LINUXHANDLESET_H
+#ifndef _LINUXWAITSET_H
+#define _LINUXWAITSET_H
 
+#include "AbstractionTypes.h"
+#include "WaitObject.h"
+#include <tr1/functional>
 #include <sys/epoll.h>
 #include <set>
 
-// Some defines to copy identifiers used in WIN32
-#define INVALID_HANDLE_VALUE -1
-#define INFINITE -1
-
-#define WaitSuccess    0
-#define WaitAbandoned -1
-#define WaitTimeout   -2
+// Prototype of the hash map, so users don't need the include
+namespace mct
+{
+  template<typename, typename, typename, typename, typename, bool>
+  class closed_hash_map;
+}
 
 /*
- * The LinuxHandleSet class provides a method of grouping and waiting on multiple
+ * The LinuxWaitSet class provides a method of grouping and waiting on multiple
  *  handles (file descriptors in Linux).  Handles may be added and removed, and when
  *  a wait function is called, it will return the result of the wait as well as the
  *  handle that triggered the wakeup.  If there is an error on a handle, the wait
@@ -28,27 +30,34 @@
  * The waitAll function is currently unimplemented on Linux.  There are no plans as
  *  to how to implement this at the moment.
  */
-class LinuxHandleSet
+class LinuxWaitSet
 {
 public:
-  LinuxHandleSet();
-  ~LinuxHandleSet();
+  LinuxWaitSet();
+  ~LinuxWaitSet();
 
-  void add(int fd);
-  void remove(int fd);
+  void add(WaitObject& obj);
+
+  void remove(WaitObject& obj);
+  void remove(Handle handle);
 
   size_t getSize() const;
-  const std::set<int>& getSet() const;
 
-  int waitAll(uint32_t timeout, int& fd);
-  int waitAny(uint32_t timeout, int& fd);
+  WaitResult waitAll(uint32_t timeout, Handle& handle);
+  WaitResult waitAny(uint32_t timeout, Handle& handle);
 
 private:
   void resizeEvents();
 
-  int m_epollSet;
-  std::set<int> m_fdSet;
+  Handle m_epollSet;
 
+  mct::closed_hash_map<Handle,
+                       WaitObject*,
+                       std::tr1::hash<Handle>,
+                       std::equal_to<Handle>,
+                       std::allocator<std::pair<const Handle, WaitObject*> >,
+                       false>* m_waitObjects;
+  
   epoll_event* m_events;
   int m_eventCount;
 };

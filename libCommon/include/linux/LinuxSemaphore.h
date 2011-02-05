@@ -1,7 +1,8 @@
 #ifndef _LINUXSEMAPHORE_H
 #define _LINUXSEMAPHORE_H
 
-#include <stdint.h>
+#include "WaitObject.h"
+#include "AbstractionTypes.h"
 
 /*
  * The LinuxSemaphore class provides a wrapper to the eventfd subsystem,
@@ -12,19 +13,14 @@
  *  but that will require a change to the eventfd subsystem in Linux.  A
  *  kernel module is in development to extend eventfd (see ../module).
  */
-class LinuxSemaphore
+class LinuxSemaphore : public WaitObject
 {
 public:
   LinuxSemaphore(uint32_t maxCount, uint32_t initialCount);
   ~LinuxSemaphore();
 
-  void lock(uint32_t timeout = -1);
+  void lock(uint32_t timeout = INFINITE);
   void unlock(uint32_t count);
-
-  int getHandle();
-
-private:
-  int m_semaphore;
 };
 
 #endif

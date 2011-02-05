@@ -1,8 +1,8 @@
 #ifndef _WINDOWSSEMAPHORE_H
 #define _WINDOWSSEMAPHORE_H
 
-#include "Windows.h"
-#include "stdint.h"
+#include "WaitObject.h"
+#include "AbstractionTypes.h"
 
 /*
  * The WindowsSemaphore class provides a wrapper of CreateSemaphore on Windows.
@@ -14,7 +14,7 @@
  *  but that will require a change to the eventfd subsystem in Linux.  A
  *  kernel module is in development to extend eventfd (see ../module).
  */
-class WindowsSemaphore
+class WindowsSemaphore : public WaitObject
 {
 public:
   WindowsSemaphore(uint32_t maxCount, uint32_t initialCount);
@@ -22,11 +22,6 @@ public:
 
   void lock(uint32_t timeout = INFINITE);
   void unlock(uint32_t count);
-
-  HANDLE getHandle();
-
-private:
-  HANDLE m_semaphore;
 };
 
 #endif

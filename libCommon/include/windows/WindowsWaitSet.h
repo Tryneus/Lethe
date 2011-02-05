@@ -1,16 +1,19 @@
-#ifndef _WINDOWSHANDLESET_H
-#define _WINDOWSHANDLESET_H
+#ifndef _WINDOWSWAITSET_H
+#define _WINDOWSWAITSET_H
 
-#include "stdint.h"
-#include "Windows.h"
+#include "AbstractionTypes.h"
+#include "WaitObject.h"
 #include <set>
 
-#define WaitSuccess    0
-#define WaitAbandoned -1
-#define WaitTimeout   -2
+// Prototype of the hash map, so users don't need the include
+namespace mct
+{
+  template<typename, typename>
+  class closed_hash_map;
+}
 
 /*
- * The WindowsHandleSet class provides a method of grouping and waiting on multiple
+ * The WindowsWaitSet class provides a method of grouping and waiting on multiple
  *  handles.  Handles may be added and removed, and when a wait function is called,
  *  it will return the result of the wait as well as the handle that triggered the
  *  wakeup.  If there is an error on a handle, the wait result will be WaitAbandoned,
@@ -28,28 +31,26 @@
  *  are no plans at the moment on how to implement it there.  For the most portability,
  *  only use waitAny.
  */
-class WindowsHandleSet
+class WindowsWaitSet
 {
 public:
-  WindowsHandleSet();
-  ~WindowsHandleSet();
+  WindowsWaitSet();
+  ~WindowsWaitSet();
 
-  void add(HANDLE handle);
-  void remove(HANDLE handle);
+  void add(WaitObject& obj);
+  void remove(WaitObject& obj);
+  void remove(Handle handle);
 
   size_t getSize() const;
-  const std::set<HANDLE>& getSet() const;
 
-  int waitAll(uint32_t timeout, HANDLE& handle);
-  int waitAny(uint32_t timeout, HANDLE& handle);
+  WaitResult waitAll(uint32_t timeout, Handle& handle);
+  WaitResult waitAny(uint32_t timeout, Handle& handle);
 
 private:
   void resizeEvents();
 
-  std::set<HANDLE> m_handleSet;
-  HANDLE* m_handleArray;
-  HANDLE m_brokenHandle;
-
+  mct::closed_hash_map<Handle, WaitObject*>* m_waitObjects;
+  Handle* m_handleArray;
   uint32_t m_offset;
 };
 

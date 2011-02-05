@@ -3,35 +3,29 @@
 
 #include "AbstractionTypes.h"
 
-// Prototypes of HandleSets for friending purposes
-class WindowsHandleSet;
-class LinuxHandleSet;
+// Prototypes of WaitSets for friending purposes
+class WindowsWaitSet;
+class LinuxWaitSet;
 
 class WaitObject
 {
 public:
-  // TODO: Is a copy constructor necessary?
-//  WaitObject(const WaitObject& waitObject);
   WaitObject(Handle handle);
   virtual ~WaitObject();
 
-  Handle getHandle();
+  Handle getHandle() const;
+
 protected:
   void setWaitHandle(Handle handle);
 
 private:
   Handle m_handle;
 
-  // Friend HandleSets, so they can access callbacks
-  friend class WindowsHandleSet;
-  friend class LinuxHandleSet;
+  // Friend WaitSets, so they can access callbacks
+  friend class WindowsWaitSet;
+  friend class LinuxWaitSet;
 
   virtual void postWaitCallback(WaitResult result);
 };
-
-bool operator < (WaitObject& left, WaitObject& right)
-{
-  return left.getHandle() < right.getHandle();
-}
 
 #endif

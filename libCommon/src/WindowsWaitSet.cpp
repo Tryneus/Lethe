@@ -1,62 +1,57 @@
-#include "windows/WindowsHandleSet.h"
+#include "windows/WindowsWaitSet.h"
 #include "AbstractionFunctions.h"
 #include "Exception.h"
 #include <Windows.h>
 
-WindowsHandleSet::WindowsHandleSet() :
+WindowsWaitSet::WindowsWaitSet() :
   m_handleArray(NULL),
   m_offset(0)
 {
   // Do nothing
 }
 
-WindowsHandleSet::~WindowsHandleSet()
+WindowsWaitSet::~WindowsWaitSet()
 {
   delete [] m_handleArray;
 }
 
-void WindowsHandleSet::add(HANDLE handle)
+void WindowsWaitSet::add(Handle handle)
 {
-  if(m_handleSet.find(handle) != m_handleSet.end())
+  if(m_waitObjects.find(handle) != m_waitObjects.end())
     throw Exception("Failed to find handle in set");
 
-  if(!m_handleSet.insert(handle).second)
+  if(!m_waitObjects.insert(handle).second)
     throw Exception("Failed to add handle to set");
 
   resizeEvents();
 }
 
-void WindowsHandleSet::remove(HANDLE handle)
+void WindowsWaitSet::remove(Handle handle)
 {
-  if(m_handleSet.find(handle) == m_handleSet.end())
+  if(m_waitObjects.find(handle) == m_waitObjects.end())
     throw Exception("Failed to find handle in set");
 
-  if(!m_handleSet.erase(handle))
+  if(!m_waitObjects.erase(handle))
     throw Exception("Failed to remove handle from set");
 
   resizeEvents();
 }
 
-size_t WindowsHandleSet::getSize() const
+size_t WindowsWaitSet::getSize() const
 {
-  return m_handleSet.size();
+  return m_waitObjects.size();
 }
 
-const std::set<HANDLE>& WindowsHandleSet::getSet() const
+WaitResult WindowsWaitSet::waitAll(uint32_t timeout, Handle& handle)
 {
-  return m_handleSet;
-}
+  DWORD result(WaitForMultipleObjects(m_waitObjects.size(), m_handleArray, true, timeout));
 
-int WindowsHandleSet::waitAll(uint32_t timeout, HANDLE& handle)
-{
-  DWORD result = WaitForMultipleObjects(m_handleSet.size(), m_handleArray, true, timeout);
-
-  if(result >= WAIT_OBJECT_0 && result < WAIT_OBJECT_0 + m_handleSet.size())
+  if(result >= WAIT_OBJECT_0 && result < WAIT_OBJECT_0 + m_waitObjects.size())
   {
     handle = INVALID_HANDLE_VALUE;
     return WaitSuccess;
   }
-  else if(result >= WAIT_ABANDONED_0 && result < WAIT_ABANDONED_0 + m_handleSet.size())
+  else if(result >= WAIT_ABANDONED_0 && result < WAIT_ABANDONED_0 + m_waitObjects.size())
   {
     handle = m_handleArray[result - WAIT_ABANDONED_0];
     return WaitAbandoned;
@@ -70,45 +65,58 @@ int WindowsHandleSet::waitAll(uint32_t timeout, HANDLE& handle)
   throw Exception("Failed to wait: " + lastError());
 }
 
-int WindowsHandleSet::waitAny(uint32_t timeout, HANDLE& handle)
+WaitResult WindowsWaitSet::waitAny(uint32_t timeout, Handle& handle)
 {
-  DWORD result = WaitForMultipleObjects(m_handleSet.size(), m_handleArray + m_offset, false, timeout);
+  WaitResult result;
+  DWORD retval(WaitForMultipleObjects(m_waitObjects.size(), m_handleArray + m_offset, false, timeout));
 
-  if(result >= WAIT_OBJECT_0 && result < WAIT_OBJECT_0 + m_handleSet.size())
+  if(retval >= WAIT_OBJECT_0 && retval < WAIT_OBJECT_0 + m_waitObjects.size())
   {
-    handle = m_handleArray[result - WAIT_OBJECT_0 + m_offset];
-    m_offset = (m_offset + result - WAIT_OBJECT_0 + 1) % m_handleSet.size();
-    return WaitSuccess;
+    handle = m_handleArray[retval - WAIT_OBJECT_0 + m_offset];
+    m_offset = (m_offset + retval - WAIT_OBJECT_0 + 1) % m_waitObjects.size();
+    result = WaitSuccess;
   }
-  else if(result >= WAIT_ABANDONED_0 && result < WAIT_ABANDONED_0 + m_handleSet.size())
+  else if(retval >= WAIT_ABANDONED_0 && retval < WAIT_ABANDONED_0 + m_waitObjects.size())
   {
-    handle = m_handleArray[result - WAIT_ABANDONED_0 + m_offset];
-    return WaitAbandoned;
+    handle = m_handleArray[retval - WAIT_ABANDONED_0 + m_offset];
+    result = WaitAbandoned;
   }
-  else if(result == WAIT_TIMEOUT)
+  else if(retval == WAIT_TIMEOUT)
   {
     handle = INVALID_HANDLE_VALUE;
     return WaitTimeout;
   }
+  else
+    throw Exception("Failed to wait: " + lastError());
 
-  throw Exception("Failed to wait: " + lastError());
+  m_waitObjects[handle]->postWaitCallback(result);
+  return result;
 }
 
-void WindowsHandleSet::resizeEvents()
+void WindowsWaitSet::resizeEvents()
 {
+  Handle favoredHandle = m_handleArray[m_offset];
+
   delete [] m_handleArray;
 
-  // The array is doubled to allow for a sliding window of HANDLEs
-  //  in order to avoid unfairness in the wait
-  m_handleArray = new HANDLE[m_handleSet.size() * 2];
+  // The array is doubled to allow for a sliding window of Handles in order to
+  //  avoid unfairness in the wait
+  m_handleArray = new Handle[m_waitObjects.size() * 2];
 
-  uint32_t j = 0;
-  for(std::set<HANDLE>::iterator i = m_handleSet.begin(); i != m_handleSet.end(); ++i)
+  uint32_t j(0);
+  for(std::set<Handle>::iterator i(m_waitObjects.begin()); i != m_waitObjects.end(); ++i)
     m_handleArray[j++] = *i;
 
-  for(std::set<HANDLE>::iterator i = m_handleSet.begin(); i != m_handleSet.end(); ++i)
+  for(std::set<Handle>::iterator i(m_waitObjects.begin()); i != m_waitObjects.end(); ++i)
     m_handleArray[j++] = *i;
 
-  // TODO: probably better not to reset, can this be avoided?
-  m_offset = 0;
+  // Avoid resetting the unfairness protection, try to find where the new offset should be
+  for(uint32_t i(0); i < m_waitObjects.size(); ++i)
+  {
+    if(m_handleArray[i] == favoredHandle)
+      m_offset = i;
+  }
+
+  // The favored handle must have been removed, just make sure the offset isn't out of bounds
+  m_offset = m_offset % m_waitObjects.size();
 }

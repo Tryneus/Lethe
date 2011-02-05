@@ -1,4 +1,5 @@
 #include "linux/LinuxPipe.h"
+#include "AbstractionTypes.h"
 #include "AbstractionFunctions.h"
 #include "Exception.h"
 #include <unistd.h>
@@ -6,8 +7,9 @@
 #include <string.h>
 
 LinuxPipe::LinuxPipe() :
-  m_pipeRead(-1),
-  m_pipeWrite(-1),
+  WaitObject(INVALID_HANDLE_VALUE),
+  m_pipeRead(INVALID_HANDLE_VALUE),
+  m_pipeWrite(INVALID_HANDLE_VALUE),
   m_pendingData(NULL),
   m_pendingSend(NULL),
   m_pendingSize(0)
@@ -20,8 +22,15 @@ LinuxPipe::LinuxPipe() :
   m_pipeRead = pipes[0];
   m_pipeWrite = pipes[1];
 
-  fcntl(m_pipeRead, F_SETFL, O_NONBLOCK);
-  fcntl(m_pipeWrite, F_SETFL, O_NONBLOCK);
+  if(fcntl(m_pipeRead, F_SETFL, O_NONBLOCK) != 0 ||
+     fcntl(m_pipeWrite, F_SETFL, O_NONBLOCK) != 0)
+  {
+    close(m_pipeRead);
+    close(m_pipeWrite);
+    throw Exception("Failed to set pipe flags: " + lastError());
+  }
+
+  setWaitHandle(m_pipeRead);
 }
 
 LinuxPipe::~LinuxPipe()
@@ -50,7 +59,7 @@ void LinuxPipe::send(uint8_t* buffer, uint32_t bufferSize)
 
     if(bytesWritten != m_pendingSize)
     {
-      if(bytesWritten != -1)
+      if(bytesWritten > 0)
       {
         m_pendingSend += bytesWritten;
         m_pendingSize -= bytesWritten;
@@ -69,7 +78,7 @@ void LinuxPipe::send(uint8_t* buffer, uint32_t bufferSize)
 
   bytesWritten = write(m_pipeWrite, buffer, bufferSize);
 
-  if(bytesWritten == -1)
+  if(bytesWritten < 0)
     throw Exception("Failed to write to pipe: " + lastError());
 
   // TODO: this leaves the possibility of an incomplete message if there is not active traffic
@@ -86,15 +95,10 @@ void LinuxPipe::send(uint8_t* buffer, uint32_t bufferSize)
 
 uint32_t LinuxPipe::receive(uint8_t* buffer, uint32_t bufferSize)
 {
-  ssize_t bytesRead = read(m_pipeRead, buffer, bufferSize);
+  ssize_t bytesRead(read(m_pipeRead, buffer, bufferSize));
 
-  if(bytesRead == -1)
+  if(bytesRead != 0)
     throw Exception("Failed to read from pipe: " + lastError());
 
   return bytesRead;
-}
-
-int LinuxPipe::getHandle()
-{
-  return m_pipeRead;
 }

@@ -1,120 +1,154 @@
-#include "linux/LinuxHandleSet.h"
+#include "linux/LinuxWaitSet.h"
 #include "AbstractionFunctions.h"
 #include "Exception.h"
+#include "mct/hash-map.hpp"
 #include <sys/epoll.h>
 #include <string.h>
 
-LinuxHandleSet::LinuxHandleSet() :
+LinuxWaitSet::LinuxWaitSet() :
   m_epollSet(epoll_create(10)),
+  m_waitObjects(new mct::closed_hash_map<Handle,
+                                         WaitObject*,
+                                         std::tr1::hash<Handle>,
+                                         std::equal_to<Handle>,
+                                         std::allocator<std::pair<const Handle, WaitObject*> >,
+                                         false>),
   m_events(NULL),
   m_eventCount(0)
 {
-  if(m_epollSet == -1)
+  if(m_epollSet == INVALID_HANDLE_VALUE)
     throw Exception("Failed to create epoll set: " + lastError());
 }
 
-LinuxHandleSet::~LinuxHandleSet()
+LinuxWaitSet::~LinuxWaitSet()
 {
   delete [] m_events;
+  delete m_waitObjects;
 
   if(close(m_epollSet) != 0)
     throw Exception("Failed to close epoll set: " + lastError());
 }
 
-void LinuxHandleSet::add(int fd)
+void LinuxWaitSet::add(WaitObject& obj)
 {
-  if(m_fdSet.find(fd) != m_fdSet.end())
-    throw Exception("Failed to find handle in set");
+  if(!m_waitObjects->insert(std::make_pair<Handle, WaitObject*>(obj.getHandle(), &obj)).second)
+    throw Exception("Failed to insert wait object into hash map");
 
   epoll_event event;
   memset(&event, 0, sizeof(event));
   event.events = EPOLLIN;
-  event.data.fd = fd;
+  event.data.fd = obj.getHandle();
 
-  if(epoll_ctl(m_epollSet, EPOLL_CTL_ADD, fd, &event) != 0)
+  if(epoll_ctl(m_epollSet, EPOLL_CTL_ADD, event.data.fd, &event) != 0)
+  {
+    m_waitObjects->erase(obj.getHandle());
     throw Exception("Failed to add handle to set: " + lastError());
+  }
 
-  m_fdSet.insert(fd);
   resizeEvents();
 }
 
-void LinuxHandleSet::remove(int fd)
+void LinuxWaitSet::remove(WaitObject& obj)
 {
-  if(m_fdSet.find(fd) == m_fdSet.end())
-    throw Exception("Failed to find handle in set");
+  std::string error;
+
+  if(!m_waitObjects->erase(obj.getHandle()))
+    error += "Failed to remove handle from hash map";
 
   epoll_event event;
+  memset(&event, 0, sizeof(event));
   event.events = EPOLLIN;
-  event.data.fd = fd;
+  event.data.fd = obj.getHandle();
 
-  if(epoll_ctl(m_epollSet, EPOLL_CTL_DEL, fd, &event) != 0)
-    throw Exception("Failed to remove handle from set: " + lastError());
+  if(epoll_ctl(m_epollSet, EPOLL_CTL_DEL, event.data.fd, &event) != 0)
+  {
+    if(!error.empty())
+      error.append(", and");
+    error += "Failed to remove handle from epoll set: " + lastError();
+  }
 
-  m_fdSet.erase(fd);
   resizeEvents();
+
+  if(error.length() != 0)
+    throw Exception(error);
 }
 
-void LinuxHandleSet::resizeEvents()
+void LinuxWaitSet::remove(Handle handle)
 {
-  epoll_event* oldEvents = m_events;
-  m_events = new epoll_event[m_fdSet.size()];
+  WaitObject* obj;
 
-  // Copy any unprocessed events over and verify each fd
-  uint32_t j = 0;
-  for(int i = 0; i < m_eventCount; ++i)
+  try
   {
-    if(m_fdSet.find(oldEvents[i].data.fd) != m_fdSet.end())
-    {
-      m_events[j] = oldEvents[i];
-      ++j;
-    }
-  
-    ++i;
+    obj = m_waitObjects->at(handle);
   }
+  catch(std::out_of_range& ex)
+  {
+    throw Exception("Failed to find handle in hash map");
+  }
+
+  remove(*obj);
+}
+
+void LinuxWaitSet::resizeEvents()
+{
+  epoll_event* oldEvents(m_events);
+  m_events = new epoll_event[m_waitObjects->size()];
+
+  // Copy any unprocessed events over and verify each handle
+  uint32_t j(0);
+  for(int i(0); i < m_eventCount; ++i)
+    if(m_waitObjects->find(oldEvents[i].data.fd) != m_waitObjects->end())
+      m_events[j++] = oldEvents[i];
+
+  m_eventCount = j;
   
   delete [] oldEvents;
 }
 
-size_t LinuxHandleSet::getSize() const
+size_t LinuxWaitSet::getSize() const
 {
-  return m_fdSet.size();
+  return m_waitObjects->size();
 }
 
-const std::set<int>& LinuxHandleSet::getSet() const
+WaitResult LinuxWaitSet::waitAll(uint32_t timeout __attribute__ ((unused)), 
+                                   Handle& handle __attribute__ ((unused)))
 {
-  return m_fdSet;
+  // TODO: implement waitAll, may be too prone to deadlock, though
+  throw Exception("LinuxWaitSet::waitAll not yet implemented");
 }
 
-int LinuxHandleSet::waitAll(uint32_t timeout __attribute__ ((unused)), 
-                            int& fd __attribute__ ((unused)))
+WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
 {
-  throw Exception("LinuxHandleSet::waitAll not yet implemented");
-}
-
-int LinuxHandleSet::waitAny(uint32_t timeout, int& fd)
-{
+  WaitResult result(WaitSuccess);
   // TODO: save end time, and rewait if EINTR
 
   if(m_eventCount == 0)
   {
-    m_eventCount = epoll_wait(m_epollSet, m_events, m_fdSet.size(), timeout);
+    m_eventCount = epoll_wait(m_epollSet, m_events, m_waitObjects->size(), timeout);
 
     if(m_eventCount == 0)
     {
-      fd = INVALID_HANDLE_VALUE;
+      handle = INVALID_HANDLE_VALUE;
       return WaitTimeout;
     }
     else if(m_eventCount < 0)
-    {
       throw Exception("Failed to wait: " + lastError());
-    }
   }
 
-  fd = m_events[--m_eventCount].data.fd;
-  
-  if(m_events[m_eventCount].events & (EPOLLERR | EPOLLHUP))
-    return WaitAbandoned;
+  handle = m_events[--m_eventCount].data.fd;
 
-  return WaitSuccess;
+  // In the case of an error, return WaitAbandoned
+  if(m_events[m_eventCount].events & (EPOLLERR | EPOLLHUP))
+  {
+    // If the wait was also successful, hold onto that part of the event to be
+    //  handled later (if the wait object isn't removed)
+    if(m_events[m_eventCount].events & EPOLLIN)
+      m_events[m_eventCount++].events = EPOLLIN;
+
+    result = WaitAbandoned;
+  }
+
+  (*m_waitObjects)[handle]->postWaitCallback(result);
+  return result;
 }
 

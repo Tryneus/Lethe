@@ -13,14 +13,15 @@ WindowsPipe::WindowsPipe() :
   if(!CreatePipe(&m_pipeRead, &m_pipeWrite, NULL, 16384))
     throw Exception("Failed to create pipe: " + lastError());
   
-  DWORD nonBlocking = PIPE_NOWAIT;
+  DWORD nonBlocking(PIPE_NOWAIT);
   
   if(!SetNamedPipeHandleState(m_pipeRead, &nonBlocking, NULL, NULL) ||
      !SetNamedPipeHandleState(m_pipeWrite, &nonBlocking, NULL, NULL))
   {
+    std::string errorString(lastError());
     CloseHandle(m_pipeRead);
     CloseHandle(m_pipeWrite);
-    throw Exception("Failed to set pipe flags: " + lastError()); // TODO: Fix this lastError
+    throw Exception("Failed to set pipe flags: " + errorString);
   }
 }
 
@@ -42,7 +43,7 @@ WindowsPipe::~WindowsPipe()
 void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)
 {
   // Overlapped I/O would require a named pipe =(
-  DWORD bytesWritten = 0;
+  DWORD bytesWritten(0);
 
   // If we failed a send before, try to send the remainder now
   if(m_pendingData != NULL)
@@ -52,7 +53,7 @@ void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)
 
     if(bytesWritten != m_pendingSize)
     {
-      if(bytesWritten != -1)
+      if(bytesWritten < 0)
       {
         m_pendingSend += bytesWritten;
         m_pendingSize -= bytesWritten;
@@ -86,7 +87,7 @@ void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)
 
 uint32_t WindowsPipe::receive(uint8_t* buffer, uint32_t bufferSize)
 {
-  DWORD bytesRead = 0;
+  DWORD bytesRead(0);
 
   if(!ReadFile(m_pipeRead, buffer, bufferSize, &bytesRead, NULL) &&
       GetLastError() != ERROR_MORE_DATA &&
@@ -96,7 +97,3 @@ uint32_t WindowsPipe::receive(uint8_t* buffer, uint32_t bufferSize)
   return bytesRead;
 }
 
-HANDLE WindowsPipe::getHandle()
-{
-  return m_pipeRead;
-}

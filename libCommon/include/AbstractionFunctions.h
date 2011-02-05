@@ -8,7 +8,7 @@
 
 #include <string>
 #include <vector>
-#include "AbstractionBasic.h"
+#include "AbstractionTypes.h"
 
 #if defined(__WIN32__) || defined(_WIN32)
   // Do nothing
@@ -19,7 +19,7 @@
   void Sleep(uint32_t timeout);
 
 #else
-  #error Platform not detected
+  #error "Platform not detected"
 #endif
 
 void getFileList(const std::string& directory,
@@ -29,7 +29,7 @@ std::string getTimeString();
 
 uint32_t seedRandom(uint32_t seed = 0);
 
-int WaitForObject(Handle handle, uint32_t timeout = -1);
+WaitResult WaitForObject(Handle handle, uint32_t timeout = INFINITE);
 
 std::string lastError();
 

@@ -1,13 +1,13 @@
 #ifndef _WINDOWSTHREAD_H
 #define _WINDOWSTHREAD_H
 
-#include <set>
-#include <string>
+#include "AbstractionTypes.h"
 #include "BaseThread.h"
 #include "WindowsEvent.h"
-#include "WindowsHandleSet.h"
-#include "Windows.h"
-#include "stdint.h"
+#include "WindowsWaitSet.h"
+#include <Windows.h>
+#include <string>
+#include <set>
 
 /*
  * The WindowsThread class is meant to be used as a base class for multi-threading.
@@ -38,32 +38,15 @@
  *  problem with a user-provided handle.  Thread will not automatically remove this handle,
  *  but the user needs to fix or remove it, or abandoned will keep getting called.
  */
-class WindowsThread : private BaseThread
+class WindowsThread : public BaseThread
 {
 public:
   WindowsThread(uint32_t timeout = 0);
   virtual ~WindowsThread();
 
-  using BaseThread::start;
-  using BaseThread::pause;
-  using BaseThread::stop;
-
-  using BaseThread::isStopping;
-  using BaseThread::getHandle;
-  using BaseThread::getError;
-
-protected:
-  using BaseThread::iterate;
-  using BaseThread::abandoned;
-
-  using BaseThread::addWaitObject;
-  using BaseThread::removeWaitObject;
-  using BaseThread::setWaitTimeout;
-
 private:
   static DWORD WINAPI threadHook(void*);
-
-  HANDLE m_handle; // The WIN32 handle of the thread
+  Handle m_handle;
 };
 
 #endif

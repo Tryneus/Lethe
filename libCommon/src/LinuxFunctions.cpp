@@ -20,7 +20,7 @@ void Sleep(uint32_t timeout)
 
 std::string lastError()
 {
-  int errorCode = errno;
+  int errorCode(errno);
   char buffer[200];
 
   return std::string(strerror_r(errorCode, buffer, 200));
@@ -65,11 +65,11 @@ std::string getTimeString()
   return stream.str();
 }
 
-int WaitForObject(int fd, uint32_t timeout)
+WaitResult WaitForObject(Handle handle, uint32_t timeout)
 {
   struct pollfd object;
 
-  object.fd = fd;
+  object.fd = handle;
   object.events = POLLIN;
   
   switch(poll(&object, 1, timeout))

@@ -3,13 +3,15 @@
 #include "Exception.h"
 
 BaseThread::BaseThread(uint32_t timeout) :
+  WaitObject(INVALID_HANDLE_VALUE),
   m_exit(false),
   m_runEvent(false, false), // Start out not running
   m_pauseEvent(false, true),
   m_exitedEvent(false, false),
   m_timeout(timeout)
 {
-  m_handleSet.add(m_pauseEvent.getHandle());
+  setWaitHandle(m_exitedEvent.getHandle());
+  m_waitSet.add(m_pauseEvent);
 }
 
 BaseThread::~BaseThread()
@@ -35,7 +37,7 @@ void* BaseThread::threadMain()
       if(m_exit)
         break;
 
-      switch(m_handleSet.waitAny(m_timeout, handle))
+      switch(m_waitSet.waitAny(m_timeout, handle))
       {      
       case WaitSuccess:
         if(handle == m_pauseEvent.getHandle())
@@ -96,24 +98,19 @@ bool BaseThread::isStopping() const
   return m_exit;
 }
 
-Handle BaseThread::getHandle() const
-{
-  return m_exitedEvent.getHandle();
-}
-
 const std::string& BaseThread::getError() const
 {
   return m_error;
 }
 
-void BaseThread::addWaitObject(Handle handle)
+void BaseThread::addWaitObject(WaitObject& obj)
 {
-  m_handleSet.add(handle);
+  m_waitSet.add(obj);
 }
 
-void BaseThread::removeWaitObject(Handle handle)
+void BaseThread::removeWaitObject(WaitObject& obj)
 {
-  m_handleSet.remove(handle);
+  m_waitSet.remove(obj);
 }
 
 void BaseThread::setWaitTimeout(uint32_t timeout)

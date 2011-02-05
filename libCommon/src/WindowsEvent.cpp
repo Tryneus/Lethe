@@ -16,11 +16,6 @@ WindowsEvent::~WindowsEvent()
     throw Exception("Failed to close handle: " + lastError());
 }
 
-HANDLE WindowsEvent::getHandle() const
-{
-  return m_handle;
-}
-
 void WindowsEvent::set()
 {
   if(!SetEvent(m_handle))

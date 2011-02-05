@@ -1,6 +1,8 @@
 #ifndef _LINUXEVENT_H
 #define _LINUXEVENT_H
 
+#include "WaitObject.h"
+
 /*
  * The LinuxEvent class provides a waitable event wrapper class for Linux.
  *  When the event is set, it will wake up any thread waiting on the handle until
@@ -11,19 +13,14 @@
  *  the eventfd subsystem in Linux, and a kernel module is under development for
  *  this purpose.
  */
-class LinuxEvent
+class LinuxEvent : public WaitObject
 {
 public:
   LinuxEvent(bool initialState, bool autoReset);
   ~LinuxEvent();
    
-  int getHandle() const;
-   
   void set();
   void reset();
-   
-private:
-  int m_event;
 };
 
 #endif

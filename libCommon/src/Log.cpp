@@ -21,6 +21,18 @@ Log::~Log()
   delete m_handler;
 }
 
+Log::Level Log::getLevel() const
+{
+  return m_logLevel;
+}
+
+void Log::setLevel(Log::Level level)
+{
+  m_mutex.lock();
+  m_logLevel = level;
+  m_mutex.unlock();
+}
+
 void Log::disable()
 {
   m_mutex.lock();

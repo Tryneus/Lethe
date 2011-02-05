@@ -1,36 +1,28 @@
 #include "WaitObject.h"
 
-WaitObject(const WaitObject& source) :
-  m_handle(source.handle)
-{
-  // Do nothing
-}
-
-WaitObject(Handle handle) :
+WaitObject::WaitObject(Handle handle) :
   m_handle(handle)
 {
   // Do nothing
 }
 
-virtual ~WaitObject()
+WaitObject::~WaitObject()
 {
   // Do nothing
 }
 
-Handle getHandle()
+Handle WaitObject::getHandle() const
 {
   return m_handle;
 }
 
-void setWaitHandle(Handle handle)
+void WaitObject::setWaitHandle(Handle handle)
 {
   m_handle = handle;
 }
 
-virtual void postWaitCallback(WaitResult result)
+void WaitObject::postWaitCallback(WaitResult result __attribute__((unused)))
 {
   // Do nothing
 }
 
-
-#endif

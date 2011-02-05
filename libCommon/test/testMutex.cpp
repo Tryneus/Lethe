@@ -11,15 +11,15 @@
 TEST_CASE("mutex/structor", "Test construction/destruction")
 {
   // Create a lot of mutexes
-  const uint32_t numMutexes = 1000;
-  Mutex** mutexArray = new Mutex*[numMutexes];
+  const uint32_t numMutexes(1000);
+  Mutex** mutexArray(new Mutex*[numMutexes]);
 
-  for(uint32_t i = 0; i < numMutexes; ++i)
+  for(uint32_t i(0); i < numMutexes; ++i)
   { 
     REQUIRE_NOTHROW(mutexArray[i] = new Mutex(!(i % 2)));
   }
 
-  for(uint32_t i = 0; i < numMutexes; ++i)
+  for(uint32_t i(0); i < numMutexes; ++i)
   {
     REQUIRE_NOTHROW(delete mutexArray[i]);
   }
@@ -80,7 +80,7 @@ MutexTestThread::MutexTestThread(Mutex& mutex, Event& event) :
   m_event(event),
   m_iterating(false)
 {
-  addWaitObject(m_mutex.getHandle());
+  addWaitObject(m_mutex);
 }
 
 bool MutexTestThread::isIterating()
@@ -88,21 +88,21 @@ bool MutexTestThread::isIterating()
   return m_iterating;
 }
 
-// This requres Thread to work, which requires Event and HandleSet to work
+// This requres Thread to work, which requires Event and WaitSet to work
 //  If this test case is failing, it could be due to a problem in Thread,
-//  Event, or HandleSet.
+//  Event, or WaitSet.
 TEST_CASE("mutex/autolock", "Test auto-lock and unlock with multiple waiting threads")
 {
-  const uint32_t threadCount = 20;
+  const uint32_t threadCount(20);
   MutexTestThread* threadArray[threadCount];
-  HandleSet activeThreads;
+  WaitSet activeThreads;
   Mutex mutex(true);
   Event event(false, true);
 
-  for(uint32_t i = 0; i < threadCount; ++i)
+  for(uint32_t i(0); i < threadCount; ++i)
   {
     threadArray[i] = new MutexTestThread(mutex, event);
-    activeThreads.add(threadArray[i]->getHandle());
+    activeThreads.add(*threadArray[i]);
     threadArray[i]->start();
   }
 
@@ -111,14 +111,14 @@ TEST_CASE("mutex/autolock", "Test auto-lock and unlock with multiple waiting thr
 
   while(activeThreads.getSize() > 0)
   {
-    uint32_t iterateCount = 0;
+    uint32_t iterateCount(0);
     Handle exitedThread;
 
     // Wait some time time make sure no threads exit prematurely
     REQUIRE(activeThreads.waitAny(250, exitedThread) == WaitTimeout);
 
     // Loop through the threads, make sure exactly one is in iterate
-    for(uint32_t i = 0; i < threadCount; ++i)
+    for(uint32_t i(0); i < threadCount; ++i)
       iterateCount += threadArray[i]->isIterating();
 
     REQUIRE(iterateCount == 1);
@@ -131,7 +131,7 @@ TEST_CASE("mutex/autolock", "Test auto-lock and unlock with multiple waiting thr
     activeThreads.remove(exitedThread);
   }
 
-  for(uint32_t i = 0; i < threadCount; ++i)
+  for(uint32_t i(0); i < threadCount; ++i)
   {
     REQUIRE(threadArray[i]->isStopping() == true);
     REQUIRE(threadArray[i]->getError().length() == 0);

@@ -6,7 +6,11 @@ Requirements:
     'make' requires 'scons' and 'python-docutils' to be installed (due to thirdParty/mct)
     'make valTest' requires 'valgrind' to be installed
 
-Modules:
+  Windows:
+    Requires some manual modification of thirdParty modules
+
+  Visual Studio:
+    Requires TR1 headers to be installed (feature pack/service pack)
 
 
 libCommon

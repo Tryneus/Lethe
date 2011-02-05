@@ -17,8 +17,7 @@ LinuxEvent::LinuxEvent(bool initialState, bool autoReset) :
 
 LinuxEvent::~LinuxEvent()
 {
-  if(close(getHandle()) != 0)
-    throw Exception("Failed to close event: " + lastError());
+  close(getHandle());
 }
 
 void LinuxEvent::set()

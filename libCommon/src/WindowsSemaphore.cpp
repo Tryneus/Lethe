@@ -12,13 +12,12 @@ WindowsSemaphore::WindowsSemaphore(uint32_t maxCount, uint32_t initialCount) :
 
 WindowsSemaphore::~WindowsSemaphore()
 {
-  if(!CloseHandle(getHandle()))
-    throw Exception("Failed to close semaphore: " + lastError());
+  CloseHandle(getHandle());
 }
 
 void WindowsSemaphore::lock(uint32_t timeout)
 {
-  if(WaitForObject(getHandle(), timeout) != WaitSuccess)
+  if(WaitForObject(*this, timeout) != WaitSuccess)
     throw Exception("Failed to lock semaphore: " + lastError());
 }
 

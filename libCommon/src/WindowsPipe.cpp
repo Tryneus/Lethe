@@ -32,15 +32,8 @@ WindowsPipe::~WindowsPipe()
 {
   delete [] m_pendingData;
 
-  if(!CloseHandle(m_pipeWrite))
-  {
-    CloseHandle(m_pipeRead);
-    throw Exception("Failed to close pipe: " + lastError());
-  }
-
-  if(!CloseHandle(m_pipeRead))
-    throw Exception("Failed to close pipe: " + lastError());
-
+  CloseHandle(m_pipeWrite);
+  CloseHandle(m_pipeRead);
 }
 
 void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)

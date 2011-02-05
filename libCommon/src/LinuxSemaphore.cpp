@@ -14,13 +14,12 @@ LinuxSemaphore::LinuxSemaphore(uint32_t maxCount __attribute__ ((unused)),
 
 LinuxSemaphore::~LinuxSemaphore()
 {
-  if(close(getHandle()) != 0)
-    throw Exception("Failed to close semaphore: " + lastError());
+  close(getHandle());
 }
 
 void LinuxSemaphore::lock(uint32_t timeout)
 {
-  if(WaitForObject(getHandle(), timeout) != WaitSuccess)
+  if(WaitForObject(*this, timeout) != WaitSuccess)
     throw Exception("Failed to lock semaphore: " + lastError());
 }
 

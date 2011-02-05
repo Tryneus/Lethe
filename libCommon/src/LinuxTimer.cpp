@@ -15,8 +15,7 @@ LinuxTimer::LinuxTimer() :
 
 LinuxTimer::~LinuxTimer()
 {
-  if(close(getHandle()) != 0)
-    throw Exception("Failed to close timer: " + lastError());
+  close(getHandle());
 }
 
 void LinuxTimer::start(uint32_t timeout)

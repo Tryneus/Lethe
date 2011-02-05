@@ -12,8 +12,7 @@ WindowsEvent::WindowsEvent(bool initialState, bool autoReset) :
 
 WindowsEvent::~WindowsEvent()
 {
-  if(!CloseHandle(getHandle()))
-    throw Exception("Failed to close handle: " + lastError());
+  CloseHandle(getHandle());
 }
 
 void WindowsEvent::set()

@@ -13,15 +13,14 @@ WindowsMutex::WindowsMutex(bool locked) :
 
 WindowsMutex::~WindowsMutex()
 {
-  if(!CloseHandle(getHandle()))
-    throw Exception("Failed to close mutex: " + lastError());
+  CloseHandle(getHandle());
 }
 
 void WindowsMutex::lock(uint32_t timeout)
 {
   if(m_ownerThread != GetCurrentThreadId())
   {
-    if(WaitForObject(getHandle(), timeout) != WaitSuccess)
+    if(WaitForObject(*this, timeout) != WaitSuccess)
       throw Exception("Failed to lock mutex: " + lastError());
     m_ownerThread = GetCurrentThreadId();
   }
@@ -37,7 +36,7 @@ void WindowsMutex::unlock()
       throw Exception("Failed to unlock mutex: " + lastError());
   }
   else
-    throw Exception("Failed to unlock mutex: locked by a different thread");
+    throw Exception("Failed to unlock mutex: this thread is not the owner");
 }
 
 void WindowsMutex::postWaitCallback(WaitResult result)

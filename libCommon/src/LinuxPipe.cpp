@@ -37,15 +37,8 @@ LinuxPipe::~LinuxPipe()
 {
   delete [] m_pendingData;
 
-  if(close(m_pipeWrite) != 0)
-  {
-    close(m_pipeRead);
-    throw Exception("Failed to close pipe: " + lastError());
-  }
-
-  if(close(m_pipeRead) != 0)
-    throw Exception("Failed to close pipe: " + lastError());
-
+  close(m_pipeWrite);
+  close(m_pipeRead);
 }
 
 void LinuxPipe::send(uint8_t* buffer, uint32_t bufferSize)

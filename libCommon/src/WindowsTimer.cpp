@@ -16,8 +16,7 @@ WindowsTimer::WindowsTimer() :
 
 WindowsTimer::~WindowsTimer()
 {
-  if(!CloseHandle(getHandle()))
-    throw Exception("Failed to close timer: " + lastError());
+  CloseHandle(getHandle());
 }
 
 void WindowsTimer::start(uint32_t timeout)

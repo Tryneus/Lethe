@@ -43,8 +43,8 @@ namespace ThreadComm
     Message* getNext();
     Message* getLastOnStack();
     Message& getNextOnStack();
-    State getState();
-    uint32_t getSize();
+    State getState() const;
+    uint32_t getSize() const;
 
     void* getDataArea();
     static Message* getMessage(void* dataArea);

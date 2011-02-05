@@ -25,8 +25,7 @@ LinuxWaitSet::~LinuxWaitSet()
   delete [] m_events;
   delete m_waitObjects;
 
-  if(close(m_epollSet) != 0)
-    throw Exception("Failed to close epoll set: " + lastError());
+  close(m_epollSet);
 }
 
 void LinuxWaitSet::add(WaitObject& obj)

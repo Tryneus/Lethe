@@ -74,12 +74,12 @@ Message& Message::getNextOnStack()
   return *reinterpret_cast<Message*>(reinterpret_cast<char*>(this) + m_size);
 }
 
-Message::State Message::getState()
+Message::State Message::getState() const
 {
   return m_state;
 }
 
-uint32_t Message::getSize()
+uint32_t Message::getSize() const
 {
   return m_size;
 }

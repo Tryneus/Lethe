@@ -38,6 +38,7 @@ void Log::disable()
   m_mutex.lock();
 
   delete m_handler;
+  m_handle = NULL;
   m_handler = new DisabledLogHandler();
 
   m_mutex.unlock();
@@ -47,7 +48,8 @@ void Log::setStdoutMode(Log::Level level)
 {
   m_mutex.lock();
 
-  delete m_handler;
+  delete m_handler
+  m_handle = NULL;;
   m_handler = new StdoutLogHandler();
   m_logLevel = level;
 
@@ -58,7 +60,8 @@ void Log::setFileMode(const std::string& filename, Log::Level level)
 {
   m_mutex.lock();
 
-  delete m_handler;
+  delete m_handler
+  m_handle = NULL;;
   m_handler = new FileLogHandler(filename);
   m_logLevel = level;
 

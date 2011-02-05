@@ -14,15 +14,14 @@ LinuxMutex::LinuxMutex(bool locked) :
 
 LinuxMutex::~LinuxMutex()
 {
-  if(close(getHandle()) != 0)
-    throw Exception("Failed to close mutex: " + lastError());
+  close(getHandle());
 }
 
 void LinuxMutex::lock(uint32_t timeout)
 {
   if(m_ownerThread != pthread_self())
   {
-    if(WaitForObject(getHandle(), timeout) != WaitSuccess)
+    if(WaitForObject(*this, timeout) != WaitSuccess)
       throw Exception("Failed to lock mutex: " + lastError());
 
     m_ownerThread = pthread_self();
@@ -40,7 +39,7 @@ void LinuxMutex::unlock()
       throw Exception("Failed to unlock mutex: " + lastError());
   }
   else
-    throw Exception("Failed to unlock mutex: locked by a different thread");
+    throw Exception("Failed to unlock mutex: this thread is not the owner");
 }
 
 void LinuxMutex::postWaitCallback(WaitResult result)

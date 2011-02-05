@@ -5,12 +5,14 @@ catch: catch.tar.gz catch.exception.patch
 	patch -p0 -i catch.exception.patch
 	touch catch
 
-# Note: this package requires 'scons' and 'python-docutils'
-# TODO: Make a patch for mct so it doesn't do so much extra crap, we just want the generated headers
+# TODO: This skips the configure step and just uses a hard-coded configure file
 mct: mct.tar.gz
 	tar -zxf mct.tar.gz
-	touch mct
-	cd mct; scons install prefix=./
+	mkdir mct/include
+	cp -r mct/mct mct/include
+	cp mct.linux.config.hpp mct/include/mct/config.hpp
+#	touch mct
+#	cd mct; scons install prefix=./
 	patch -p0 -i mct.gcc.patch
 
 clean:

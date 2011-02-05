@@ -10,13 +10,13 @@ using namespace ThreadComm;
 
 Header::Header(uint32_t size) :
   m_size(size),
-  m_semaphore(size / sizeof(Message), 0),
+  m_semaphore(size / sizeof(Message), 0), // Semaphore max set slightly larger
+                                          //  than the most buffers we can allocate
   m_dataArea(new char[size]),
   m_receiveList(m_dataArea),
   m_releaseList(m_dataArea + sizeof(Message)),
   m_unallocList(m_dataArea + 2 * sizeof(Message), &m_dataArea[size])
 {
-  LogInfo("Header initialized with " << (size / sizeof(Message)) << " max messages");
   // Initialize buffers
   Message* firstMessage = new (m_dataArea)
     Message(this, sizeof(Message), Message::Nil);

@@ -36,7 +36,7 @@ void LinuxMutex::unlock()
 
     if(write(getHandle(), &count, sizeof(count)) != sizeof(count))
       throw Exception("Failed to unlock mutex: " + lastError());
-    
+
     m_ownerThread = -1;
   }
   else

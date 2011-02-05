@@ -16,21 +16,21 @@ public:
   destroyConnection(Thread& source, Thread& target);
   destroyConnection(Thread& source, Process& target);
   destroyConnection(Thread& source, IpAddress& target);
-  
+
   struct Trace
   {
     struct Filter
     {
-    
+
     };
     std::vector<Filter> m_filter;
-    
+
     class Action
     {
     public:
       virtual void trigger() = 0;
     };
-    
+
     class PipeAction
     {
     public:
@@ -39,14 +39,14 @@ public:
     private:
       Pipe& m_pipe;
     };
-    
+
     class LogAction
     {
     public:
       LogAction(Log::Level level);
       void trigger();
     };
-    
+
     class ForwardAction
     {
     public:
@@ -57,12 +57,12 @@ public:
     };
     std::vector<Action> m_action;
   }
-  
+
   addTrace(int connection, filter, actions);
 
 private:
   friend class Singleton<CommRegistry>;
-  
+
   CommRegistry();
   ~CommRegistry();
 

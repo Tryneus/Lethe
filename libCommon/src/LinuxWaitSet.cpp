@@ -90,7 +90,7 @@ void LinuxWaitSet::resizeEvents()
       m_events[j++] = oldEvents[i];
 
   m_eventCount = j;
-  
+
   delete [] oldEvents;
 }
 
@@ -99,7 +99,7 @@ size_t LinuxWaitSet::getSize() const
   return m_waitObjects->size();
 }
 
-WaitResult LinuxWaitSet::waitAll(uint32_t timeout __attribute__ ((unused)), 
+WaitResult LinuxWaitSet::waitAll(uint32_t timeout __attribute__ ((unused)),
                                    Handle& handle __attribute__ ((unused)))
 {
   // TODO: implement waitAll, may be too prone to deadlock, though

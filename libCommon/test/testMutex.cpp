@@ -200,7 +200,7 @@ TEST_CASE("mutex/exception", "Test that thread id is enforced")
     REQUIRE(thread.isStopping());
     REQUIRE(thread.getError() == "Failed to unlock mutex: locked by a different thread");
   }
-  
+
   mutex.lock();
   {
     ExceptionTestThread thread(mutex);
@@ -210,6 +210,6 @@ TEST_CASE("mutex/exception", "Test that thread id is enforced")
     REQUIRE(thread.isStopping());
     REQUIRE(thread.getError() == "Failed to unlock mutex: locked by a different thread");
   }
-  
+
   // TODO: add more tests that use waitlock (will not throw an exception as of now)
 }

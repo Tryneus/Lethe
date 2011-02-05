@@ -18,7 +18,7 @@ class LinuxEvent : public WaitObject
 public:
   LinuxEvent(bool initialState, bool autoReset);
   ~LinuxEvent();
-   
+
   void set();
   void reset();
 };

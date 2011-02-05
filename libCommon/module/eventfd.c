@@ -141,11 +141,11 @@ void* getAddress(char* line)
   unsigned int index = 0;
   unsigned int length;
   char* addressString = strsep(&line, " ");
-  length = strlen(addressString);  
+  length = strlen(addressString);
 
   if(length > 8)
     return NULL;
-  
+
   while(index < length)
   {
     if(addressString[index] >= 'a' && addressString[index] <= 'f')

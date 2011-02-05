@@ -31,7 +31,7 @@
 
 // The LOG_BASE may be overridden by a user who knows what they're doing (before including this file)
 #if !defined(LOG_BASE)
-  #define LOG_BASE(level) level << Log::Time << ", " << __FILE__ << ":" << __LINE__ 
+  #define LOG_BASE(level) level << Log::Time << ", " << __FILE__ << ":" << __LINE__
 #endif
 
 #ifndef DISABLE_LOG_ERROR

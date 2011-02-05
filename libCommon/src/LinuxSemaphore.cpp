@@ -27,7 +27,7 @@ void LinuxSemaphore::lock(uint32_t timeout)
 void LinuxSemaphore::unlock(uint32_t count)
 {
   uint64_t internalCount(count);
-  
+
   if(write(getHandle(), &internalCount, sizeof(internalCount)) != sizeof(internalCount))
     throw Exception("Failed to unlock semaphore: " + lastError());
 }

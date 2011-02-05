@@ -57,7 +57,7 @@ private:
                        std::equal_to<Handle>,
                        std::allocator<std::pair<const Handle, WaitObject*> >,
                        false>* m_waitObjects;
-  
+
   epoll_event* m_events;
   int m_eventCount;
 };

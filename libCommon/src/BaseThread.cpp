@@ -38,7 +38,7 @@ void* BaseThread::threadMain()
         break;
 
       switch(m_waitSet.waitAny(m_timeout, handle))
-      {      
+      {
       case WaitSuccess:
         if(handle == m_pauseEvent.getHandle())
           break;

@@ -71,7 +71,7 @@ WaitResult WaitForObject(Handle handle, uint32_t timeout)
 
   object.fd = handle;
   object.events = POLLIN;
-  
+
   switch(poll(&object, 1, timeout))
   {
   case 1:

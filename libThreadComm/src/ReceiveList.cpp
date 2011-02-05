@@ -33,7 +33,7 @@ Message* ReceiveList::receive(Message*& extraMessage)
     {
       pop();
       message->setState(Message::Recv);
-    }  
+    }
   }
   else if(message->getState() != Message::Sent)
   {

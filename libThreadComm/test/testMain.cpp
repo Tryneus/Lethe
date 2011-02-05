@@ -42,7 +42,7 @@ int main()
     waitSet.add(*sender);
     waitSet.add(*echo);
 
-    // TODO: this can be simplified if waitAll is implemented for linux    
+    // TODO: this can be simplified if waitAll is implemented for linux
     // if(waitSet.waitAll(2000, finished) != WaitSuccess)
     //   throw Exception("Threads did not stop in a timely fashion");
     LogInfo("Waiting for threads to exit");

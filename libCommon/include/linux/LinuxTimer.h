@@ -13,7 +13,7 @@ class LinuxTimer : public WaitObject
 public:
   LinuxTimer();
   ~LinuxTimer();
-  
+
   void start(uint32_t timeout);
   void stop();
   void clear();

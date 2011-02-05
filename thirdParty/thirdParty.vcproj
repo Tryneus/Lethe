@@ -74,7 +74,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Prepare third-party packages"
-				CommandLine="IF NOT EXIST catch\ &quot;C:\Program Files\WinRAR\WinRAR.exe&quot; x -o- catch.tar.gz .\"
+				CommandLine="IF NOT EXIST catch\ &quot;C:\Program Files\WinRAR\WinRAR.exe&quot; x -o- catch.tar.gz .\&#x0D;&#x0A;IF NOT EXIST mct\ &quot;C:\Program Files\WinRAR\WinRAR.exe&quot; x -o- mct.tar.gz .\"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"

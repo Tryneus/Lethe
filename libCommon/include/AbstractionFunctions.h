@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include "AbstractionTypes.h"
+#include "WaitObject.h"
 
 #if defined(__WIN32__) || defined(_WIN32)
   // Do nothing
@@ -29,7 +30,7 @@ std::string getTimeString();
 
 uint32_t seedRandom(uint32_t seed = 0);
 
-WaitResult WaitForObject(Handle handle, uint32_t timeout = INFINITE);
+WaitResult WaitForObject(WaitObject& obj, uint32_t timeout = INFINITE);
 
 std::string lastError();
 

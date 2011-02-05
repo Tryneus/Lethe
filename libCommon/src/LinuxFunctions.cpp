@@ -65,26 +65,31 @@ std::string getTimeString()
   return stream.str();
 }
 
-WaitResult WaitForObject(Handle handle, uint32_t timeout)
+WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
 {
-  struct pollfd object;
+  WaitResult result = WaitSuccess;
+  struct pollfd pollData;
 
-  object.fd = handle;
-  object.events = POLLIN;
+  pollData.fd = obj.getHandle();
+  pollData.events = POLLIN | POLLERR | POLLHUP;
 
-  switch(poll(&object, 1, timeout))
+  switch(poll(&pollData, 1, timeout))
   {
   case 1:
-    if(object.revents & (POLLERR | POLLNVAL | POLLHUP))
-      return WaitAbandoned;
+    if(pollData.revents & (POLLERR | POLLNVAL | POLLHUP))
+      result = WaitAbandoned;
 
-    return WaitSuccess;
+    obj.postWaitCallback(result);
+    break;
 
   case 0:
-    return WaitTimeout;
+    result = WaitTimeout;
+    break;
 
   default:
     throw Exception("Failed to wait: " + lastError());
   }
+
+  return result;
 }
 

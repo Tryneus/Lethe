@@ -21,7 +21,7 @@ BaseThread::~BaseThread()
   m_runEvent.set();
   m_pauseEvent.set();
 
-  WaitForObject(m_exitedEvent.getHandle(), INFINITE);
+  WaitForObject(m_exitedEvent, INFINITE);
 }
 
 void* BaseThread::threadMain()
@@ -32,7 +32,7 @@ void* BaseThread::threadMain()
 
     while(true)
     {
-      WaitForObject(m_runEvent.getHandle(), INFINITE);
+      WaitForObject(m_runEvent, INFINITE);
 
       if(m_exit)
         break;

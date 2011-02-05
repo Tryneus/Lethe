@@ -92,14 +92,23 @@ uint32_t seedRandom(uint32_t seed)
   return seed;
 }
 
-WaitResult WaitForObject(Handle handle, uint32_t timeout)
+WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
 {
-  switch(WaitForSingleObject(handle, timeout))
+  switch(WaitForSingleObject(obj.getHandle(), timeout))
   {
-  case WAIT_OBJECT_0:    return WaitSuccess;
-  case WAIT_ABANDONED_0: return WaitAbandoned;
-  case WAIT_TIMEOUT:     return WaitTimeout;
-  default:               throw Exception("Failed to wait: " + lastError());
+  case WAIT_OBJECT_0:
+    obj.postWaitCallback(WaitSuccess);
+    return WaitSuccess;
+
+  case WAIT_ABANDONED_0:
+    obj.postWaitCallback(WaitAbandoned);
+    return WaitAbandoned;
+
+  case WAIT_TIMEOUT:
+    return WaitTimeout;
+
+  default:
+    throw Exception("Failed to wait: " + lastError());
   }
 }
 

@@ -43,7 +43,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include"
+				AdditionalIncludeDirectories="include;../thirdParty/mct/include"
+				PreprocessorDefinitions="NOMINMAX"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -106,7 +107,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include"
+				AdditionalIncludeDirectories="include;../thirdParty/mct/include"
+				PreprocessorDefinitions="NOMINMAX"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -170,7 +172,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include"
+				AdditionalIncludeDirectories="include;../thirdParty/mct/include"
+				PreprocessorDefinitions="NOMINMAX"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
@@ -234,7 +237,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include"
+				AdditionalIncludeDirectories="include;../thirdParty/mct/include"
+				PreprocessorDefinitions="NOMINMAX"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
@@ -291,6 +295,10 @@
 				RelativePath=".\src\Log.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\src\WaitObject.cpp"
+				>
+			</File>
 			<Filter
 				Name="Windows"
 				>
@@ -300,10 +308,6 @@
 				</File>
 				<File
 					RelativePath=".\src\WindowsFunctions.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\WindowsWaitSet.cpp"
 					>
 				</File>
 				<File
@@ -324,6 +328,10 @@
 				</File>
 				<File
 					RelativePath=".\src\WindowsTimer.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\WindowsWaitSet.cpp"
 					>
 				</File>
 			</Filter>
@@ -350,6 +358,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\AbstractionTypes.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\BaseThread.h"
 				>
 			</File>
@@ -373,15 +385,15 @@
 				RelativePath=".\include\stdint.h"
 				>
 			</File>
+			<File
+				RelativePath=".\include\WaitObject.h"
+				>
+			</File>
 			<Filter
 				Name="Windows"
 				>
 				<File
 					RelativePath=".\include\windows\WindowsEvent.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\windows\WindowsWaitSet.h"
 					>
 				</File>
 				<File
@@ -402,6 +414,10 @@
 				</File>
 				<File
 					RelativePath=".\include\windows\WindowsTimer.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\windows\WindowsWaitSet.h"
 					>
 				</File>
 			</Filter>

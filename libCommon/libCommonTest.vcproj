@@ -64,6 +64,8 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="bin/libCommon.$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -135,6 +137,8 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="bin/libCommon.$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -328,10 +332,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\test\testWaitSet.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\test\testLog.cpp"
 				>
 			</File>
@@ -357,6 +357,10 @@
 			</File>
 			<File
 				RelativePath=".\test\testTimer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\test\testWaitSet.cpp"
 				>
 			</File>
 		</Filter>

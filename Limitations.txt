@@ -2,7 +2,7 @@ Known limitations or discrepancies between platforms:
 
 1. Linux events, semaphores, and mutexes don't support automatic reset
  - This has been fixed by use of a loadable kernel module (libCommon/module) which must be installed to use Mutexes, Semaphores, and Auto-Reset Events in Linux (otherwise their constructors will throw an exception)
- - Working on testing and submitting a kernel patch to add this functionality to the base kernel 
+ - Working on testing and submitting a kernel patch to add this functionality to the base kernel
 
 2. LinuxTimers do not support automatic reset
  - If the eventfd change goes over well, consider implementing the same thing for timerfd

@@ -1,5 +1,5 @@
-*** mct/include/mct/impl/closed-hash-table.hpp	2011-02-04 21:13:27.437759824 +0100
---- mct/include/mct/impl/closed-hash-table.hpp	2011-02-04 21:14:06.404756588 +0100
+*** mct/include/mct/impl/closed-hash-table.hpp.bak	2011-02-04 21:29:14.027511916 +0100
+--- mct/include/mct/impl/closed-hash-table.hpp	2011-02-04 21:30:06.965751600 +0100
 ***************
 *** 261,271 ****
         {  return 0;  }
@@ -26,6 +26,23 @@
   
   
 ***************
+*** 371,377 ****
+  
+  
+        void
+!       link (single_link_storage* that)
+        { }
+  
+        void
+--- 371,377 ----
+  
+  
+        void
+!       link (single_link_storage* that __attribute__((unused)))
+        { }
+  
+        void
+***************
 *** 497,503 ****
       public:
   
@@ -42,3 +59,20 @@
         {  return !is_empty_or_debris ();  }
   
         bool
+***************
+*** 707,713 ****
+      public:
+  
+        bool
+!       used_and_matches (std::size_t hash) const
+        {  return !is_empty_or_debris ();  }
+  
+  
+--- 707,713 ----
+      public:
+  
+        bool
+!       used_and_matches (std::size_t hash __attribute__((unused))) const
+        {  return !is_empty_or_debris ();  }
+  
+  

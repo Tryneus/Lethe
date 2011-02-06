@@ -46,6 +46,7 @@ private:
   Event& m_event;
   bool m_iterating;
 
+protected:
   void iterate(Handle handle)
   {
     m_iterating = true;
@@ -155,6 +156,7 @@ public:
 private:
   Mutex& m_mutex;
 
+protected:
   void iterate(Handle handle)
   {
     if(handle != INVALID_HANDLE_VALUE)

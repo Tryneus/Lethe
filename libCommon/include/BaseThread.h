@@ -28,7 +28,7 @@ protected:
   void removeWaitObject(WaitObject& obj);
   void setWaitTimeout(uint32_t timeout);
 
-  // Internal functions to be used in WindowsThread and LinuxThread (not to be exported for users)
+  // Internal functions to be used in WindowsThread and LinuxThread (shouldn't be used outside this library)
   void* threadMain();
 
 private:

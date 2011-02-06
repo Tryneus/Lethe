@@ -3,9 +3,9 @@ Use Makefiles on Linux (gcc) or Visual Studio for Windows (tested on 2008)
 Requirements:
   Linux:
     Requires the eventfd kernel module to be loaded (libCommon/module)
-    'make' requires 'scons' and 'python-docutils' to be installed (due to thirdParty/mct)
     'make valTest' requires 'valgrind' to be installed
     'make check' and 'make checkTest' require 'cppcheck' to be installed
+    Almost all synchronization objects use file descriptors.  For large numbers of these, 'ulimit -n' may need to be raised
 
   Windows:
     Requires some manual modification of thirdParty modules

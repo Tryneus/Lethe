@@ -108,7 +108,7 @@ WaitResult LinuxWaitSet::waitAll(uint32_t timeout __attribute__ ((unused)),
 WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
 {
   WaitResult result(WaitSuccess);
-  // TODO: save end time, and rewait if EINTR
+  // TODO: save end time, and rewait if EINTR/EAGAIN
 
   if(m_eventCount == 0)
   {

@@ -4,6 +4,7 @@ Features:
     Enforce limits on semaphore value
     Allow mutexes to accumulate locks when relocked by the same thread
     Add LinuxWaitSet::waitAll implementation
+    Investigate replacing ostream-style Log interface with fastformat::write
 
 Fixes (see limitations):
   eventfd linux kernel patch

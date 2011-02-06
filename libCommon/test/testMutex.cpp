@@ -1,7 +1,7 @@
 #include "Abstraction.h"
 #include "Exception.h"
-#include "Log.h"
 #include "catch.hpp"
+#include "testCommon.h"
 
 /**
  *
@@ -17,12 +17,12 @@ TEST_CASE("mutex/structor", "Test construction/destruction")
 
   for(uint32_t i(0); i < numMutexes; ++i)
   {
-    REQUIRE_NOTHROW(mutexArray[i] = new Mutex(!(i % 2)));
+    mutexArray[i] = new Mutex(!(i % 2));
   }
 
   for(uint32_t i(0); i < numMutexes; ++i)
   {
-    REQUIRE_NOTHROW(delete mutexArray[i]);
+    delete mutexArray[i];
   }
 
   delete [] mutexArray;

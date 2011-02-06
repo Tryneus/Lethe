@@ -21,14 +21,10 @@ TEST_CASE("timer/structor", "Test construction/destruction")
     if(i & bit1)
       timerArray[i]->start(2000);
     if(i & bit2)
-      timerArray[i]->stop();
-    if(i & bit3)
       timerArray[i]->clear();
-    if(i & bit4)
+    if(i & bit3)
       timerArray[i]->start(1000);
-    if(i & bit5)
-      timerArray[i]->stop();
-    if(i & bit6)
+    if(i & bit4)
       timerArray[i]->clear();
   }
 
@@ -43,5 +39,17 @@ TEST_CASE("timer/structor", "Test construction/destruction")
 
 TEST_CASE("timer/wait", "Test waiting for timers")
 {
-  // TODO: implement timer/wait
+  Timer timer;
+
+  timer.start(1000);
+  REQUIRE(WaitForObject(timer, 1000) == WaitSuccess);
+  REQUIRE(WaitForObject(timer, 0) == WaitSuccess);
+  timer.clear();
+  REQUIRE(WaitForObject(timer, 0) == WaitTimeout);
+
+  timer.start(1);
+  REQUIRE(WaitForObject(timer, 1) == WaitSuccess);
+  REQUIRE(WaitForObject(timer, 0) == WaitSuccess);
+  timer.clear();
+  REQUIRE(WaitForObject(timer, 0) == WaitTimeout);
 }

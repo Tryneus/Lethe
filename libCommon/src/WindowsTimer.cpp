@@ -27,12 +27,6 @@ void WindowsTimer::start(uint32_t timeout)
     throw Exception("Failed to start timer: " + lastError());
 }
 
-void WindowsTimer::stop()
-{
-  if(!CancelWaitableTimer(getHandle()))
-    throw Exception("Failed to stop timer: " + lastError());
-}
-
 void WindowsTimer::clear()
 {
   LARGE_INTEGER elapseTime;

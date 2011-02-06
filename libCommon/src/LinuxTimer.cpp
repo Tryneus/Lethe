@@ -32,7 +32,7 @@ void LinuxTimer::start(uint32_t timeout)
     throw Exception("Failed to start timer: " + lastError());
 }
 
-void LinuxTimer::stop()
+void LinuxTimer::clear()
 {
   itimerspec elapseTime;
 
@@ -43,13 +43,4 @@ void LinuxTimer::stop()
 
   if(timerfd_settime(getHandle(), 0, &elapseTime, NULL) != 0)
     throw Exception("Failed to stop timer: " + lastError());
-}
-
-void LinuxTimer::clear()
-{
-  stop();
-
-  uint64_t buffer;
-  if(read(getHandle(), &buffer, sizeof(buffer)) != sizeof(buffer) && errno != EAGAIN)
-    throw Exception("Failed to clear timer: " + lastError());
 }

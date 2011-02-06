@@ -15,7 +15,6 @@ public:
   ~LinuxTimer();
 
   void start(uint32_t timeout);
-  void stop();
   void clear();
 };
 

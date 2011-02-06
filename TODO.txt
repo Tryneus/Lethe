@@ -10,3 +10,4 @@ Fixes (see limitations):
   eventfd linux kernel patch
   timerfd linux kernel patch
   pipe asynchronous write
+  There appears to be a bug in the Thread class that destroying a thread that is currently running sometimes results in a 'pure virtual call' - this was observed using a timeout of 0 and no WaitObjects in the derived thread

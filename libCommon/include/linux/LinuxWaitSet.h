@@ -36,10 +36,10 @@ public:
   LinuxWaitSet();
   ~LinuxWaitSet();
 
-  void add(WaitObject& obj);
+  bool add(WaitObject& obj);
 
-  void remove(WaitObject& obj);
-  void remove(Handle handle);
+  bool remove(WaitObject& obj);
+  bool remove(Handle handle);
 
   size_t getSize() const;
 

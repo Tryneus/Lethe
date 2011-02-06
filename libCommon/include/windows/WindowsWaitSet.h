@@ -37,9 +37,10 @@ public:
   WindowsWaitSet();
   ~WindowsWaitSet();
 
-  void add(WaitObject& obj);
-  void remove(WaitObject& obj);
-  void remove(Handle handle);
+  bool add(WaitObject& obj);
+
+  bool remove(WaitObject& obj);
+  bool remove(Handle handle);
 
   size_t getSize() const;
 

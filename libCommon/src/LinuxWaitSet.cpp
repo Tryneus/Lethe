@@ -4,6 +4,7 @@
 #include "mct/hash-map.hpp"
 #include <sys/epoll.h>
 #include <string.h>
+#include <errno.h>
 
 LinuxWaitSet::LinuxWaitSet() :
   m_epollSet(epoll_create(10)),
@@ -28,10 +29,10 @@ LinuxWaitSet::~LinuxWaitSet()
   close(m_epollSet);
 }
 
-void LinuxWaitSet::add(WaitObject& obj)
+bool LinuxWaitSet::add(WaitObject& obj)
 {
   if(!m_waitObjects->insert(std::make_pair<Handle, WaitObject*>(obj.getHandle(), &obj)).second)
-    throw Exception("Failed to insert wait object into hash map");
+    return false;
 
   epoll_event event;
   memset(&event, 0, sizeof(event));
@@ -45,36 +46,35 @@ void LinuxWaitSet::add(WaitObject& obj)
   }
 
   resizeEvents();
+  return true;
 }
 
-void LinuxWaitSet::remove(WaitObject& obj)
+bool LinuxWaitSet::remove(WaitObject& obj)
 {
-  remove(obj.getHandle());
+  return remove(obj.getHandle());
 }
 
-void LinuxWaitSet::remove(Handle handle)
+bool LinuxWaitSet::remove(Handle handle)
 {
   std::string error;
-
-  if(!m_waitObjects->erase(handle))
-    error += "Failed to remove handle from hash map";
+  bool retval(m_waitObjects->erase(handle));
 
   epoll_event event;
   memset(&event, 0, sizeof(event));
   event.events = EPOLLIN | EPOLLERR | EPOLLHUP;
   event.data.fd = handle;
 
-  if(epoll_ctl(m_epollSet, EPOLL_CTL_DEL, event.data.fd, &event) != 0)
+  if(epoll_ctl(m_epollSet, EPOLL_CTL_DEL, event.data.fd, &event) != 0 && errno != ENOENT)
   {
-    if(!error.empty())
-      error.append(", and");
-    error += "Failed to remove handle from epoll set: " + lastError();
+    error = "Failed to remove handle from epoll set: " + lastError();
   }
 
   resizeEvents();
 
   if(error.length() != 0)
     throw Exception(error);
+
+  return retval;
 }
 
 void LinuxWaitSet::resizeEvents()
@@ -99,7 +99,7 @@ size_t LinuxWaitSet::getSize() const
 }
 
 WaitResult LinuxWaitSet::waitAll(uint32_t timeout __attribute__ ((unused)),
-                                   Handle& handle __attribute__ ((unused)))
+                                 Handle& handle __attribute__ ((unused)))
 {
   // TODO: implement waitAll, may be too prone to deadlock, though
   throw Exception("LinuxWaitSet::waitAll not yet implemented");
@@ -109,6 +109,12 @@ WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
 {
   WaitResult result(WaitSuccess);
   // TODO: save end time, and rewait if EINTR/EAGAIN
+
+  if(m_waitObjects->size() == 0)
+  {
+    Sleep(timeout);
+    return WaitTimeout;
+  }
 
   if(m_eventCount == 0)
   {

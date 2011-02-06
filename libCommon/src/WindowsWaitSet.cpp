@@ -17,26 +17,23 @@ WindowsWaitSet::~WindowsWaitSet()
   delete [] m_handleArray;
 }
 
-void WindowsWaitSet::add(WaitObject& obj)
+bool WindowsWaitSet::add(WaitObject& obj)
 {
   if(!m_waitObjects->insert(std::make_pair<Handle, WaitObject*>(obj.getHandle(), &obj)).second)
-    throw Exception("Failed to insert wait object into hash map");
+    return false;
 
   resizeEvents();
 }
 
-void WindowsWaitSet::remove(WaitObject& obj)
+bool WindowsWaitSet::remove(WaitObject& obj)
 {
-  if(!m_waitObjects->erase(obj.getHandle()))
-    throw Exception("Failed to remove handle from set");
-
-  resizeEvents();
+  return remove(obj.getHandle());
 }
 
-void WindowsWaitSet::remove(Handle handle)
+bool WindowsWaitSet::remove(Handle handle)
 {
   if(!m_waitObjects->erase(handle))
-    throw Exception("Failed to remove handle from set");
+    return false;
 
   resizeEvents();
 }

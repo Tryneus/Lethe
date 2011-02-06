@@ -181,11 +181,7 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
 
   // Trigger each object, make sure we get exactly one at a time
   mutex.unlock();
-//  if(waitSet.waitAny(0, waitHandle) != WaitSuccess)
-//    REQUIRE(false);
-  //  REQUIRE(waitSet.waitAny(0, waitHandle) == WaitSuccess); // Mutex is relocked here
-
-  REQUIRE(WaitSuccess == waitSet.waitAny(0, waitHandle));
+  REQUIRE(waitSet.waitAny(0, waitHandle) == WaitSuccess); // Mutex is relocked here
   REQUIRE(waitHandle == mutex.getHandle());
   REQUIRE(waitSet.waitAny(100, waitHandle) == WaitTimeout);
 

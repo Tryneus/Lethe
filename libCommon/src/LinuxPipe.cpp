@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include <errno.h>
 
 LinuxPipe::LinuxPipe() :
   WaitObject(INVALID_HANDLE_VALUE),
@@ -72,7 +73,12 @@ void LinuxPipe::send(uint8_t* buffer, uint32_t bufferSize)
   bytesWritten = write(m_pipeWrite, buffer, bufferSize);
 
   if(bytesWritten < 0)
-    throw Exception("Failed to write to pipe: " + lastError());
+  {
+    if(errno == EAGAIN)
+      bytesWritten = 0;
+    else
+      throw Exception("Failed to write to pipe: " + lastError());
+  }
 
   // TODO: this leaves the possibility of an incomplete message if there is not active traffic
   // This should only happen on chunks of data larger than the pipe buffer, though

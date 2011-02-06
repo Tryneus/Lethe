@@ -1,11 +1,10 @@
+#define __STDC_LIMIT_MACROS // Get INT64_MIN from stdint.h
 #include "windows/WindowsTimer.h"
 #include "AbstractionFunctions.h"
 #include "Exception.h"
 #include <Windows.h>
 
-// TODO: This is a bit of a hack to clear a timer
-//  we just reset it with a really long timeout
-const int64_t WindowsTimer::s_resetTimeout(-315360000000000);
+const int64_t WindowsTimer::s_resetTimeout(INT64_MIN);
 
 WindowsTimer::WindowsTimer() :
   WaitObject(CreateWaitableTimer(NULL, true, NULL))

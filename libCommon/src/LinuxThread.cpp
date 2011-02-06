@@ -8,7 +8,7 @@ LinuxThread::LinuxThread(uint32_t timeout) :
 
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-  pthread_create(&m_thread, &attr, threadHook, this);
+  pthread_create(&m_thread, &attr, &threadHook, this);
   pthread_attr_destroy(&attr);
 }
 

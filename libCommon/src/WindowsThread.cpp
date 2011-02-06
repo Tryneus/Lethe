@@ -5,7 +5,7 @@
 WindowsThread::WindowsThread(uint32_t timeout) :
   BaseThread(timeout),
 #pragma warning(disable:4355) // Suppress warning about using 'this'
-  m_handle(CreateThread(NULL, 0, threadHook, this, 0, NULL))
+  m_handle(CreateThread(NULL, 0, &threadHook, this, 0, NULL))
 #pragma warning(default:4355)
 {
   // Do nothing

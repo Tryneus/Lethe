@@ -2,7 +2,6 @@
 #include "AbstractionFunctions.h"
 #include "Exception.h"
 #include "mct/hash-map.hpp"
-#include <sys/epoll.h>
 #include <string.h>
 #include <errno.h>
 
@@ -64,7 +63,7 @@ bool LinuxWaitSet::remove(Handle handle)
   event.events = EPOLLIN | EPOLLERR | EPOLLHUP;
   event.data.fd = handle;
 
-  if(epoll_ctl(m_epollSet, EPOLL_CTL_DEL, event.data.fd, &event) != 0 && errno != ENOENT)
+  if(epoll_ctl(m_epollSet, EPOLL_CTL_DEL, event.data.fd, &event) != 0 && errno != ENOENT && errno != EBADF)
   {
     error = "Failed to remove handle from epoll set: " + lastError();
   }
@@ -107,8 +106,7 @@ WaitResult LinuxWaitSet::waitAll(uint32_t timeout __attribute__ ((unused)),
 
 WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
 {
-  WaitResult result(WaitSuccess);
-  // TODO: save end time, and rewait if EINTR/EAGAIN
+  // TODO: save end time and rewait if EINTR
 
   if(m_waitObjects->size() == 0)
   {
@@ -118,17 +116,48 @@ WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
 
   if(m_eventCount == 0)
   {
-    m_eventCount = epoll_wait(m_epollSet, m_events, m_waitObjects->size(), timeout);
+    std::list<Handle> preWaitEvents;
+
+    for(mct::closed_hash_map<Handle, WaitObject*>::iterator i = m_waitObjects->begin();
+        i != m_waitObjects->end(); ++i)
+      if(i->second->preWaitCallback())
+        preWaitEvents.push_back(i->second->getHandle());
+
+    if(preWaitEvents.size() != 0)
+      timeout = 0;
 
     if(m_eventCount == 0)
     {
-      handle = INVALID_HANDLE_VALUE;
-      return WaitTimeout;
+      m_eventCount = epoll_wait(m_epollSet, m_events, m_waitObjects->size(), timeout);
+
+      if(m_eventCount == 0)
+      {
+        handle = INVALID_HANDLE_VALUE;
+        return WaitTimeout;
+      }
+      else if(m_eventCount < 0)
+        throw Exception("Failed to wait: " + lastError());
     }
-    else if(m_eventCount < 0)
-      throw Exception("Failed to wait: " + lastError());
+
+    if(preWaitEvents.size() != 0)
+      appendEvents(preWaitEvents);
   }
 
+  return getEvent(handle);
+}
+
+void LinuxWaitSet::appendEvents(const std::list<Handle>& events)
+{
+  for(std::list<Handle>::const_iterator i = events.begin(); i != events.end(); ++i)
+  {
+    m_events[m_eventCount].data.fd = *i;
+    m_events[m_eventCount++].events = EPOLLIN;
+  }
+}
+
+WaitResult LinuxWaitSet::getEvent(Handle& handle)
+{
+  WaitResult result = WaitSuccess;
   handle = m_events[--m_eventCount].data.fd;
 
   // In the case of an error, return WaitAbandoned

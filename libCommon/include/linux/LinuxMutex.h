@@ -20,10 +20,12 @@ public:
   void unlock();
 
 protected:
+  bool preWaitCallback();
   void postWaitCallback(WaitResult result);
 
 private:
   pthread_t m_ownerThread;
+  uint32_t m_count;
 };
 
 #endif

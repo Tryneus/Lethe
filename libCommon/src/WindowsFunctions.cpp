@@ -94,6 +94,9 @@ uint32_t seedRandom(uint32_t seed)
 
 WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
 {
+  if(obj.preWaitCallback())
+    return WaitSuccess;
+
   switch(WaitForSingleObject(obj.getHandle(), timeout))
   {
   case WAIT_OBJECT_0:

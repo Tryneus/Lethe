@@ -70,6 +70,9 @@ WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
   WaitResult result = WaitSuccess;
   struct pollfd pollData;
 
+  if(obj.preWaitCallback())
+    return WaitSuccess;
+
   pollData.fd = obj.getHandle();
   pollData.events = POLLIN | POLLERR | POLLHUP;
 

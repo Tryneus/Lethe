@@ -18,7 +18,7 @@ TEST_CASE("waitSet/structor", "Test constructor/destructor")
 class DummyThread : public Thread
 {
 protected:
-  void iterate(Handle handle) { handle = INVALID_HANDLE_VALUE; };
+  void iterate(Handle handle) { handle = INVALID_HANDLE_VALUE; stop(); };
 };
 
 // Create an error condition with a custom WaitObject
@@ -102,49 +102,49 @@ TEST_CASE("waitSet/remove", "Test removing WaitObjects")
   waitSet.add(thread);
   waitSet.add(pipe);
   REQUIRE(waitSet.getSize() == 6);
-  REQUIRE_THROWS_AS(waitSet.remove(invalid), Exception);
+  REQUIRE_FALSE(waitSet.remove(invalid));
   REQUIRE(waitSet.getSize() == 6); 
 
   waitSet.remove(pipe);
   REQUIRE(waitSet.getSize() == 5);
   REQUIRE_FALSE(waitSet.remove(pipe));
   REQUIRE(waitSet.getSize() == 5);
-  REQUIRE_THROWS_AS(waitSet.remove(invalid), Exception);
+  REQUIRE_FALSE(waitSet.remove(invalid));
   REQUIRE(waitSet.getSize() == 5); 
 
   waitSet.remove(mutex);
   REQUIRE(waitSet.getSize() == 4);
   REQUIRE_FALSE(waitSet.remove(mutex));
   REQUIRE(waitSet.getSize() == 4);
-  REQUIRE_THROWS_AS(waitSet.remove(invalid), Exception);
+  REQUIRE_FALSE(waitSet.remove(invalid));
   REQUIRE(waitSet.getSize() == 4); 
 
   waitSet.remove(semaphore);
   REQUIRE(waitSet.getSize() == 3);
   REQUIRE_FALSE(waitSet.remove(semaphore));
   REQUIRE(waitSet.getSize() == 3);
-  REQUIRE_THROWS_AS(waitSet.remove(invalid), Exception);
+  REQUIRE_FALSE(waitSet.remove(invalid));
   REQUIRE(waitSet.getSize() == 3); 
 
   waitSet.remove(event);
   REQUIRE(waitSet.getSize() == 2);
   REQUIRE_FALSE(waitSet.remove(event));
   REQUIRE(waitSet.getSize() == 2);
-  REQUIRE_THROWS_AS(waitSet.remove(invalid), Exception);
+  REQUIRE_FALSE(waitSet.remove(invalid));
   REQUIRE(waitSet.getSize() == 2); 
 
   waitSet.remove(thread);
   REQUIRE(waitSet.getSize() == 1);
   REQUIRE_FALSE(waitSet.remove(thread));
   REQUIRE(waitSet.getSize() == 1);
-  REQUIRE_THROWS_AS(waitSet.remove(invalid), Exception);
+  REQUIRE_FALSE(waitSet.remove(invalid));
   REQUIRE(waitSet.getSize() == 1); 
 
   waitSet.remove(timer);
   REQUIRE(waitSet.getSize() == 0);
   REQUIRE_FALSE(waitSet.remove(timer));
   REQUIRE(waitSet.getSize() == 0);
-  REQUIRE_THROWS_AS(waitSet.remove(invalid), Exception);
+  REQUIRE_FALSE(waitSet.remove(invalid));
   REQUIRE(waitSet.getSize() == 0); 
 }
 
@@ -162,7 +162,6 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
   Handle waitHandle;
 
   // Create wait objects initially unsignalled
-  Mutex mutex(true);
   Event event(false, true);
   Timer timer;
   Semaphore semaphore(10, 0);
@@ -171,51 +170,43 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
 
   REQUIRE(waitSet.getSize() == 0);
 
-  waitSet.add(mutex);
   waitSet.add(event);
   waitSet.add(timer);
   waitSet.add(semaphore);
   waitSet.add(thread);
   waitSet.add(pipe);
-  REQUIRE(waitSet.getSize() == 6);
+  REQUIRE(waitSet.getSize() == 5);
 
   // Trigger each object, make sure we get exactly one at a time
-  mutex.unlock();
-  REQUIRE(waitSet.waitAny(0, waitHandle) == WaitSuccess); // Mutex is relocked here
-  REQUIRE(waitHandle == mutex.getHandle());
-  REQUIRE(waitSet.waitAny(100, waitHandle) == WaitTimeout);
-
   event.set();
-  REQUIRE(waitSet.waitAny(0, waitHandle) == WaitSuccess); // Event is reset here
+  if(waitSet.waitAny(0, waitHandle) != WaitSuccess) REQUIRE(false); // Event is reset here
   REQUIRE(waitHandle == event.getHandle());
   REQUIRE(waitSet.waitAny(100, waitHandle) == WaitTimeout);
 
-  timer.start(50);
-  REQUIRE(waitSet.waitAny(100, waitHandle) == WaitSuccess);
+  timer.start(1);
+  if(waitSet.waitAny(100, waitHandle) != WaitSuccess) REQUIRE(false);
   REQUIRE(waitHandle == timer.getHandle());
   timer.clear(); // This may be changed if we support auto-reset in LinuxTimers
   REQUIRE(waitSet.waitAny(100, waitHandle) == WaitTimeout);
 
   semaphore.unlock(1);
-  REQUIRE(waitSet.waitAny(0, waitHandle) == WaitSuccess); // Semaphore is relocked here
+  if(waitSet.waitAny(0, waitHandle) != WaitSuccess) REQUIRE(false); // Semaphore is relocked here
   REQUIRE(waitHandle == semaphore.getHandle());
   REQUIRE(waitSet.waitAny(100, waitHandle) == WaitTimeout);
 
   thread.start();
-  REQUIRE(waitSet.waitAny(100, waitHandle) == WaitSuccess); // DummyThread may take a little time to exit
+  if(waitSet.waitAny(100, waitHandle) != WaitSuccess) REQUIRE(false); // DummyThread may take a little time to exit
   REQUIRE(waitHandle == thread.getHandle());
-  REQUIRE(waitSet.waitAny(100, waitHandle) == WaitTimeout);
+  // Thread is not resettable at the moment
 
   pipe.send(buffer, 5);
-  REQUIRE(waitSet.waitAny(0, waitHandle) == WaitSuccess);
+  if(waitSet.waitAny(0, waitHandle) != WaitSuccess) REQUIRE(false);
   REQUIRE(waitHandle == pipe.getHandle());
   pipe.receive(buffer, 5);
   REQUIRE(waitSet.waitAny(100, waitHandle) == WaitTimeout);
 
   // Now try triggering all the objects at once and make sure that every object finishes
-  thread.start();
   timer.start(1);
-  mutex.unlock();
   event.set();
   semaphore.unlock(1);
   pipe.send(buffer, 5);
@@ -224,14 +215,13 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
   std::set<Handle> unfinished;
   unfinished.insert(thread.getHandle());
   unfinished.insert(timer.getHandle());
-  unfinished.insert(mutex.getHandle());
   unfinished.insert(event.getHandle());
   unfinished.insert(semaphore.getHandle());
   unfinished.insert(pipe.getHandle());
 
   while(unfinished.size() > 0)
   {
-    REQUIRE(waitSet.waitAny(10, waitHandle) == WaitSuccess);
+    if(waitSet.waitAny(10, waitHandle) != WaitSuccess) REQUIRE(false);
     REQUIRE(unfinished.erase(waitHandle) == 1);
 
     // Special handling to reset timer and pipe handles

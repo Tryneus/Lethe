@@ -41,12 +41,20 @@ uint32_t seedRandom(uint32_t seed)
   return seed;
 }
 
-void getFileList(const std::string& directory,
-                 std::vector<std::string>& fileList)
+void getFileList(const std::string& directory __attribute__((unused)),
+                 std::vector<std::string>& fileList __attribute__((unused)))
 {
   throw Exception("LinuxFunctions::getFileList not yet implemented");
-  directory.length();
-  fileList.size();
+}
+
+uint64_t getTime()
+{
+  timeval currentTime;
+
+  if(gettimeofday(&currentTime, NULL) != 0)
+    throw Exception("Failed to get the current time: " + lastError());
+
+  return (currentTime.tv_sec * 1000) + (currentTime.tv_usec / 1000);
 }
 
 std::string getTimeString()

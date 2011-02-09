@@ -4,7 +4,7 @@ INCLUDE_FLAGS:=-I../include \
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
 HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')
 
-COMPILE_FLAGS:=-c -Wall -Wextra -Werror -O3 -g $(INCLUDE_FLAGS)
+COMPILE_FLAGS:=-c -Wall -Wextra -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS :=-L/usr/lib/gcc/i486-linux-gnu/4.3.2/ -lrt -lstdc++
 
 BINARY_DIR   :=../bin
@@ -38,6 +38,9 @@ valTest: all
 $(BINARY_FILE): $(OBJECT_FILES) $(INCLUDE_LIBS)
 	mkdir -p $(BINARY_DIR)
 	gcc $(LINKER_FLAGS) -o $@ $(OBJECT_FILES) $(INCLUDE_LIBS)
+
+testMain.o: testMain.cpp
+	g++ $(COMPILE_FLAGS) $< -o $@
 
 %.o: %.cpp $(HEADER_FILES)
 	g++ $(COMPILE_FLAGS) $< -o $@

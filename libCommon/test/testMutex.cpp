@@ -244,3 +244,8 @@ TEST_CASE("mutex/timeout", "Test timeout behavior")
 {
   // TODO: implement mutex/timeout
 }
+
+TEST_CASE("mutex/multilock", "Test multilock behavior")
+{
+  // TODO: test mutex/multilock
+}

@@ -17,7 +17,9 @@ LinuxPipe::LinuxPipe() :
 {
   int pipes[2];
 
-  if(pipe(pipes) != 0)
+  if(pipe(pipes) != 0 ||
+     pipes[0] == INVALID_HANDLE_VALUE ||
+     pipes[1] == INVALID_HANDLE_VALUE)
     throw Exception("Failed to create pipe: " + lastError());
 
   m_pipeRead = pipes[0];
@@ -96,7 +98,7 @@ uint32_t LinuxPipe::receive(uint8_t* buffer, uint32_t bufferSize)
 {
   ssize_t bytesRead(read(m_pipeRead, buffer, bufferSize));
 
-  if(bytesRead != 0)
+  if(bytesRead == 0)
     throw Exception("Failed to read from pipe: " + lastError());
 
   return bytesRead;

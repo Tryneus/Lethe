@@ -17,6 +17,8 @@ TEST_CASE("waitSet/structor", "Test constructor/destructor")
 // Create an instantiable thread object (so we can add a thread to the WaitSet)
 class DummyThread : public Thread
 {
+public:
+  DummyThread() : Thread(0) { };
 protected:
   void iterate(Handle handle) { handle = INVALID_HANDLE_VALUE; stop(); };
 };

@@ -136,7 +136,7 @@ TEST_CASE("mutex/autolock", "Test auto-lock and unlock with multiple waiting thr
   for(uint32_t i(0); i < threadCount; ++i)
   {
     REQUIRE(threadArray[i]->isStopping() == true);
-    REQUIRE(threadArray[i]->getError().length() == 0);
+    REQUIRE(threadArray[i]->getError() == "");
     delete threadArray[i];
   }
 }

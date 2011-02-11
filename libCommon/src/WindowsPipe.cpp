@@ -36,7 +36,7 @@ WindowsPipe::~WindowsPipe()
   CloseHandle(m_pipeRead);
 }
 
-void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)
+void WindowsPipe::send(const void* buffer, uint32_t bufferSize)
 {
   // Overlapped I/O would require a named pipe =(
   DWORD bytesWritten(0);
@@ -77,11 +77,11 @@ void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)
     m_pendingData = new uint8_t[bufferSize - bytesWritten];
     m_pendingSend = m_pendingData;
     m_pendingSize = bufferSize - bytesWritten;
-    memcpy(m_pendingSend, buffer + bytesWritten, m_pendingSize);
+    memcpy(m_pendingSend, reinterpret_cast<const uint8_t*>(buffer) + bytesWritten, m_pendingSize);
   }
 }
 
-uint32_t WindowsPipe::receive(uint8_t* buffer, uint32_t bufferSize)
+uint32_t WindowsPipe::receive(void* buffer, uint32_t bufferSize)
 {
   DWORD bytesRead(0);
 

@@ -3,6 +3,7 @@
 #include "Log.h"
 
 SenderThread::SenderThread(ThreadComm::Channel& channel) :
+  Thread(200),
   m_channel(channel),
   m_chanHandle(m_channel.getHandle()),
   m_iterationCount(0),
@@ -11,7 +12,6 @@ SenderThread::SenderThread(ThreadComm::Channel& channel) :
 {
   LogInfo("Sender thread handle: " << (uint32_t)getHandle());
   addWaitObject(m_channel);
-  setWaitTimeout(200);
 }
 
 SenderThread::~SenderThread()

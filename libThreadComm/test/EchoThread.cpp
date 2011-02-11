@@ -3,6 +3,7 @@
 #include "Log.h"
 
 EchoThread::EchoThread(ThreadComm::Channel& channel) :
+  Thread(INFINITE),
   m_channel(channel),
   m_chanHandle(m_channel.getHandle()),
   m_iterationCount(0),
@@ -10,7 +11,6 @@ EchoThread::EchoThread(ThreadComm::Channel& channel) :
 {
   LogInfo("Echo thread handle: " << (uint32_t)getHandle());
   addWaitObject(m_channel);
-  setWaitTimeout(INFINITE);
 }
 
 EchoThread::~EchoThread()

@@ -33,7 +33,7 @@ runTest: all
 	$(BINARY_FILE) 2>&1 | tee runTest.log
 
 valTest: all
-	valgrind --track-origins=yes --track-fds=yes $(BINARY_FILE) 2>&1 | tee valTest.log
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes --track-fds=yes $(BINARY_FILE) 2>&1 | tee valTest.log
 
 $(BINARY_FILE): $(OBJECT_FILES) $(INCLUDE_LIBS)
 	mkdir -p $(BINARY_DIR)

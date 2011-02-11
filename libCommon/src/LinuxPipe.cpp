@@ -149,7 +149,7 @@ uint32_t LinuxPipe::receive(void* buffer, uint32_t bufferSize)
 {
   ssize_t bytesRead(read(m_pipeRead, buffer, bufferSize));
 
-  if(bytesRead == 0)
+  if(bytesRead < 0)
     throw Exception("Failed to read from pipe: " + lastError());
 
   return bytesRead;

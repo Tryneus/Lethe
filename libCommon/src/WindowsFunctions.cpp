@@ -60,7 +60,7 @@ uint64_t getTime()
 
   // Adjust for scale: 100ns units to 1ms units
   retval /= 10000;
-  
+
   // Adjust for the number of milliseconds difference between 1601 and 1970 (windows to unix epoch);
   retval -= unixEpochDelta;
   return retval;

@@ -42,7 +42,7 @@ TEST_CASE("timer/wait", "Test waiting for timers")
   Timer timer;
   uint64_t startTime;
   uint64_t endTime;
-  
+
   startTime = getTime();
   timer.start(1000);
   REQUIRE(WaitForObject(timer, 1000) == WaitSuccess);

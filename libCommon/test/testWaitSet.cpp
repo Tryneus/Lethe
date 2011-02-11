@@ -81,7 +81,7 @@ TEST_CASE("waitSet/add", "Test adding WaitObjects")
   REQUIRE_FALSE(waitSet.add(thread));
   REQUIRE_FALSE(waitSet.add(pipe));
   REQUIRE_THROWS_AS(waitSet.add(invalid), Exception);
-  REQUIRE(waitSet.getSize() == 6); 
+  REQUIRE(waitSet.getSize() == 6);
 }
 
 TEST_CASE("waitSet/remove", "Test removing WaitObjects")
@@ -105,49 +105,49 @@ TEST_CASE("waitSet/remove", "Test removing WaitObjects")
   waitSet.add(pipe);
   REQUIRE(waitSet.getSize() == 6);
   REQUIRE_FALSE(waitSet.remove(invalid));
-  REQUIRE(waitSet.getSize() == 6); 
+  REQUIRE(waitSet.getSize() == 6);
 
   waitSet.remove(pipe);
   REQUIRE(waitSet.getSize() == 5);
   REQUIRE_FALSE(waitSet.remove(pipe));
   REQUIRE(waitSet.getSize() == 5);
   REQUIRE_FALSE(waitSet.remove(invalid));
-  REQUIRE(waitSet.getSize() == 5); 
+  REQUIRE(waitSet.getSize() == 5);
 
   waitSet.remove(mutex);
   REQUIRE(waitSet.getSize() == 4);
   REQUIRE_FALSE(waitSet.remove(mutex));
   REQUIRE(waitSet.getSize() == 4);
   REQUIRE_FALSE(waitSet.remove(invalid));
-  REQUIRE(waitSet.getSize() == 4); 
+  REQUIRE(waitSet.getSize() == 4);
 
   waitSet.remove(semaphore);
   REQUIRE(waitSet.getSize() == 3);
   REQUIRE_FALSE(waitSet.remove(semaphore));
   REQUIRE(waitSet.getSize() == 3);
   REQUIRE_FALSE(waitSet.remove(invalid));
-  REQUIRE(waitSet.getSize() == 3); 
+  REQUIRE(waitSet.getSize() == 3);
 
   waitSet.remove(event);
   REQUIRE(waitSet.getSize() == 2);
   REQUIRE_FALSE(waitSet.remove(event));
   REQUIRE(waitSet.getSize() == 2);
   REQUIRE_FALSE(waitSet.remove(invalid));
-  REQUIRE(waitSet.getSize() == 2); 
+  REQUIRE(waitSet.getSize() == 2);
 
   waitSet.remove(thread);
   REQUIRE(waitSet.getSize() == 1);
   REQUIRE_FALSE(waitSet.remove(thread));
   REQUIRE(waitSet.getSize() == 1);
   REQUIRE_FALSE(waitSet.remove(invalid));
-  REQUIRE(waitSet.getSize() == 1); 
+  REQUIRE(waitSet.getSize() == 1);
 
   waitSet.remove(timer);
   REQUIRE(waitSet.getSize() == 0);
   REQUIRE_FALSE(waitSet.remove(timer));
   REQUIRE(waitSet.getSize() == 0);
   REQUIRE_FALSE(waitSet.remove(invalid));
-  REQUIRE(waitSet.getSize() == 0); 
+  REQUIRE(waitSet.getSize() == 0);
 }
 
 TEST_CASE("waitSet/waitAll", "Test waiting for all WaitObjects")

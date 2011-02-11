@@ -8,7 +8,6 @@
 #include <string.h>
 #include <errno.h>
 #include <aio.h>
-#include "Log.h"
 
 LinuxPipe::LinuxPipe() :
   WaitObject(INVALID_HANDLE_VALUE),
@@ -73,7 +72,6 @@ LinuxPipe::~LinuxPipe()
       status = aio_error(unfinishedEvents.front());
     }
 
-    // This results in a memory leak in aio =(
     delete [] reinterpret_cast<volatile uint8_t*>(unfinishedEvents.front()->aio_buf);
     aio_return(unfinishedEvents.front());
     unfinishedEvents.pop();
@@ -117,6 +115,7 @@ void LinuxPipe::send(const void* buffer, uint32_t bufferSize)
 {
   getAsyncResults();
 
+  // If we've still got asynchronous operations waiting, queue this up
   if(m_asyncStart != m_asyncEnd)
     return asyncWrite(buffer, bufferSize);
 
@@ -126,6 +125,7 @@ void LinuxPipe::send(const void* buffer, uint32_t bufferSize)
     m_blockingWrite = false;
   }
 
+  // Write as much as we can to the pipe, enqueue the rest asynchronously
   int bytesWritten = write(m_pipeWrite, buffer, bufferSize);
 
   if(bytesWritten < 0)

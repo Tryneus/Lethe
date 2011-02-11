@@ -191,7 +191,7 @@ TEST_CASE("pipe/largedata", "Test sending data buffers too large to fit in the p
 
   REQUIRE(success);
   thread.unlock();
-  
+
   thread.stop();
   REQUIRE(WaitForObject(thread, 100) == WaitSuccess);
   REQUIRE(thread.getError() == "");
@@ -200,5 +200,10 @@ TEST_CASE("pipe/largedata", "Test sending data buffers too large to fit in the p
 
 TEST_CASE("pipe/exceptions", "Test pipe error conditions")
 {
-  // TODO: implement pipe/exceptions
+  // Not many exceptions that can be triggered reliably
+  // Try to read from a pipe with no data
+  Pipe pipe;
+  uint8_t buffer[1];
+
+  REQUIRE_THROWS_AS(pipe.receive(buffer, 1), Exception);
 }

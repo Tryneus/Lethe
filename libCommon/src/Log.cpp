@@ -10,7 +10,7 @@ Log::Log() :
   m_mutex(true),
   m_logLevel(Debug),
   m_statementLevel(Debug),
-  m_handler(new StdoutLogHandler)
+  m_handler(new StreamLogHandler(std::cout))
 {
   m_mutex.unlock();
 }
@@ -44,26 +44,24 @@ void Log::disable()
   m_mutex.unlock();
 }
 
-void Log::setStdoutMode(Log::Level level)
+void Log::setStreamMode(std::ostream& out)
 {
   m_mutex.lock();
 
   delete m_handler;
   m_handler = NULL;
-  m_handler = new StdoutLogHandler();
-  m_logLevel = level;
+  m_handler = new StreamLogHandler(out);
 
   m_mutex.unlock();
 }
 
-void Log::setFileMode(const std::string& filename, Log::Level level)
+void Log::setFileMode(const std::string& filename)
 {
   m_mutex.lock();
 
   delete m_handler;
   m_handler = NULL;
   m_handler = new FileLogHandler(filename);
-  m_logLevel = level;
 
   m_mutex.unlock();
 }
@@ -102,9 +100,9 @@ Log& Log::operator << (Log::Level level)
   return *this;
 }
 
-////////////////////////////////////
+
 // DisabledLogHandler implementation
-////////////////////////////////////
+
 #if defined(__GNUG__)
 void Log::DisabledLogHandler::write(const std::string& statement __attribute__ ((unused)))
 #else
@@ -114,17 +112,23 @@ void Log::DisabledLogHandler::write(const std::string& statement)
   // Do nothing
 }
 
-////////////////////////////////////
+
 // StdoutLogHandler implementation
-////////////////////////////////////
-void Log::StdoutLogHandler::write(const std::string& statement)
+
+Log::StreamLogHandler::StreamLogHandler(std::ostream& out) :
+  m_out(out)
 {
-  std::cout << statement << std::endl;
+  // Do nothing
 }
 
-////////////////////////////////////
+void Log::StreamLogHandler::write(const std::string& statement)
+{
+  m_out << statement << std::endl;
+}
+
+
 // FileLogHandler implementation
-////////////////////////////////////
+
 Log::FileLogHandler::FileLogHandler(const std::string& filename) :
   m_filename(filename),
   m_out(m_filename.c_str(), std::ios_base::app)

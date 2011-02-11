@@ -4,7 +4,24 @@
 
 TEST_CASE("functions/sleep", "Test the sleep function")
 {
-  // TODO: implement functions/sleep
+  // Require that sleep be accurate within 35ms (due to OS scheduling/timer resolution and latency)
+  uint32_t startTime;
+
+  startTime = getTime();
+  Sleep(0);
+  REQUIRE(getTime() - startTime <= 20);
+
+  startTime = getTime();
+  Sleep(1);
+  REQUIRE(getTime() - startTime <= 36);
+
+  startTime = getTime();
+  Sleep(100);
+  REQUIRE(getTime() - startTime <= 135);
+
+  startTime = getTime();
+  Sleep(1000);
+  REQUIRE(getTime() - startTime <= 1035);
 }
 
 TEST_CASE("functions/getFileList", "Test getting a list of files")
@@ -17,17 +34,7 @@ TEST_CASE("functions/getTimeString", "Test getting the current time in string fo
   // TODO: implement functions/getTimeString
 }
 
-TEST_CASE("functions/seedRandom", "Test seeding the random number generator")
-{
-  // TODO: implement functions/seedRandom
-}
-
 TEST_CASE("functions/wait", "Test waiting for single WaitObjects")
 {
   // TODO: implement functions/wait
-}
-
-TEST_CASE("functions/lastError", "Test getting a string for the last error to occur")
-{
-  // TODO: implement functions/lastError
 }

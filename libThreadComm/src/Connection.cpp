@@ -1,5 +1,5 @@
 #include "Connection.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 
 using namespace ThreadComm;
 
@@ -20,7 +20,7 @@ Connection::~Connection()
 uint32_t Connection::checkSize(uint32_t size)
 {
   if(size < s_minSize)
-    throw Exception("Specified size too small for communication");
+    throw std::invalid_argument("size too small for communication");
 
   if(size > s_maxSize)
     size = s_maxSize;

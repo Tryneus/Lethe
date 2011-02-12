@@ -124,10 +124,7 @@ Log::StreamLogHandler::StreamLogHandler(std::ostream& out) :
 
 void Log::StreamLogHandler::write(const std::string& statement)
 {
-  if(::write(STDOUT_FILENO, (statement + "\n").c_str(), statement.length() + 1) <= 0)
-    throw std::bad_syscall("write", lastError());
-  fsync(STDOUT_FILENO);
-  //  m_out << statement << std::endl;
+  m_out << statement << std::endl;
 }
 
 

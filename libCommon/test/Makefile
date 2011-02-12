@@ -11,7 +11,6 @@ BINARY_DIR   :=../bin
 BINARY_FILE  :=$(BINARY_DIR)/libCommonTest
 
 OBJECT_FILES :=testMain.o \
-               testException.o \
                testFunctions.o \
                testWaitSet.o \
                testPipe.o \

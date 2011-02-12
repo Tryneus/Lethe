@@ -1,5 +1,5 @@
 #include "Abstraction.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include "catch.hpp"
 
 TEST_CASE("waitSet/structor", "Test constructor/destructor")
@@ -45,32 +45,32 @@ TEST_CASE("waitSet/add", "Test adding WaitObjects")
 
   waitSet.add(mutex);
   REQUIRE(waitSet.getSize() == 1);
-  REQUIRE_THROWS_AS(waitSet.add(invalid), Exception);
+  REQUIRE_THROWS_AS(waitSet.add(invalid), std::exception);
   REQUIRE(waitSet.getSize() == 1);
 
   waitSet.add(event);
   REQUIRE(waitSet.getSize() == 2);
-  REQUIRE_THROWS_AS(waitSet.add(invalid), Exception);
+  REQUIRE_THROWS_AS(waitSet.add(invalid), std::exception);
   REQUIRE(waitSet.getSize() == 2);
 
   waitSet.add(timer);
   REQUIRE(waitSet.getSize() == 3);
-  REQUIRE_THROWS_AS(waitSet.add(invalid), Exception);
+  REQUIRE_THROWS_AS(waitSet.add(invalid), std::exception);
   REQUIRE(waitSet.getSize() == 3);
 
   waitSet.add(semaphore);
   REQUIRE(waitSet.getSize() == 4);
-  REQUIRE_THROWS_AS(waitSet.add(invalid), Exception);
+  REQUIRE_THROWS_AS(waitSet.add(invalid), std::exception);
   REQUIRE(waitSet.getSize() == 4);
 
   waitSet.add(thread);
   REQUIRE(waitSet.getSize() == 5);
-  REQUIRE_THROWS_AS(waitSet.add(invalid), Exception);
+  REQUIRE_THROWS_AS(waitSet.add(invalid), std::exception);
   REQUIRE(waitSet.getSize() == 5);
 
   waitSet.add(pipe);
   REQUIRE(waitSet.getSize() == 6);
-  REQUIRE_THROWS_AS(waitSet.add(invalid), Exception);
+  REQUIRE_THROWS_AS(waitSet.add(invalid), std::exception);
   REQUIRE(waitSet.getSize() == 6);
 
   // Try to add everything twice, expect failures
@@ -80,7 +80,7 @@ TEST_CASE("waitSet/add", "Test adding WaitObjects")
   REQUIRE_FALSE(waitSet.add(semaphore));
   REQUIRE_FALSE(waitSet.add(thread));
   REQUIRE_FALSE(waitSet.add(pipe));
-  REQUIRE_THROWS_AS(waitSet.add(invalid), Exception);
+  REQUIRE_THROWS_AS(waitSet.add(invalid), std::exception);
   REQUIRE(waitSet.getSize() == 6);
 }
 

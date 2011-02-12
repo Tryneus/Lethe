@@ -10,8 +10,8 @@ LINKER_FLAGS :=-rcv
 LIBRARY_DIR  :=../bin
 LIBRARY_FILE :=$(LIBRARY_DIR)/libCommon.a
 
-OBJECT_FILES :=Exception.o \
-               Log.o \
+OBJECT_FILES :=Log.o \
+               AbstractionException.o \
                LinuxTimer.o \
                LinuxEvent.o \
                LinuxFunctions.o \

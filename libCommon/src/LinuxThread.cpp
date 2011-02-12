@@ -1,5 +1,4 @@
 #include "linux/LinuxThread.h"
-#include "Exception.h"
 
 LinuxThread::LinuxThread(uint32_t timeout) :
   BaseThread(timeout)
@@ -19,5 +18,6 @@ LinuxThread::~LinuxThread()
 
 void* LinuxThread::threadHook(void* param)
 {
-  return reinterpret_cast<LinuxThread*>(param)->threadMain();
+  reinterpret_cast<LinuxThread*>(param)->threadMain();
+  return NULL;
 }

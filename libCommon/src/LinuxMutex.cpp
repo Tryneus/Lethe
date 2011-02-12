@@ -1,6 +1,6 @@
 #include "linux/LinuxMutex.h"
 #include "AbstractionFunctions.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include <pthread.h>
 #include "eventfd.h"
 
@@ -10,7 +10,7 @@ LinuxMutex::LinuxMutex(bool locked) :
   m_count(locked)
 {
   if(getHandle() == INVALID_HANDLE_VALUE)
-    throw Exception("Failed to create mutex: " + lastError());
+    throw std::bad_syscall("eventfd", lastError());
 }
 
 LinuxMutex::~LinuxMutex()
@@ -23,7 +23,7 @@ void LinuxMutex::lock(uint32_t timeout)
   if(m_ownerThread != pthread_self())
   {
     if(WaitForObject(*this, timeout) != WaitSuccess)
-      throw Exception("Failed to lock mutex: " + lastError());
+      throw std::runtime_error("failed to wait for mutex");
   }
 }
 
@@ -37,11 +37,11 @@ void LinuxMutex::unlock()
 
       uint64_t buffer(1);
       if(write(getHandle(), &buffer, sizeof(buffer)) != sizeof(buffer))
-        throw Exception("Failed to unlock mutex: " + lastError());
+        throw std::bad_syscall("write to eventfd", lastError());
     }
   }
   else
-    throw Exception("Failed to unlock mutex: this thread is not the owner");
+    throw std::logic_error("mutex unlocked by wrong thread");
 }
 
 bool LinuxMutex::preWaitCallback()

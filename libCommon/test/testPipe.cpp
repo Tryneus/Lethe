@@ -1,5 +1,5 @@
 #include "Abstraction.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include "catch.hpp"
 
 TEST_CASE("pipe/structor", "Test construction/destruction")
@@ -22,7 +22,7 @@ TEST_CASE("pipe/structor", "Test construction/destruction")
     while(true)
       pipes[numPipes - 1].send(buffer, 100);
   }
-  catch(OutOfMemoryException&) { }
+  catch(std::bad_alloc&) { }
 
   // No checks, as long as we don't crash, it's fine
 }
@@ -97,17 +97,17 @@ void PipeTestThread::iterate(Handle handle)
     unlock();
 
     if(m_dataCount > m_maxData)
-      throw Exception("Buffer overflow");
+      throw std::logic_error("buffer overflow");
 
     m_event.set();
   }
   else
-    throw Exception("Invalid handle in iterate");
+    throw std::invalid_argument("invalid handle");
 }
 
 void PipeTestThread::abandoned(Handle handle __attribute__((unused)))
 {
-  throw Exception("Abandoned handle in pipe test thread");
+  throw std::logic_error("Abandoned handle in pipe test thread");
 }
 
 TEST_CASE("pipe/data", "Test sending/receiving on a pipe")
@@ -171,7 +171,7 @@ TEST_CASE("pipe/largedata", "Test sending data buffers too large to fit in the p
   REQUIRE_NOTHROW(pipe.send(dataBuffer, bufferSize));
 
   // After 10 async sends, an out of memory exception should happen
-  REQUIRE_THROWS_AS(pipe.send(dataBuffer, bufferSize), OutOfMemoryException);
+  REQUIRE_THROWS_AS(pipe.send(dataBuffer, bufferSize), std::bad_alloc);
 
   thread.start();
 
@@ -198,12 +198,12 @@ TEST_CASE("pipe/largedata", "Test sending data buffers too large to fit in the p
   delete [] dataBuffer;
 }
 
-TEST_CASE("pipe/exceptions", "Test pipe error conditions")
+TEST_CASE("pipe/exception", "Test pipe error conditions")
 {
   // Not many exceptions that can be triggered reliably
   // Try to read from a pipe with no data
   Pipe pipe;
   uint8_t buffer[1];
 
-  REQUIRE_THROWS_AS(pipe.receive(buffer, 1), Exception);
+  REQUIRE_THROWS_AS(pipe.receive(buffer, 1), std::bad_syscall);
 }

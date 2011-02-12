@@ -1,7 +1,7 @@
 #include "linux/LinuxTimer.h"
 #include "AbstractionTypes.h"
 #include "AbstractionFunctions.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include <sys/timerfd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -10,7 +10,7 @@ LinuxTimer::LinuxTimer() :
   WaitObject(timerfd_create(CLOCK_MONOTONIC, O_NONBLOCK))
 {
   if(getHandle() == INVALID_HANDLE_VALUE)
-    throw Exception("Failed to create timer: " + lastError());
+    throw std::bad_syscall("timerfd_create", lastError());
 }
 
 LinuxTimer::~LinuxTimer()
@@ -29,7 +29,7 @@ void LinuxTimer::start(uint32_t timeout)
 
 
   if(timerfd_settime(getHandle(), 0, &elapseTime, NULL) != 0)
-    throw Exception("Failed to start timer: " + lastError());
+    throw std::bad_syscall("timerfd_settime", lastError());
 }
 
 void LinuxTimer::clear()
@@ -42,5 +42,5 @@ void LinuxTimer::clear()
   elapseTime.it_interval.tv_nsec = 0;
 
   if(timerfd_settime(getHandle(), 0, &elapseTime, NULL) != 0)
-    throw Exception("Failed to stop timer: " + lastError());
+    throw std::bad_syscall("timerfd_settime", lastError());
 }

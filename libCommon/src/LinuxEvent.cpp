@@ -1,7 +1,7 @@
 #include "linux/LinuxEvent.h"
 #include "AbstractionTypes.h"
 #include "AbstractionFunctions.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include "eventfd.h"
@@ -12,7 +12,7 @@ LinuxEvent::LinuxEvent(bool initialState, bool autoReset) :
                      EFD_NONBLOCK | (autoReset ? EFD_WAITREAD : 0)))
 {
   if(getHandle() == INVALID_HANDLE_VALUE)
-    throw Exception("Failed to create event: " + lastError());
+    throw std::bad_syscall("eventfd", lastError());
 }
 
 LinuxEvent::~LinuxEvent()
@@ -25,7 +25,7 @@ void LinuxEvent::set()
   uint64_t state(1);
 
   if(write(getHandle(), &state, sizeof(state)) != sizeof(state) && errno != EAGAIN)
-    throw Exception("Failed to set event: " + lastError());
+    throw std::bad_syscall("write to eventfd", lastError());
 }
 
 void LinuxEvent::reset()
@@ -33,5 +33,5 @@ void LinuxEvent::reset()
   uint64_t state;
 
   if(read(getHandle(), &state, sizeof(state)) != sizeof(state) && errno != EAGAIN)
-    throw Exception("Failed to reset event: " + lastError());
+    throw std::bad_syscall("read from eventfd", lastError());
 }

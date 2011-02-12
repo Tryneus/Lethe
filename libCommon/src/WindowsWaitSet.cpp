@@ -1,6 +1,6 @@
 #include "windows/WindowsWaitSet.h"
 #include "AbstractionFunctions.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include "mct/hash-map.hpp"
 #include <Windows.h>
 
@@ -19,6 +19,9 @@ WindowsWaitSet::~WindowsWaitSet()
 
 bool WindowsWaitSet::add(WaitObject& obj)
 {
+  if(obj.getHandle() == INVALID_HANDLE_VALUE)
+    throw std::invalid_argument("invalid WaitObject handle");
+
   if(!m_waitObjects->insert(std::make_pair<Handle, WaitObject*>(obj.getHandle(), &obj)).second)
     return false;
 
@@ -32,6 +35,9 @@ bool WindowsWaitSet::remove(WaitObject& obj)
 
 bool WindowsWaitSet::remove(Handle handle)
 {
+  if(obj.getHandle() == INVALID_HANDLE_VALUE)
+    throw std::invalid_argument("invalid WaitObject handle");
+
   if(!m_waitObjects->erase(handle))
     return false;
 
@@ -63,7 +69,7 @@ WaitResult WindowsWaitSet::waitAll(uint32_t timeout, Handle& handle)
     return WaitTimeout;
   }
 
-  throw Exception("Failed to wait: " + lastError());
+  throw std::bad_syscall("WaitForMultipleObjects", lastError());
 }
 
 WaitResult WindowsWaitSet::waitAny(uint32_t timeout, Handle& handle)
@@ -88,7 +94,7 @@ WaitResult WindowsWaitSet::waitAny(uint32_t timeout, Handle& handle)
     return WaitTimeout;
   }
   else
-    throw Exception("Failed to wait: " + lastError());
+    throw std::bad_syscall("WaitForMultipleObjects", lastError());
 
   (*m_waitObjects)[handle]->postWaitCallback(result);
   return result;

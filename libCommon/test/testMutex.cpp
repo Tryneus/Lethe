@@ -1,5 +1,5 @@
 #include "Abstraction.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include "catch.hpp"
 #include "testCommon.h"
 
@@ -54,13 +54,13 @@ protected:
     if(handle != m_mutex.getHandle())
     {
       m_iterating = false;
-      throw Exception("Iterate called with invalid parameter");
+      throw std::invalid_argument("invalid handle");
     }
 
     if(WaitForObject(m_event, 2000) != WaitSuccess)
     {
       m_iterating = false;
-      throw Exception("Thread did not receive secondary event");
+      throw std::logic_error("Thread did not receive secondary event");
     }
 
     stop();
@@ -71,7 +71,7 @@ protected:
   void abandoned(Handle handle)
   {
     handle = INVALID_HANDLE_VALUE;
-    throw Exception("Mutex abandoned");
+    throw std::logic_error("mutex abandoned");
   };
 
 };
@@ -160,7 +160,7 @@ protected:
   void iterate(Handle handle)
   {
     if(handle != INVALID_HANDLE_VALUE)
-      throw Exception("Iterate called with wrong parameter");
+      throw std::invalid_argument("invalid handle");
 
     m_mutex.unlock();
     stop();
@@ -169,7 +169,7 @@ protected:
   void abandoned(Handle handle)
   {
     handle = INVALID_HANDLE_VALUE;
-    throw Exception("Mutex abandoned");
+    throw std::logic_error("mutex abandoned");
   };
 };
 
@@ -188,7 +188,7 @@ void runExceptionThread(Mutex& mutex)
 
   REQUIRE(WaitForObject(thread, 1000) == WaitSuccess);
   REQUIRE(thread.isStopping());
-  REQUIRE(thread.getError() == "Failed to unlock mutex: this thread is not the owner");
+  REQUIRE(thread.getError() == "mutex unlocked by wrong thread");
 }
 
 void runExceptionTest(bool initialState)

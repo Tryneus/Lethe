@@ -1,7 +1,7 @@
 #include "AbstractionTypes.h"
 #include "AbstractionBasic.h"
 #include "AbstractionFunctions.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include <Windows.h>
 #include <string>
 #include <vector>
@@ -129,7 +129,7 @@ WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
     return WaitTimeout;
 
   default:
-    throw Exception("Failed to wait: " + lastError());
+    throw std::bad_syscall("WaitForSingleObject", lastError());
   }
 }
 

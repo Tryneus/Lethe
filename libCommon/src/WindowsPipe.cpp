@@ -1,6 +1,6 @@
 #include "windows/WindowsPipe.h"
 #include "AbstractionFunctions.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include <Windows.h>
 
 WindowsPipe::WindowsPipe() :
@@ -12,7 +12,7 @@ WindowsPipe::WindowsPipe() :
   m_pendingSize(0)
 {
   if(!CreatePipe(&m_pipeRead, &m_pipeWrite, NULL, 16384))
-    throw Exception("Failed to create pipe: " + lastError());
+    throw std::bad_syscall("CreatePipe", lastError());
 
   DWORD nonBlocking(PIPE_NOWAIT);
 
@@ -22,7 +22,7 @@ WindowsPipe::WindowsPipe() :
     std::string errorString(lastError());
     CloseHandle(m_pipeRead);
     CloseHandle(m_pipeWrite);
-    throw Exception("Failed to set pipe flags: " + errorString);
+    throw std::bad_syscall("SetNamedPipeHandleState", errorString);
   }
 
   setWaitHandle(m_pipeRead);
@@ -45,7 +45,7 @@ void WindowsPipe::send(const void* buffer, uint32_t bufferSize)
   if(m_pendingData != NULL)
   {
     if(!WriteFile(m_pipeWrite, m_pendingSend, m_pendingSize, &bytesWritten, NULL))
-      throw Exception("Failed to write to pipe: " + lastError());
+      throw std::bad_syscall("WriteFile", lastError());
 
     if(bytesWritten != m_pendingSize)
     {
@@ -55,7 +55,7 @@ void WindowsPipe::send(const void* buffer, uint32_t bufferSize)
         m_pendingSize -= bytesWritten;
       }
 
-      throw OutOfMemoryException("WindowsPipe");
+      throw std::bad_alloc();
     }
     else
     {
@@ -67,7 +67,7 @@ void WindowsPipe::send(const void* buffer, uint32_t bufferSize)
   }
 
   if(!WriteFile(m_pipeWrite, buffer, bufferSize, &bytesWritten, NULL))
-    throw Exception("Failed to write to pipe: " + lastError());
+    throw std::bad_syscall("WriteFile", lastError());
 
   // TODO: this leaves the possibility of an incomplete message if there is not active traffic
   // This should only happen on chunks of data larger than the pipe buffer, though
@@ -88,7 +88,7 @@ uint32_t WindowsPipe::receive(void* buffer, uint32_t bufferSize)
   if(!ReadFile(m_pipeRead, buffer, bufferSize, &bytesRead, NULL) &&
       GetLastError() != ERROR_MORE_DATA &&
       GetLastError() != ERROR_NO_DATA)
-    throw Exception("Failed to read from pipe: " + lastError());
+    throw std::bad_syscall("ReadFile", lastError());
 
   return bytesRead;
 }

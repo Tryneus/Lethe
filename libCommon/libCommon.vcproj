@@ -288,7 +288,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\Exception.cpp"
+				RelativePath=".\src\AbstractionException.cpp"
 				>
 			</File>
 			<File
@@ -366,7 +366,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\include\Exception.h"
+				RelativePath=".\include\AbstractionException.h"
 				>
 			</File>
 			<File

@@ -1,13 +1,13 @@
 #include "windows/WindowsMutex.h"
 #include "AbstractionFunctions.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include <Windows.h>
 
 WindowsMutex::WindowsMutex(bool locked) :
   WaitObject(CreateMutex(NULL, locked, NULL))
 {
   if(getHandle() == INVALID_HANDLE_VALUE)
-    throw Exception("Failed to create mutex: " + lastError());
+    throw std::bad_syscall("CreateMutex", lastError());
 }
 
 WindowsMutex::~WindowsMutex()
@@ -18,11 +18,11 @@ WindowsMutex::~WindowsMutex()
 void WindowsMutex::lock(uint32_t timeout)
 {
   if(WaitForObject(*this, timeout) != WaitSuccess)
-    throw Exception("Failed to lock mutex: " + lastError());
+    throw std::runtime_error("failed to wait for mutex");
 }
 
 void WindowsMutex::unlock()
 {
   if(!ReleaseMutex(getHandle()))
-    throw Exception("Failed to unlock mutex: " + lastError());
+    throw std::bad_syscall("ReleaseMutex", lastError());
 }

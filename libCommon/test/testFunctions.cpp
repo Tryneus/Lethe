@@ -1,5 +1,5 @@
 #include "Abstraction.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include "catch.hpp"
 
 TEST_CASE("functions/sleep", "Test the sleep function")

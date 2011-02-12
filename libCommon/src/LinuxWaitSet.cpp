@@ -1,6 +1,6 @@
 #include "linux/LinuxWaitSet.h"
 #include "AbstractionFunctions.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include "mct/hash-map.hpp"
 #include <string.h>
 #include <errno.h>
@@ -17,7 +17,7 @@ LinuxWaitSet::LinuxWaitSet() :
   m_eventCount(0)
 {
   if(m_epollSet == INVALID_HANDLE_VALUE)
-    throw Exception("Failed to create epoll set: " + lastError());
+    throw std::bad_syscall("epoll_create", lastError());
 }
 
 LinuxWaitSet::~LinuxWaitSet()
@@ -41,7 +41,7 @@ bool LinuxWaitSet::add(WaitObject& obj)
   if(epoll_ctl(m_epollSet, EPOLL_CTL_ADD, event.data.fd, &event) != 0)
   {
     m_waitObjects->erase(obj.getHandle());
-    throw Exception("Failed to add handle to set: " + lastError());
+    throw std::bad_syscall("epoll_ctl", lastError());
   }
 
   resizeEvents();
@@ -55,23 +55,25 @@ bool LinuxWaitSet::remove(WaitObject& obj)
 
 bool LinuxWaitSet::remove(Handle handle)
 {
-  std::string error;
-  bool retval(m_waitObjects->erase(handle));
+  bool retval = m_waitObjects->erase(handle);
 
   epoll_event event;
   memset(&event, 0, sizeof(event));
   event.events = EPOLLIN | EPOLLERR | EPOLLHUP;
   event.data.fd = handle;
 
-  if(epoll_ctl(m_epollSet, EPOLL_CTL_DEL, event.data.fd, &event) != 0 && errno != ENOENT && errno != EBADF)
+  try
   {
-    error = "Failed to remove handle from epoll set: " + lastError();
+    if(epoll_ctl(m_epollSet, EPOLL_CTL_DEL, event.data.fd, &event) != 0 && errno != ENOENT && errno != EBADF)
+      throw std::bad_syscall("epoll_ctl", lastError());
+  }
+  catch(...)
+  {
+    resizeEvents();
+    throw;
   }
 
   resizeEvents();
-
-  if(error.length() != 0)
-    throw Exception(error);
 
   return retval;
 }
@@ -101,7 +103,7 @@ WaitResult LinuxWaitSet::waitAll(uint32_t timeout __attribute__ ((unused)),
                                  Handle& handle __attribute__ ((unused)))
 {
   // TODO: implement waitAll, may be too prone to deadlock, though
-  throw Exception("LinuxWaitSet::waitAll not yet implemented");
+  throw std::logic_error("waitAll is not implemented on this platform");
 }
 
 WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
@@ -136,7 +138,7 @@ WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
         return WaitTimeout;
       }
       else if(m_eventCount < 0)
-        throw Exception("Failed to wait: " + lastError());
+        throw std::bad_syscall("epoll_wait", lastError());
     }
 
     if(preWaitEvents.size() != 0)

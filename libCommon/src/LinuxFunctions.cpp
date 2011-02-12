@@ -1,6 +1,6 @@
 #include "AbstractionFunctions.h"
 #include "AbstractionBasic.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -44,7 +44,7 @@ uint32_t seedRandom(uint32_t seed)
 void getFileList(const std::string& directory __attribute__((unused)),
                  std::vector<std::string>& fileList __attribute__((unused)))
 {
-  throw Exception("LinuxFunctions::getFileList not yet implemented");
+  throw std::logic_error("LinuxFunctions::getFileList not yet implemented");
 }
 
 uint64_t getTime()
@@ -52,7 +52,7 @@ uint64_t getTime()
   timeval currentTime;
 
   if(gettimeofday(&currentTime, NULL) != 0)
-    throw Exception("Failed to get the current time: " + lastError());
+    throw std::bad_syscall("gettimeofday", lastError());
 
   return (currentTime.tv_sec * 1000) + (currentTime.tv_usec / 1000);
 }
@@ -98,7 +98,7 @@ WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
     break;
 
   default:
-    throw Exception("Failed to wait: " + lastError());
+    throw std::bad_syscall("poll", lastError());
   }
 
   return result;

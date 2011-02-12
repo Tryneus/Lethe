@@ -1,8 +1,7 @@
 prepare: catch mct
 
-catch: catch.tar.gz catch.exception.patch
+catch: catch.tar.gz
 	tar -zxf catch.tar.gz
-	patch -p0 -i catch.exception.patch
 	touch catch
 
 # TODO: This skips the configure step and just uses a hard-coded configure file

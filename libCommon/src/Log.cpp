@@ -1,7 +1,8 @@
 #include "Log.h"
-#include "Exception.h"
 #include "AbstractionFunctions.h"
+#include "AbstractionException.h"
 #include <iostream>
+#include <unistd.h>
 
 ////////////////////////////////////
 // Log implementation
@@ -113,7 +114,7 @@ void Log::DisabledLogHandler::write(const std::string& statement)
 }
 
 
-// StdoutLogHandler implementation
+// StreamLogHandler implementation
 
 Log::StreamLogHandler::StreamLogHandler(std::ostream& out) :
   m_out(out)
@@ -123,7 +124,10 @@ Log::StreamLogHandler::StreamLogHandler(std::ostream& out) :
 
 void Log::StreamLogHandler::write(const std::string& statement)
 {
-  m_out << statement << std::endl;
+  if(::write(STDOUT_FILENO, (statement + "\n").c_str(), statement.length() + 1) <= 0)
+    throw std::bad_syscall("write", lastError());
+  fsync(STDOUT_FILENO);
+  //  m_out << statement << std::endl;
 }
 
 
@@ -134,7 +138,7 @@ Log::FileLogHandler::FileLogHandler(const std::string& filename) :
   m_out(m_filename.c_str(), std::ios_base::app)
 {
   if(!m_out.good())
-    throw Exception("Failed to open log file '" + m_filename + "'");
+    throw std::runtime_error("Failed to open log file '" + m_filename + "'");
 }
 
 Log::FileLogHandler::~FileLogHandler()
@@ -145,7 +149,7 @@ Log::FileLogHandler::~FileLogHandler()
 void Log::FileLogHandler::write(const std::string& statement)
 {
   if(!m_out.good())
-    throw Exception("Log file '" + m_filename + "' not good");
+    throw std::runtime_error("Log file '" + m_filename + "' not good");
 
   m_out << statement << std::endl;
 }

@@ -1,5 +1,5 @@
 #include "Abstraction.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include "Log.h"
 #include "catch.hpp"
 

@@ -1,7 +1,7 @@
 #include "linux/LinuxPipe.h"
 #include "AbstractionTypes.h"
 #include "AbstractionFunctions.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include <queue>
 #include <unistd.h>
 #include <fcntl.h>
@@ -22,7 +22,7 @@ LinuxPipe::LinuxPipe() :
   if(pipe(pipes) != 0 ||
      pipes[0] == INVALID_HANDLE_VALUE ||
      pipes[1] == INVALID_HANDLE_VALUE)
-    throw Exception("Failed to create pipe: " + lastError());
+    throw std::bad_syscall("pipe", lastError());
 
   m_pipeRead = pipes[0];
   m_pipeWrite = pipes[1];
@@ -32,7 +32,7 @@ LinuxPipe::LinuxPipe() :
   {
     close(m_pipeRead);
     close(m_pipeWrite);
-    throw Exception("Failed to set pipe flags: " + lastError());
+    throw std::bad_syscall("fcntl", lastError()); // TODO: this probably won't have the right errno
   }
 
   setWaitHandle(m_pipeRead);
@@ -96,7 +96,7 @@ void LinuxPipe::getAsyncResults()
 void LinuxPipe::asyncWrite(const void* buffer, uint32_t bufferSize)
 {
   if(m_asyncStart == (m_asyncEnd + 1) % s_maxAsyncEvents)
-    throw OutOfMemoryException("LinuxPipe::write");
+    throw std::bad_alloc();
 
   struct aiocb* asyncEvent = &m_asyncArray[m_asyncEnd];
 
@@ -106,7 +106,7 @@ void LinuxPipe::asyncWrite(const void* buffer, uint32_t bufferSize)
   memcpy(const_cast<void*>(asyncEvent->aio_buf), buffer, bufferSize);
 
   if(aio_write(asyncEvent) != 0)
-    throw Exception("Failed to create async event: " + lastError());
+    throw std::bad_syscall("aio_write", lastError());
 
   m_asyncEnd = (m_asyncEnd + 1) % s_maxAsyncEvents;
 }
@@ -133,7 +133,7 @@ void LinuxPipe::send(const void* buffer, uint32_t bufferSize)
     if(errno == EAGAIN)
       bytesWritten = 0;
     else
-      throw Exception("Failed to write to pipe: " + lastError());
+      throw std::bad_syscall("write to pipe", lastError());
   }
 
   if(static_cast<uint32_t>(bytesWritten) < bufferSize)
@@ -150,7 +150,7 @@ uint32_t LinuxPipe::receive(void* buffer, uint32_t bufferSize)
   ssize_t bytesRead(read(m_pipeRead, buffer, bufferSize));
 
   if(bytesRead < 0)
-    throw Exception("Failed to read from pipe: " + lastError());
+    throw std::bad_syscall("read from pipe", lastError());
 
   return bytesRead;
 }

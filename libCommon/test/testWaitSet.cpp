@@ -15,10 +15,10 @@ TEST_CASE("waitSet/structor", "Test constructor/destructor")
 }
 
 // Create an instantiable thread object (so we can add a thread to the WaitSet)
-class DummyThread : public Thread
+class WaitSetDummyThread : public Thread
 {
 public:
-  DummyThread() : Thread(0) { };
+  WaitSetDummyThread() : Thread(0) { };
 protected:
   void iterate(Handle handle) { handle = INVALID_HANDLE_VALUE; stop(); };
 };
@@ -37,7 +37,7 @@ TEST_CASE("waitSet/add", "Test adding WaitObjects")
   Event event(false, false);
   Timer timer;
   Semaphore semaphore(1, 1);
-  DummyThread thread;
+  WaitSetDummyThread thread;
   Pipe pipe;
   InvalidWaitObject invalid;
 
@@ -91,7 +91,7 @@ TEST_CASE("waitSet/remove", "Test removing WaitObjects")
   Event event(false, false);
   Timer timer;
   Semaphore semaphore(1, 1);
-  DummyThread thread;
+  WaitSetDummyThread thread;
   Pipe pipe;
   InvalidWaitObject invalid;
 
@@ -167,7 +167,7 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
   Event event(false, true);
   Timer timer;
   Semaphore semaphore(10, 0);
-  DummyThread thread;
+  WaitSetDummyThread thread;
   Pipe pipe;
 
   REQUIRE(waitSet.getSize() == 0);
@@ -197,7 +197,7 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
   REQUIRE(waitSet.waitAny(100, waitHandle) == WaitTimeout);
 
   thread.start();
-  REQUIRE(waitSet.waitAny(100, waitHandle) == WaitSuccess); // DummyThread may take a little time to exit
+  REQUIRE(waitSet.waitAny(100, waitHandle) == WaitSuccess); // WaitSetDummyThread may take a little time to exit
   REQUIRE(waitHandle == thread.getHandle());
   waitSet.remove(thread); // Thread is not resettable at the moment
   REQUIRE(waitSet.waitAny(100, waitHandle) == WaitTimeout);
@@ -209,7 +209,7 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
   REQUIRE(waitSet.waitAny(100, waitHandle) == WaitTimeout);
 
   // Create a second thread since we used up the first
-  DummyThread thread2;
+  WaitSetDummyThread thread2;
   waitSet.add(thread2);
 
   // Now try triggering all the objects at once and make sure that every object finishes

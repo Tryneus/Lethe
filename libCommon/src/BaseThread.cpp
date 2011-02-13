@@ -1,6 +1,7 @@
 #include "BaseThread.h"
 #include "AbstractionFunctions.h"
 #include "AbstractionException.h"
+#include <sstream>
 
 BaseThread::BaseThread(uint32_t timeout) :
   WaitObject(INVALID_HANDLE_VALUE),
@@ -36,10 +37,16 @@ void BaseThread::threadMain()
       if(m_exit)
         break;
 
+      if(!m_running)
+        continue;
+
       m_stoppedEvent.reset();
 
-      while(m_running)
+      do
       {
+        if(m_objectQueue.size() > 0)
+          handleObjectQueue();
+
         switch(m_waitSet.waitAny(m_timeout, handle))
         {
         case WaitSuccess:
@@ -60,7 +67,7 @@ void BaseThread::threadMain()
         default:
           throw std::logic_error("thread internal wait failed");
         }
-      }
+      } while(m_running);
 
       m_stoppedEvent.set();
 
@@ -84,6 +91,11 @@ void BaseThread::threadMain()
   m_exit = true;
   m_stoppedEvent.set();
   m_exitedEvent.set();
+}
+
+void BaseThread::iterate(Handle handle __attribute((unused)))
+{
+  // Do nothing
 }
 
 void BaseThread::start()
@@ -122,14 +134,29 @@ std::string BaseThread::getError()
 void BaseThread::addWaitObject(WaitObject& obj)
 {
   m_mutex.lock();
-  m_waitSet.add(obj);
+  m_objectQueue.push(std::pair<bool, WaitObject&>(true, obj));
   m_mutex.unlock();
 }
 
 void BaseThread::removeWaitObject(WaitObject& obj)
 {
   m_mutex.lock();
-  m_waitSet.remove(obj);
+  m_objectQueue.push(std::pair<bool, WaitObject&>(false, obj));
+  m_mutex.unlock();
+}
+
+void BaseThread::handleObjectQueue()
+{
+  m_mutex.lock();
+  while(m_objectQueue.size() > 0)
+  {
+    if(m_objectQueue.front().first)
+      m_waitSet.add(m_objectQueue.front().second);
+    else
+      m_waitSet.remove(m_objectQueue.front().second);
+      
+    m_objectQueue.pop();
+  }
   m_mutex.unlock();
 }
 

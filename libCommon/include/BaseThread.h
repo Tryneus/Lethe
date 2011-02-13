@@ -5,6 +5,7 @@
 #include "AbstractionTypes.h"
 #include "AbstractionBasic.h"
 #include <string>
+#include <queue>
 #include <set>
 
 class BaseThread : public WaitObject
@@ -20,7 +21,7 @@ public:
   std::string getError();
 
 protected:
-  virtual void iterate(Handle handle) = 0;
+  virtual void iterate(Handle handle);
   virtual void abandoned(Handle handle);
 
   void addWaitObject(WaitObject& obj);
@@ -31,6 +32,8 @@ protected:
   void threadMain();
 
 private:
+  void handleObjectQueue(); // Internal function for handling queued WaitObject add/remove operations
+
   bool m_running; // Indicates that the thread should be looping
   bool m_exit; // Indicates that the thread is no longer startable
 
@@ -39,6 +42,7 @@ private:
   Event m_exitedEvent; // An event that will be set when the thread has exited
   Mutex m_mutex; // Mutex to limit access to the waitSet
 
+  std::queue<std::pair<bool, WaitObject&> > m_objectQueue; // A queue of WaitObjects to add or remove
   WaitSet m_waitSet; // A list of all handles provided by the implementation along with the trigger event
   uint32_t m_timeout;
 

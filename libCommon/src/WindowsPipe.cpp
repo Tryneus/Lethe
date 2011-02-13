@@ -5,6 +5,9 @@
 
 WindowsPipe::WindowsPipe() :
   WaitObject(INVALID_HANDLE_VALUE),
+  m_mutex(false),
+  m_dataEvent(false, false),
+  m_dataCount(0),
   m_pipeRead(INVALID_HANDLE_VALUE),
   m_pipeWrite(INVALID_HANDLE_VALUE),
   m_pendingData(NULL),
@@ -25,7 +28,7 @@ WindowsPipe::WindowsPipe() :
     throw Exception("Failed to set pipe flags: " + errorString);
   }
 
-  setWaitHandle(m_pipeRead);
+  setWaitHandle(m_dataEvent.getHandle());
 }
 
 WindowsPipe::~WindowsPipe()
@@ -34,6 +37,8 @@ WindowsPipe::~WindowsPipe()
 
   CloseHandle(m_pipeWrite);
   CloseHandle(m_pipeRead);
+  CloseHandle(m_mutex.getHandle());
+  CloseHandle(m_dataEvent.getHandle());
 }
 
 void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)
@@ -47,9 +52,12 @@ void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)
     if(!WriteFile(m_pipeWrite, m_pendingSend, m_pendingSize, &bytesWritten, NULL))
       throw Exception("Failed to write to pipe: " + lastError());
 
+    if(bytesWritten != 0)
+      updateDataEvent(bytesWritten);
+
     if(bytesWritten != m_pendingSize)
     {
-      if(bytesWritten < 0)
+      if(bytesWritten > 0)
       {
         m_pendingSend += bytesWritten;
         m_pendingSize -= bytesWritten;
@@ -69,6 +77,9 @@ void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)
   if(!WriteFile(m_pipeWrite, buffer, bufferSize, &bytesWritten, NULL))
     throw Exception("Failed to write to pipe: " + lastError());
 
+  if(bytesWritten != 0)
+    updateDataEvent(bytesWritten);
+
   // TODO: this leaves the possibility of an incomplete message if there is not active traffic
   // This should only happen on chunks of data larger than the pipe buffer, though
   if(bytesWritten < bufferSize)
@@ -81,6 +92,14 @@ void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)
   }
 }
 
+void WindowsPipe::updateDataEvent(uint32_t bytesWritten)
+{
+  m_mutex.lock();
+  m_dataCount += bytesWritten;
+  m_dataEvent.set();
+  m_mutex.unlock();
+}
+
 uint32_t WindowsPipe::receive(uint8_t* buffer, uint32_t bufferSize)
 {
   DWORD bytesRead(0);
@@ -90,6 +109,15 @@ uint32_t WindowsPipe::receive(uint8_t* buffer, uint32_t bufferSize)
       GetLastError() != ERROR_NO_DATA)
     throw Exception("Failed to read from pipe: " + lastError());
 
+  // Update the data event
+  if(bytesRead > 0)
+  {
+    m_mutex.lock();
+    m_dataCount -= bytesRead;
+    if(m_dataCount == 0)
+      m_dataEvent.reset();
+    m_mutex.unlock();
+  }
+
   return bytesRead;
 }
-

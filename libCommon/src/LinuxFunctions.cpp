@@ -1,6 +1,6 @@
 #include "AbstractionFunctions.h"
 #include "AbstractionBasic.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -41,12 +41,20 @@ uint32_t seedRandom(uint32_t seed)
   return seed;
 }
 
-void getFileList(const std::string& directory,
-                 std::vector<std::string>& fileList)
+void getFileList(const std::string& directory GCC_UNUSED,
+                 std::vector<std::string>& fileList GCC_UNUSED)
 {
-  throw Exception("LinuxFunctions::getFileList not yet implemented");
-  directory.length();
-  fileList.size();
+  throw std::logic_error("LinuxFunctions::getFileList not yet implemented");
+}
+
+uint64_t getTime()
+{
+  timeval currentTime;
+
+  if(gettimeofday(&currentTime, NULL) != 0)
+    throw std::bad_syscall("gettimeofday", lastError());
+
+  return (currentTime.tv_sec * 1000) + (currentTime.tv_usec / 1000);
 }
 
 std::string getTimeString()
@@ -70,6 +78,9 @@ WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
   WaitResult result = WaitSuccess;
   struct pollfd pollData;
 
+  if(obj.preWaitCallback())
+    return WaitSuccess;
+
   pollData.fd = obj.getHandle();
   pollData.events = POLLIN | POLLERR | POLLHUP;
 
@@ -87,7 +98,7 @@ WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
     break;
 
   default:
-    throw Exception("Failed to wait: " + lastError());
+    throw std::bad_syscall("poll", lastError());
   }
 
   return result;

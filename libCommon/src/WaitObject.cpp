@@ -21,11 +21,12 @@ void WaitObject::setWaitHandle(Handle handle)
   m_handle = handle;
 }
 
-#if defined(__GNUG__) /* Suppress warning in GCC */
-void WaitObject::postWaitCallback(WaitResult result __attribute__((unused)))
-#else
-void WaitObject::postWaitCallback(WaitResult result)
-#endif
+bool WaitObject::preWaitCallback()
+{
+  return false;
+}
+
+void WaitObject::postWaitCallback(WaitResult result GCC_UNUSED)
 {
   // Do nothing
 }

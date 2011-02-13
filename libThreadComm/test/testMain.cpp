@@ -2,7 +2,6 @@
 #include "SenderThread.h"
 #include "EchoThread.h"
 #include "Abstraction.h"
-#include "Exception.h"
 #include "Log.h"
 #include <iostream>
 
@@ -44,12 +43,12 @@ int main()
 
     // TODO: this can be simplified if waitAll is implemented for linux
     // if(waitSet.waitAll(2000, finished) != WaitSuccess)
-    //   throw Exception("Threads did not stop in a timely fashion");
+    //   throw std::runtime_error("threads did not stop");
     LogInfo("Waiting for threads to exit");
     while(waitSet.getSize() != 0)
     {
       if(waitSet.waitAny(2000, finished) != WaitSuccess)
-        throw Exception("Threads did not stop in a timely fashion");
+        throw std::runtime_error("threads did not stop");
 
       waitSet.remove(finished);
       LogInfo("Thread " << (uint32_t)finished << " exited");
@@ -59,16 +58,16 @@ int main()
     delete echo;
     delete sender;
   }
-  catch(Exception& ex)
+  catch(std::exception& ex)
   {
-    LogError("Exception encountered, " << ex.what());
+    LogError("Exception encountered during test: " << ex.what());
 
     try
     {
       delete echo;
       delete sender;
     }
-    catch(Exception& ex)
+    catch(std::exception& ex)
     {
       LogError("Another exception encountered while destroying threads: " << ex.what());
     }

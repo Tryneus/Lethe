@@ -1,5 +1,5 @@
 #include "Header.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 
 #if defined(_WIN32)
 #include <new.h>
@@ -75,7 +75,7 @@ Message& Header::receive()
     m_releaseList.pushBack(*extraMessage);
 
   if(message == NULL)
-    throw Exception("Receive called with nothing to receive");
+    throw std::logic_error("nothing to receive");
 
   return *message;
 }
@@ -99,7 +99,7 @@ bool Header::release(Message& message)
     message.setState(Message::Pend);
     break;
   default:
-    throw Exception("Attempt to release a message in the wrong state");
+    throw std::invalid_argument("buffer in the wrong state");
   }
 
   return true;

@@ -4,14 +4,13 @@ INCLUDE_FLAGS:=-I../include \
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
 HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')
 
-COMPILE_FLAGS:=-c -Wall -Wextra -Werror -O3 -g $(INCLUDE_FLAGS)
+COMPILE_FLAGS:=-c -Wall -Wextra -Wno-sign-compare -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS :=-L/usr/lib/gcc/i486-linux-gnu/4.3.2/ -lrt -lstdc++
 
 BINARY_DIR   :=../bin
 BINARY_FILE  :=$(BINARY_DIR)/libCommonTest
 
 OBJECT_FILES :=testMain.o \
-               testException.o \
                testFunctions.o \
                testWaitSet.o \
                testPipe.o \
@@ -33,11 +32,14 @@ runTest: all
 	$(BINARY_FILE) 2>&1 | tee runTest.log
 
 valTest: all
-	valgrind --track-origins=yes --track-fds=yes $(BINARY_FILE) 2>&1 | tee valTest.log
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes --track-fds=yes $(BINARY_FILE) 2>&1 | tee valTest.log
 
 $(BINARY_FILE): $(OBJECT_FILES) $(INCLUDE_LIBS)
 	mkdir -p $(BINARY_DIR)
 	gcc $(LINKER_FLAGS) -o $@ $(OBJECT_FILES) $(INCLUDE_LIBS)
+
+testMain.o: testMain.cpp
+	g++ $(COMPILE_FLAGS) $< -o $@
 
 %.o: %.cpp $(HEADER_FILES)
 	g++ $(COMPILE_FLAGS) $< -o $@

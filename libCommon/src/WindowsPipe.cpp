@@ -1,6 +1,6 @@
 #include "windows/WindowsPipe.h"
 #include "AbstractionFunctions.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include <Windows.h>
 
 WindowsPipe::WindowsPipe() :
@@ -15,7 +15,7 @@ WindowsPipe::WindowsPipe() :
   m_pendingSize(0)
 {
   if(!CreatePipe(&m_pipeRead, &m_pipeWrite, NULL, 16384))
-    throw Exception("Failed to create pipe: " + lastError());
+    throw std::bad_syscall("CreatePipe", lastError());
 
   DWORD nonBlocking(PIPE_NOWAIT);
 
@@ -25,7 +25,7 @@ WindowsPipe::WindowsPipe() :
     std::string errorString(lastError());
     CloseHandle(m_pipeRead);
     CloseHandle(m_pipeWrite);
-    throw Exception("Failed to set pipe flags: " + errorString);
+    throw std::bad_syscall("SetNamedPipeHandleState", errorString);
   }
 
   setWaitHandle(m_dataEvent.getHandle());
@@ -41,7 +41,7 @@ WindowsPipe::~WindowsPipe()
   CloseHandle(m_dataEvent.getHandle());
 }
 
-void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)
+void WindowsPipe::send(const void* buffer, uint32_t bufferSize)
 {
   // Overlapped I/O would require a named pipe =(
   DWORD bytesWritten(0);
@@ -50,7 +50,7 @@ void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)
   if(m_pendingData != NULL)
   {
     if(!WriteFile(m_pipeWrite, m_pendingSend, m_pendingSize, &bytesWritten, NULL))
-      throw Exception("Failed to write to pipe: " + lastError());
+      throw std::bad_syscall("WriteFile", lastError());
 
     if(bytesWritten != 0)
       updateDataEvent(bytesWritten);
@@ -63,7 +63,7 @@ void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)
         m_pendingSize -= bytesWritten;
       }
 
-      throw OutOfMemoryException("WindowsPipe");
+      throw std::bad_alloc();
     }
     else
     {
@@ -75,7 +75,7 @@ void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)
   }
 
   if(!WriteFile(m_pipeWrite, buffer, bufferSize, &bytesWritten, NULL))
-    throw Exception("Failed to write to pipe: " + lastError());
+    throw std::bad_syscall("WriteFile", lastError());
 
   if(bytesWritten != 0)
     updateDataEvent(bytesWritten);
@@ -88,7 +88,7 @@ void WindowsPipe::send(uint8_t* buffer, uint32_t bufferSize)
     m_pendingData = new uint8_t[bufferSize - bytesWritten];
     m_pendingSend = m_pendingData;
     m_pendingSize = bufferSize - bytesWritten;
-    memcpy(m_pendingSend, buffer + bytesWritten, m_pendingSize);
+    memcpy(m_pendingSend, reinterpret_cast<const uint8_t*>(buffer) + bytesWritten, m_pendingSize);
   }
 }
 
@@ -100,14 +100,14 @@ void WindowsPipe::updateDataEvent(uint32_t bytesWritten)
   m_mutex.unlock();
 }
 
-uint32_t WindowsPipe::receive(uint8_t* buffer, uint32_t bufferSize)
+uint32_t WindowsPipe::receive(void* buffer, uint32_t bufferSize)
 {
   DWORD bytesRead(0);
 
   if(!ReadFile(m_pipeRead, buffer, bufferSize, &bytesRead, NULL) &&
       GetLastError() != ERROR_MORE_DATA &&
       GetLastError() != ERROR_NO_DATA)
-    throw Exception("Failed to read from pipe: " + lastError());
+    throw std::bad_syscall("ReadFile", lastError());
 
   // Update the data event
   if(bytesRead > 0)

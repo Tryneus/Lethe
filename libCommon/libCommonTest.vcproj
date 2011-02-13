@@ -324,10 +324,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\test\testException.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\test\testFunctions.cpp"
 				>
 			</File>

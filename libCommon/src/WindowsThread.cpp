@@ -1,5 +1,4 @@
 #include "windows/WindowsThread.h"
-#include "Exception.h"
 #include <Windows.h>
 
 WindowsThread::WindowsThread(uint32_t timeout) :
@@ -20,5 +19,6 @@ WindowsThread::~WindowsThread()
 
 DWORD WINAPI WindowsThread::threadHook(void* param)
 {
-  return (DWORD)reinterpret_cast<WindowsThread*>(param)->threadMain();
+  reinterpret_cast<WindowsThread*>(param)->threadMain();
+  return 0;
 }

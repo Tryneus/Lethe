@@ -1,5 +1,5 @@
 #include "Abstraction.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include "catch.hpp"
 #include "testCommon.h"
 
@@ -40,15 +40,23 @@ TEST_CASE("timer/structor", "Test construction/destruction")
 TEST_CASE("timer/wait", "Test waiting for timers")
 {
   Timer timer;
+  uint64_t startTime;
+  uint64_t endTime;
 
+  startTime = getTime();
   timer.start(1000);
   REQUIRE(WaitForObject(timer, 1000) == WaitSuccess);
+  endTime = getTime();
+  REQUIRE(endTime - startTime >= 1000 && endTime - startTime < 1050);
   REQUIRE(WaitForObject(timer, 0) == WaitSuccess);
   timer.clear();
   REQUIRE(WaitForObject(timer, 0) == WaitTimeout);
 
+  startTime = getTime();
   timer.start(1);
   REQUIRE(WaitForObject(timer, 1) == WaitSuccess);
+  endTime = getTime();
+  REQUIRE(endTime - startTime >= 1 && endTime - startTime < 50);
   REQUIRE(WaitForObject(timer, 0) == WaitSuccess);
   timer.clear();
   REQUIRE(WaitForObject(timer, 0) == WaitTimeout);

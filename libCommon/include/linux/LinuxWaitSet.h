@@ -5,6 +5,7 @@
 #include "WaitObject.h"
 #include <tr1/functional>
 #include <sys/epoll.h>
+#include <list>
 #include <set>
 
 // Prototype of the hash map, so users don't need the include
@@ -48,6 +49,8 @@ public:
 
 private:
   void resizeEvents();
+  void appendEvents(const std::list<Handle>& events);
+  WaitResult getEvent(Handle& handle);
 
   Handle m_epollSet;
 

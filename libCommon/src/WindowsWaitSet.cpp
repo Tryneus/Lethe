@@ -1,6 +1,6 @@
 #include "windows/WindowsWaitSet.h"
 #include "AbstractionFunctions.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include "mct/hash-map.hpp"
 #include <Windows.h>
 
@@ -38,6 +38,9 @@ bool WindowsWaitSet::remove(WaitObject& obj)
 
 bool WindowsWaitSet::remove(Handle handle)
 {
+  if(obj.getHandle() == INVALID_HANDLE_VALUE)
+    throw std::invalid_argument("invalid WaitObject handle");
+
   if(!m_waitObjects->erase(handle))
     return false;
 
@@ -70,7 +73,7 @@ WaitResult WindowsWaitSet::waitAll(uint32_t timeout, Handle& handle)
     return WaitTimeout;
   }
 
-  throw Exception("Failed to wait: " + lastError());
+  throw std::bad_syscall("WaitForMultipleObjects", lastError());
 }
 
 WaitResult WindowsWaitSet::waitAny(uint32_t timeout, Handle& handle)
@@ -95,7 +98,7 @@ WaitResult WindowsWaitSet::waitAny(uint32_t timeout, Handle& handle)
     return WaitTimeout;
   }
   else
-    throw Exception("Failed to wait: " + lastError());
+    throw std::bad_syscall("WaitForMultipleObjects", lastError());
 
   (*m_waitObjects)[handle]->postWaitCallback(result);
   return result;
@@ -116,10 +119,12 @@ void WindowsWaitSet::resizeEvents()
   m_handleArray = new Handle[m_waitObjects->size() * 2];
 
   uint32_t j(0);
-  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i(m_waitObjects->begin()); i != m_waitObjects->end(); ++i)
+  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i(m_waitObjects->begin());
+      i != m_waitObjects->end(); ++i)
     m_handleArray[j++] = i->first;
 
-  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i(m_waitObjects->begin()); i != m_waitObjects->end(); ++i)
+  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i(m_waitObjects->begin());
+      i != m_waitObjects->end(); ++i)
     m_handleArray[j++] = i->first;
 
   // Avoid resetting the unfairness protection, try to find where the new offset should be

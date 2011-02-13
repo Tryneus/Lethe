@@ -1,7 +1,7 @@
 #include "AbstractionTypes.h"
 #include "AbstractionBasic.h"
 #include "AbstractionFunctions.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include <Windows.h>
 #include <string>
 #include <vector>
@@ -46,6 +46,24 @@ void getFileList(const std::string& directory,
 
     FindClose(findHandle);
   }
+}
+
+uint64_t getTime()
+{
+  const uint64_t msPerYear = 60 * 60 * 24 * 365240;
+  const uint64_t unixEpochDelta = 369 * msPerYear;
+  FILETIME currentTime;
+
+  GetSystemTimeAsFileTime(currentTime);
+
+  uint64_t retval = (currentTime.dwHighDateTime << 32) + currentTime.dwLowDateTime;
+
+  // Adjust for scale: 100ns units to 1ms units
+  retval /= 10000;
+
+  // Adjust for the number of milliseconds difference between 1601 and 1970 (windows to unix epoch);
+  retval -= unixEpochDelta;
+  return retval;
 }
 
 std::string getTimeString()
@@ -94,6 +112,9 @@ uint32_t seedRandom(uint32_t seed)
 
 WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
 {
+  if(obj.preWaitCallback())
+    return WaitSuccess;
+
   switch(WaitForSingleObject(obj.getHandle(), timeout))
   {
   case WAIT_OBJECT_0:
@@ -108,7 +129,7 @@ WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
     return WaitTimeout;
 
   default:
-    throw Exception("Failed to wait: " + lastError());
+    throw std::bad_syscall("WaitForSingleObject", lastError());
   }
 }
 

@@ -5,6 +5,7 @@
 #include "AbstractionTypes.h"
 #include "AbstractionBasic.h"
 #include <string>
+#include <queue>
 #include <set>
 
 class BaseThread : public WaitObject
@@ -14,14 +15,13 @@ public:
   virtual ~BaseThread();
 
   void start();
-  void pause();
   void stop();
 
   bool isStopping() const;
-  const std::string& getError() const;
+  std::string getError();
 
 protected:
-  virtual void iterate(Handle handle) = 0;
+  virtual void iterate(Handle handle);
   virtual void abandoned(Handle handle);
 
   void addWaitObject(WaitObject& obj);
@@ -29,16 +29,21 @@ protected:
   void setWaitTimeout(uint32_t timeout);
 
   // Internal functions to be used in WindowsThread and LinuxThread (shouldn't be used outside this library)
-  void* threadMain();
+  void threadMain();
 
 private:
-  bool m_exit; // Tells the thread to exit its main loop
+  void handleObjectQueue(); // Internal function for handling queued WaitObject add/remove operations
 
-  Event m_runEvent; // This serves to tell the thread when it should be running
-  Event m_pauseEvent; // This serves to switch the thread to wait for a run event
-  Event m_exitedEvent; // An event that will be triggered when the thread exits
+  bool m_running; // Indicates that the thread should be looping
+  bool m_exit; // Indicates that the thread is no longer startable
 
-  WaitSet m_waitSet; // A list of all handles provided by the implementation along with the pause event
+  Event m_triggerEvent; // An event to tell the thread to reevaluate its running state
+  Event m_stoppedEvent; // An event that will be set when the thread has been stopped
+  Event m_exitedEvent; // An event that will be set when the thread has exited
+  Mutex m_mutex; // Mutex to limit access to the waitSet
+
+  std::queue<std::pair<bool, WaitObject&> > m_objectQueue; // A queue of WaitObjects to add or remove
+  WaitSet m_waitSet; // A list of all handles provided by the implementation along with the trigger event
   uint32_t m_timeout;
 
   std::string m_error; // The text of any exception that gets to the main loop

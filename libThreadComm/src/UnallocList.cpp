@@ -1,5 +1,5 @@
 #include "UnallocList.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 
 using namespace ThreadComm;
 
@@ -54,7 +54,7 @@ Message& UnallocList::allocate(uint32_t size)
   }
 
   if(message == NULL)
-    throw OutOfMemoryException("threadComm");
+    throw std::bad_alloc();
 
   remove(*message);
 

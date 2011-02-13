@@ -26,6 +26,7 @@
 void getFileList(const std::string& directory,
                  std::vector<std::string>& fileList);
 
+uint64_t    getTime();
 std::string getTimeString();
 
 uint32_t seedRandom(uint32_t seed = 0);

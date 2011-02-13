@@ -35,28 +35,46 @@
 #endif
 
 #ifndef DISABLE_LOG_ERROR
-  #define LogError(a) do { Log& log = Log::getInstance(); if(log.getLevel() >= Log::Error) { \
-                           log.lock(); \
-                           log << LOG_BASE(Log::Error) << " Error - " << a << Log::Commit; \
-                           log.unlock(); } } while(0)
+  #define LogError(a) do                                 \
+                      {                                  \
+                        Log& log = Log::getInstance();   \
+                        if(log.getLevel() >= Log::Error) \
+                        {                                \
+                          log.lock();                    \
+                          log << LOG_BASE(Log::Error) << " Error - " << a << Log::Commit; \
+                          log.unlock();                  \
+                        }                                \
+                      } while(0)
 #else
   #define LogError(...) do { ; } while(0)
 #endif
 
 #ifndef DISABLE_LOG_INFO
-  #define LogInfo(a)  do { Log& log = Log::getInstance(); if(log.getLevel() >= Log::Info) { \
-                           log.lock(); \
-                           log << LOG_BASE(Log::Info) << " Info - " << a << Log::Commit; \
-                           log.unlock(); } } while(0)
+  #define LogInfo(a)  do                                \
+                      {                                 \
+                        Log& log = Log::getInstance();  \
+                        if(log.getLevel() >= Log::Info) \
+                        {                               \
+                          log.lock();                   \
+                          log << LOG_BASE(Log::Info) << " Info - " << a << Log::Commit; \
+                          log.unlock();                 \
+                        }                               \
+                      } while(0)
 #else
   #define LogInfo(...) do { ; } while(0)
 #endif
 
 #ifndef DISABLE_LOG_DEBUG
-  #define LogDebug(a) do { Log& log = Log::getInstance(); if(log.getLevel() >= Log::Debug) { \
-                           log.lock(); \
-                           log << LOG_BASE(Log::Debug) << " Debug - " << a << Log::Commit; \
-                           log.unlock(); } } while(0)
+  #define LogDebug(a) do                                 \
+                      {                                  \
+                        Log& log = Log::getInstance();   \
+                        if(log.getLevel() >= Log::Debug) \
+                        {                                \
+                          log.lock();                    \
+                          log << LOG_BASE(Log::Debug) << " Debug - " << a << Log::Commit; \
+                          log.unlock();                  \
+                        }                                \
+                      } while(0)
 #else
   #define LogDebug(...) do { ; } while(0)
 #endif
@@ -77,8 +95,8 @@ public:
   void setLevel(Level level);
 
   void disable();
-  void setStdoutMode(Level level = Debug);
-  void setFileMode(const std::string& filename, Level level = Debug);
+  void setStreamMode(std::ostream& out);
+  void setFileMode(const std::string& filename);
 
   void lock();
   void unlock();
@@ -115,10 +133,15 @@ private:
   };
 
   // Class for logging to standard output
-  class StdoutLogHandler : public LogHandler
+  class StreamLogHandler : public LogHandler
   {
   public:
+    StreamLogHandler(std::ostream& out);
+
     void write(const std::string& statement);
+
+  private:
+    std::ostream& m_out;
   };
 
   // Class for logging to a file

@@ -41,7 +41,7 @@
 class WindowsThread : public BaseThread
 {
 public:
-  WindowsThread(uint32_t timeout = 0);
+  WindowsThread(uint32_t timeout);
   virtual ~WindowsThread();
 
 private:

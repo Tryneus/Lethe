@@ -29,6 +29,7 @@ private:
   friend class WindowsWaitSet;
   friend class LinuxWaitSet;
 
+  virtual bool preWaitCallback();
   virtual void postWaitCallback(WaitResult result);
 };
 

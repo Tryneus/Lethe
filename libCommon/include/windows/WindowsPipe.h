@@ -19,8 +19,8 @@ public:
   WindowsPipe();
   ~WindowsPipe();
 
-  void send(uint8_t* buffer, uint32_t bufferSize);
-  uint32_t receive(uint8_t* buffer, uint32_t bufferSize);
+  void send(const void* buffer, uint32_t bufferSize);
+  uint32_t receive(void* buffer, uint32_t bufferSize);
 
 private:
   void updateDataEvent(uint32_t bytesWritten);

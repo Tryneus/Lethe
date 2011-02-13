@@ -1,8 +1,9 @@
 #include "EchoThread.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 #include "Log.h"
 
 EchoThread::EchoThread(ThreadComm::Channel& channel) :
+  Thread(INFINITE),
   m_channel(channel),
   m_chanHandle(m_channel.getHandle()),
   m_iterationCount(0),
@@ -10,7 +11,6 @@ EchoThread::EchoThread(ThreadComm::Channel& channel) :
 {
   LogInfo("Echo thread handle: " << (uint32_t)getHandle());
   addWaitObject(m_channel);
-  setWaitTimeout(INFINITE);
 }
 
 EchoThread::~EchoThread()
@@ -21,10 +21,9 @@ EchoThread::~EchoThread()
     while(true)
       receiveMessage();
   }
-  catch(Exception& ex)
+  catch(std::logic_error&)
   {
-    if(ex.what() != "Receive called with nothing to receive")
-      throw;
+    // A logic error is thrown when receive is called with nothing to receive
   }
 
   sendReplies();
@@ -47,7 +46,7 @@ void EchoThread::receiveMessage()
 {
   // Receive a message
   uint32_t* msg = reinterpret_cast<uint32_t*>(m_channel.receive());
-  if(msg[0] != 1) throw Exception("Incorrect message data");
+  if(msg[0] != 1) throw std::logic_error("invalid data");
   m_channel.release(msg);
   ++m_repliesToSend;
 }
@@ -66,13 +65,13 @@ void EchoThread::sendReplies()
       --m_repliesToSend;
     }
   }
-  catch(OutOfMemoryException&) { }
+  catch(std::bad_alloc&) { }
 }
 
 void EchoThread::abandoned(Handle handle)
 {
   if(handle == m_channel.getHandle())
-    throw Exception("Problem with the channel's handle");
+    throw std::logic_error("handle abandoned");
   else
     LogError("Unrecognized handle abandoned");
 }

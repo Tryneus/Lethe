@@ -4,6 +4,7 @@
 #include "WaitObject.h"
 #include "AbstractionTypes.h"
 #include <unistd.h>
+#include <aio.h>
 
 /*
  * The LinuxPipe class encapsulates an anonymous pipe in Linux.  The getHandle
@@ -18,15 +19,23 @@ public:
   LinuxPipe();
   ~LinuxPipe();
 
-  void send(uint8_t* buffer, uint32_t bufferSize);
-  uint32_t receive(uint8_t* buffer, uint32_t bufferSize);
+  void send(const void* buffer, uint32_t bufferSize);
+  uint32_t receive(void* buffer, uint32_t bufferSize);
 
 private:
+  static const uint32_t s_maxAsyncEvents = 10;
+
+  static void initializeAioContext();
+
+  void asyncWrite(const void* buffer, uint32_t bufferSize);
+  void getAsyncResults();
+
   Handle m_pipeRead;
   Handle m_pipeWrite;
-  uint8_t* m_pendingData;
-  uint8_t* m_pendingSend;
-  ssize_t m_pendingSize;
+  uint32_t m_asyncStart;
+  uint32_t m_asyncEnd;
+  struct aiocb m_asyncArray[s_maxAsyncEvents];
+  bool m_blockingWrite;
 };
 
 #endif

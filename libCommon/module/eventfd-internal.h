@@ -44,17 +44,17 @@ int eventfd_signal(struct eventfd_ctx *ctx, int n);
  */
 static inline struct file *eventfd_file_create(unsigned int count, int flags)
 {
-	return ERR_PTR(-ENOSYS);
+  return ERR_PTR(-ENOSYS);
 }
 
 static inline struct eventfd_ctx *eventfd_ctx_fdget(int fd)
 {
-	return ERR_PTR(-ENOSYS);
+  return ERR_PTR(-ENOSYS);
 }
 
 static inline int eventfd_signal(struct eventfd_ctx *ctx, int n)
 {
-	return -ENOSYS;
+  return -ENOSYS;
 }
 
 static inline void eventfd_ctx_put(struct eventfd_ctx *ctx)

@@ -38,7 +38,7 @@
 class LinuxThread : public BaseThread
 {
 public:
-  LinuxThread(uint32_t timeout = 0);
+  LinuxThread(uint32_t timeout);
   virtual ~LinuxThread();
 
 private:

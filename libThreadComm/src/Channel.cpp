@@ -1,6 +1,6 @@
 #include "Channel.h"
 #include "Message.h"
-#include "Exception.h"
+#include "AbstractionException.h"
 
 using namespace ThreadComm;
 
@@ -24,7 +24,7 @@ void* Channel::allocate(uint32_t size)
   size += sizeof(uint64_t) - (size % sizeof(uint64_t)); // Align along 64-bit boundary
 
   if(size < sizeof(Message))
-    throw Exception("Size too large");
+    throw std::bad_alloc();
 
   return m_out.allocate(size).getDataArea();
 }
@@ -36,10 +36,10 @@ void Channel::send(void* msg)
   if(msg == NULL) return;
 
   if(!message->overflowCheck())
-    throw Exception("Buffer overflow detected in message being sent");
+    throw std::runtime_error("buffer overflow");
 
   if(message->getState() != Message::Alloc)
-    throw Exception("Attempt to send a message in the wrong state");
+    throw std::invalid_argument("buffer in the wrong state");
 
   m_out.send(*message);
 }
@@ -56,8 +56,8 @@ void  Channel::release(void* msg)
   if(msg == NULL) return;
 
   if(!message->overflowCheck())
-    throw Exception("Buffer overflow detected in message being releasedi, or invalid message buffer");
+    throw std::runtime_error("buffer overflow");
 
   if(!m_in.release(*message) && !m_out.release(*message))
-    throw Exception("Released buffer does not belong to this channel");
+    throw std::invalid_argument("invalid buffer");
 }

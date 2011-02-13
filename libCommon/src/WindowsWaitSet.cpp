@@ -19,10 +19,16 @@ WindowsWaitSet::~WindowsWaitSet()
 
 bool WindowsWaitSet::add(WaitObject& obj)
 {
+  DWORD handleInfo;
+  if(obj.getHandle() == INVALID_HANDLE_VALUE ||
+     !GetHandleInformation(obj.getHandle(), &handleInfo))
+    throw Exception("Failed to add handle to WaitSet: Invalid handle");
+
   if(!m_waitObjects->insert(std::make_pair<Handle, WaitObject*>(obj.getHandle(), &obj)).second)
     return false;
 
   resizeEvents();
+  return true;
 }
 
 bool WindowsWaitSet::remove(WaitObject& obj)
@@ -36,6 +42,7 @@ bool WindowsWaitSet::remove(Handle handle)
     return false;
 
   resizeEvents();
+  return true;
 }
 
 size_t WindowsWaitSet::getSize() const

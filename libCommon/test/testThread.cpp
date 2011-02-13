@@ -11,8 +11,8 @@ public:
   ~TestThreadDummyThread() { };
 
 protected:
-  void iterate(Handle handle __attribute__((unused))) { /* Do nothing */ };
-  void abandoned(Handle handle __attribute__((unused))) { throw std::logic_error("TestThreadDummyThread received abandoned event"); };
+  void iterate(Handle handle GCC_UNUSED) { /* Do nothing */ };
+  void abandoned(Handle handle GCC_UNUSED) { throw std::logic_error("TestThreadDummyThread received abandoned event"); };
 };
 
 // StopThread stops itself after the given timeout
@@ -23,8 +23,8 @@ public:
   ~StopThread() { };
 
 protected:
-  void iterate(Handle handle __attribute__((unused))) { stop(); };
-  void abandoned(Handle handle __attribute__((unused))) { throw std::logic_error("StopThread received abandoned event"); };
+  void iterate(Handle handle GCC_UNUSED) { stop(); };
+  void abandoned(Handle handle GCC_UNUSED) { throw std::logic_error("StopThread received abandoned event"); };
 };
 
 // WaitThread waits until the given object triggers, then stops
@@ -35,8 +35,8 @@ public:
   ~WaitThread() { };
 
 protected:
-  void iterate(Handle handle __attribute__((unused))) { stop(); };
-  void abandoned(Handle handle __attribute__((unused))) { throw std::logic_error("WaitThread received abandoned event"); };
+  void iterate(Handle handle GCC_UNUSED) { stop(); };
+  void abandoned(Handle handle GCC_UNUSED) { throw std::logic_error("WaitThread received abandoned event"); };
 };
 
 TEST_CASE("thread/structor", "Test construction/destruction")

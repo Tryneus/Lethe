@@ -9,7 +9,7 @@ TEST_CASE("functions/sleep", "Test the sleep function")
 
   startTime = getTime();
   Sleep(0);
-  REQUIRE(getTime() - startTime <= 20);
+  REQUIRE(getTime() - startTime <= 35);
 
   startTime = getTime();
   Sleep(1);

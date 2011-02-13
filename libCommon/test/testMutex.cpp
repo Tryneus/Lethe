@@ -123,7 +123,7 @@ TEST_CASE("mutex/autolock", "Test auto-lock and unlock with multiple waiting thr
     for(uint32_t i(0); i < threadCount; ++i)
       iterateCount += threadArray[i]->isIterating();
 
-    REQUIRE(iterateCount == 1);
+    REQUIRE(iterateCount == 1); // TODO: a test run failed here, investigate
 
     // Set the event to let the thread exit
     event.set();

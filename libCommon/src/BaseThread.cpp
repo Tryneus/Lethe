@@ -93,7 +93,7 @@ void BaseThread::threadMain()
   m_exitedEvent.set();
 }
 
-void BaseThread::iterate(Handle handle __attribute((unused)))
+void BaseThread::iterate(Handle handle GCC_UNUSED)
 {
   // Do nothing
 }
@@ -165,11 +165,7 @@ void BaseThread::setWaitTimeout(uint32_t timeout)
   m_timeout = timeout;
 }
 
-#if defined(__GNUG__) /* Suppress warning in GCC */
-void BaseThread::abandoned(Handle handle __attribute__ ((unused)))
-#else
-void BaseThread::abandoned(Handle handle)
-#endif
+void BaseThread::abandoned(Handle handle GCC_UNUSED)
 {
   // Do nothing, optionally implemented by a derived class
 }

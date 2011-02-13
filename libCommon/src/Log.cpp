@@ -104,11 +104,7 @@ Log& Log::operator << (Log::Level level)
 
 // DisabledLogHandler implementation
 
-#if defined(__GNUG__)
-void Log::DisabledLogHandler::write(const std::string& statement __attribute__ ((unused)))
-#else
-void Log::DisabledLogHandler::write(const std::string& statement)
-#endif
+void Log::DisabledLogHandler::write(const std::string& statement GCC_UNUSED)
 {
   // Do nothing
 }

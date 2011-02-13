@@ -244,3 +244,5 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
 
   // Try getting multiple events at once, then removing a wait objects
 }
+
+// TODO: add test for abandoned (deleted) WaitObjects

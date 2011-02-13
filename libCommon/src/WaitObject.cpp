@@ -26,11 +26,7 @@ bool WaitObject::preWaitCallback()
   return false;
 }
 
-#if defined(__GNUG__) /* Suppress warning in GCC */
-void WaitObject::postWaitCallback(WaitResult result __attribute__((unused)))
-#else
-void WaitObject::postWaitCallback(WaitResult result)
-#endif
+void WaitObject::postWaitCallback(WaitResult result GCC_UNUSED)
 {
   // Do nothing
 }

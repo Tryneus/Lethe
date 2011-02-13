@@ -6,6 +6,7 @@
  *  objects in the library.
  */
 
+// Platform specific stuff
 #if defined(__WIN32__) || defined(_WIN32)
 
   #if defined(_MSC_VER)
@@ -29,6 +30,13 @@
 
 #else
   #error "Platform not detected"
+#endif
+
+// Compiler-specific stuff
+#if defined(__GNUG__)
+  #define GCC_UNUSED __attribute__((unused))
+#else
+  #define GCC_UNUSED
 #endif
 
 enum WaitResult

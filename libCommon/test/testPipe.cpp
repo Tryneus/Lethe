@@ -105,7 +105,7 @@ void PipeTestThread::iterate(Handle handle)
     throw std::invalid_argument("invalid handle");
 }
 
-void PipeTestThread::abandoned(Handle handle __attribute__((unused)))
+void PipeTestThread::abandoned(Handle handle GCC_UNUSED)
 {
   throw std::logic_error("Abandoned handle in pipe test thread");
 }

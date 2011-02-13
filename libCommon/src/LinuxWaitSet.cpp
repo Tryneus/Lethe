@@ -64,7 +64,9 @@ bool LinuxWaitSet::remove(Handle handle)
 
   try
   {
-    if(epoll_ctl(m_epollSet, EPOLL_CTL_DEL, event.data.fd, &event) != 0 && errno != ENOENT && errno != EBADF)
+    if(epoll_ctl(m_epollSet, EPOLL_CTL_DEL, event.data.fd, &event) != 0 &&
+       errno != ENOENT &&
+       errno != EBADF)
       throw std::bad_syscall("epoll_ctl", lastError());
   }
   catch(...)
@@ -99,8 +101,8 @@ size_t LinuxWaitSet::getSize() const
   return m_waitObjects->size();
 }
 
-WaitResult LinuxWaitSet::waitAll(uint32_t timeout __attribute__ ((unused)),
-                                 Handle& handle __attribute__ ((unused)))
+WaitResult LinuxWaitSet::waitAll(uint32_t timeout GCC_UNUSED,
+                                 Handle& handle GCC_UNUSED)
 {
   // TODO: implement waitAll, may be too prone to deadlock, though
   throw std::logic_error("waitAll is not implemented on this platform");

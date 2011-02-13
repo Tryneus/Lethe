@@ -2,6 +2,8 @@
 #define _WINDOWSPIPE_H
 
 #include "WaitObject.h"
+#include "WindowsMutex.h"
+#include "WindowsEvent.h"
 #include "AbstractionTypes.h"
 
 /*
@@ -21,6 +23,12 @@ public:
   uint32_t receive(uint8_t* buffer, uint32_t bufferSize);
 
 private:
+  void updateDataEvent(uint32_t bytesWritten);
+
+  WindowsMutex m_mutex;
+  WindowsEvent m_dataEvent;
+  uint32_t m_dataCount;
+
   Handle m_pipeRead;
   Handle m_pipeWrite;
   uint8_t* m_pendingData;

@@ -154,7 +154,7 @@ void BaseThread::handleObjectQueue()
       m_waitSet.add(m_objectQueue.front().second);
     else
       m_waitSet.remove(m_objectQueue.front().second);
-      
+
     m_objectQueue.pop();
   }
   m_mutex.unlock();

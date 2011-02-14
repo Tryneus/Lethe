@@ -25,8 +25,6 @@ public:
 private:
   static const uint32_t s_maxAsyncEvents = 10;
 
-  static void initializeAioContext();
-
   void asyncWrite(const void* buffer, uint32_t bufferSize);
   void getAsyncResults();
 

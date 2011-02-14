@@ -134,14 +134,14 @@ std::string BaseThread::getError()
 void BaseThread::addWaitObject(WaitObject& obj)
 {
   m_mutex.lock();
-  m_objectQueue.push(std::pair<bool, WaitObject&>(true, obj));
+  m_objectQueue.push(std::pair<bool, WaitObject*>(true, &obj));
   m_mutex.unlock();
 }
 
 void BaseThread::removeWaitObject(WaitObject& obj)
 {
   m_mutex.lock();
-  m_objectQueue.push(std::pair<bool, WaitObject&>(false, obj));
+  m_objectQueue.push(std::pair<bool, WaitObject*>(false, &obj));
   m_mutex.unlock();
 }
 
@@ -151,9 +151,9 @@ void BaseThread::handleObjectQueue()
   while(m_objectQueue.size() > 0)
   {
     if(m_objectQueue.front().first)
-      m_waitSet.add(m_objectQueue.front().second);
+      m_waitSet.add(*m_objectQueue.front().second);
     else
-      m_waitSet.remove(m_objectQueue.front().second);
+      m_waitSet.remove(*m_objectQueue.front().second);
 
     m_objectQueue.pop();
   }

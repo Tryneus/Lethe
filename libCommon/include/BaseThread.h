@@ -42,7 +42,7 @@ private:
   Event m_exitedEvent; // An event that will be set when the thread has exited
   Mutex m_mutex; // Mutex to limit access to the waitSet
 
-  std::queue<std::pair<bool, WaitObject&> > m_objectQueue; // A queue of WaitObjects to add or remove
+  std::queue<std::pair<bool, WaitObject*> > m_objectQueue; // A queue of WaitObjects to add or remove
   WaitSet m_waitSet; // A list of all handles provided by the implementation along with the trigger event
   uint32_t m_timeout;
 

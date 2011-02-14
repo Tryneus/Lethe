@@ -229,7 +229,7 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
 
   while(unfinished.size() > 0)
   {
-    REQUIRE(waitSet.waitAny(1, waitHandle) == WaitSuccess);
+    REQUIRE(waitSet.waitAny(20, waitHandle) == WaitSuccess);
 
     // Special handling to reset timer, thread, and pipe handles
     if(waitHandle == timer.getHandle())

@@ -45,7 +45,7 @@ TEST_CASE("timer/wait", "Test waiting for timers")
 
   startTime = getTime();
   timer.start(1000);
-  REQUIRE(WaitForObject(timer, 1000) == WaitSuccess);
+  REQUIRE(WaitForObject(timer, 1050) == WaitSuccess);
   endTime = getTime();
   REQUIRE(endTime - startTime >= 1000 && endTime - startTime < 1050);
   REQUIRE(WaitForObject(timer, 0) == WaitSuccess);
@@ -54,7 +54,7 @@ TEST_CASE("timer/wait", "Test waiting for timers")
 
   startTime = getTime();
   timer.start(1);
-  REQUIRE(WaitForObject(timer, 1) == WaitSuccess);
+  REQUIRE(WaitForObject(timer, 50) == WaitSuccess);
   endTime = getTime();
   REQUIRE(endTime - startTime >= 1 && endTime - startTime < 50);
   REQUIRE(WaitForObject(timer, 0) == WaitSuccess);

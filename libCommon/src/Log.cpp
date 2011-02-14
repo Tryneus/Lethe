@@ -2,7 +2,6 @@
 #include "AbstractionFunctions.h"
 #include "AbstractionException.h"
 #include <iostream>
-#include <unistd.h>
 
 ////////////////////////////////////
 // Log implementation

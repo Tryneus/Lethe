@@ -106,7 +106,10 @@ void LinuxPipe::asyncWrite(const void* buffer, uint32_t bufferSize)
   memcpy(const_cast<void*>(asyncEvent->aio_buf), buffer, bufferSize);
 
   if(aio_write(asyncEvent) != 0)
+  {
+    delete [] asyncEvent->aio_buf;
     throw std::bad_syscall("aio_write", lastError());
+  }
 
   m_asyncEnd = (m_asyncEnd + 1) % s_maxAsyncEvents;
 }

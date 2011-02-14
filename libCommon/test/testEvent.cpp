@@ -12,7 +12,7 @@ TEST_CASE("event/structor", "Test construction/destruction")
   for(uint32_t i(0); i < numEvents; ++i)
   {
     // Use 'i' to determine the parameters
-    eventArray[i] = new Event(i & bit1, i & bit2);
+    eventArray[i] = new Event(!(i & bit1), !(i & bit2));
   }
 
   // Put the events into some different states

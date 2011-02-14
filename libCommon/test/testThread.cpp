@@ -41,7 +41,7 @@ protected:
 
 TEST_CASE("thread/structor", "Test construction/destruction")
 {
-  uint32_t startTime;
+  uint64_t startTime;
 
   for(uint32_t i = 0; i < 256; ++i)
   {

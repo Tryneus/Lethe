@@ -5,7 +5,7 @@
 TEST_CASE("functions/sleep", "Test the sleep function")
 {
   // Require that sleep be accurate within 35ms (due to OS scheduling/timer resolution and latency)
-  uint32_t startTime;
+  uint64_t startTime;
 
   startTime = getTime();
   Sleep(0);

@@ -107,7 +107,7 @@ void LinuxPipe::asyncWrite(const void* buffer, uint32_t bufferSize)
 
   if(aio_write(asyncEvent) != 0)
   {
-    delete [] asyncEvent->aio_buf;
+    delete [] reinterpret_cast<volatile uint8_t*>(asyncEvent->aio_buf);
     throw std::bad_syscall("aio_write", lastError());
   }
 

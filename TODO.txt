@@ -7,4 +7,3 @@ Features:
 Fixes (see limitations):
   eventfd linux kernel patch
   timerfd linux kernel patch
-  pipe asynchronous write - done on Linux

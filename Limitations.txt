@@ -7,9 +7,6 @@ Known limitations or discrepancies between platforms:
 2. LinuxTimers do not support automatic reset
  - If the eventfd change goes over well, consider implementing the same thing for timerfd
 
-3. WindowsTimers are cleared by setting the timer again to a very long timeout
- - No real impact, just kind of stupid
-
-4. No method in Linux to wait for all file descriptors in a set before returning
+3. No method in Linux to wait for all file descriptors in a set before returning
  - No plan on implementing this at the moment, seems too easy to deadlock in Linux, and this can be left up to the user if they want something equivalent
  - This also means that waitAll should be disabled on Windows

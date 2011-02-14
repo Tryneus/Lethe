@@ -23,17 +23,34 @@ public:
   uint32_t receive(void* buffer, uint32_t bufferSize);
 
 private:
+  static std::string getPipeName();
+
+  static const uint32_t s_maxAsyncEvents  = 10;
+  static DWORD s_procId;
+  static uint32_t s_uniqueId;
+
+  void asyncWrite(const void* buffer, uint32_t bufferSize);
+  void getAsyncResults();
+
   void updateDataEvent(uint32_t bytesWritten);
+
+  const std::string m_pipeName;
 
   WindowsMutex m_mutex;
   WindowsEvent m_dataEvent;
   uint32_t m_dataCount;
-
   Handle m_pipeRead;
   Handle m_pipeWrite;
-  uint8_t* m_pendingData;
-  uint8_t* m_pendingSend;
-  uint32_t m_pendingSize;
+
+  struct
+  {
+    OVERLAPPED overlapped;
+    uint8_t* buffer;
+  } m_asyncArray[s_maxAsyncEvents];
+
+  uint32_t m_asyncStart;
+  uint32_t m_asyncEnd;
+  bool m_isBlocking;
 };
 
 #endif

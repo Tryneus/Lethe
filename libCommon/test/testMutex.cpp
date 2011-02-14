@@ -188,7 +188,12 @@ void runExceptionThread(Mutex& mutex)
 
   REQUIRE(WaitForObject(thread, 1000) == WaitSuccess);
   REQUIRE(thread.isStopping());
+
+#if defined(__linux__) // Different error message on linux
   REQUIRE(thread.getError() == "mutex unlocked by wrong thread");
+#elif defined(__WIN32__) || defined(_WIN32)
+  REQUIRE(thread.getError() == "ReleaseMutex failed: Attempt to release mutex not owned by caller. ");
+#endif
 }
 
 void runExceptionTest(bool initialState)

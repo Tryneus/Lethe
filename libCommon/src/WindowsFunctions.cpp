@@ -50,13 +50,13 @@ void getFileList(const std::string& directory,
 
 uint64_t getTime()
 {
-  const uint64_t msPerYear = 60 * 60 * 24 * 365240;
+  const uint64_t msPerYear = (uint64_t)(60 * 60 * 24) * 365240;
   const uint64_t unixEpochDelta = 369 * msPerYear;
   FILETIME currentTime;
 
-  GetSystemTimeAsFileTime(currentTime);
+  GetSystemTimeAsFileTime(&currentTime);
 
-  uint64_t retval = (currentTime.dwHighDateTime << 32) + currentTime.dwLowDateTime;
+  uint64_t retval = ((uint64_t)currentTime.dwHighDateTime << 32) + currentTime.dwLowDateTime;
 
   // Adjust for scale: 100ns units to 1ms units
   retval /= 10000;

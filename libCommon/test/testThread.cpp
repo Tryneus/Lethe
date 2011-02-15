@@ -2,6 +2,7 @@
 #include "AbstractionException.h"
 #include "catch.hpp"
 #include "testCommon.h"
+#include <stdio.h>
 
 // TestThreadDummy thread loops until manually stop()ed
 class TestThreadDummyThread : public Thread
@@ -84,14 +85,50 @@ TEST_CASE("thread/run", "Test running threads")
   // TODO: implement thread/run
 }
 
+class ExceptionThread : public Thread
+{
+public:
+  ExceptionThread() : Thread(0) { };
+
+private:
+  void iterate(Handle handle) { printf("iterate\n"); throw std::logic_error("exception thread");  };
+};
+
 TEST_CASE("thread/exception", "Test thread exception handling")
 {
-  // TODO: implement thread/exception
-}
+  ExceptionThread thread;
 
-TEST_CASE("thread/pause", "Test pausing threads")
-{
-  // TODO: implement thread/pause
+  REQUIRE(thread.isStopping() == true);
+  REQUIRE(thread.getError() == "");
+
+  thread.start();
+
+  Sleep(1000);
+
+  REQUIRE(thread.isStopping() == true);
+  REQUIRE(thread.getError() == "exception thread");
+
+  try
+  {
+    thread.start();
+    REQUIRE(false);
+  }
+  catch(std::runtime_error& ex)
+  {
+    REQUIRE(std::string(ex.what()) == "Thread exited with exception: exception thread");
+  }
+
+  thread.stop();
+
+  try
+  {
+    thread.start();
+    REQUIRE(false);
+  }
+  catch(std::runtime_error& ex)
+  {
+    REQUIRE(std::string(ex.what()) == "Thread exited with exception: exception thread");
+  }
 }
 
 TEST_CASE("thread/stop", "Test stopping threads")

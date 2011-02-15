@@ -85,16 +85,16 @@ public:
 
   enum Level
   {
-    Error = 0,
-    Info = 1,
-    Debug = 2,
-    NumLevels = 3
+    Disabled = 0,
+    Error = 1,
+    Info = 2,
+    Debug = 3,
+    NumLevels = 4
   };
 
   Level getLevel() const;
   void setLevel(Level level);
 
-  void disable();
   void setStreamMode(std::ostream& out);
   void setFileMode(const std::string& filename);
 
@@ -123,13 +123,6 @@ private:
   {
   public:
     virtual void write(const std::string& statement) = 0;
-  };
-
-  // Class for disabling logging, all output is built but discarded
-  class DisabledLogHandler : public LogHandler
-  {
-  public:
-    void write(const std::string& statement);
   };
 
   // Class for logging to standard output

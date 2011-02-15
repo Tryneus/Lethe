@@ -33,17 +33,6 @@ void Log::setLevel(Log::Level level)
   m_mutex.unlock();
 }
 
-void Log::disable()
-{
-  m_mutex.lock();
-
-  delete m_handler;
-  m_handler = NULL;
-  m_handler = new DisabledLogHandler();
-
-  m_mutex.unlock();
-}
-
 void Log::setStreamMode(std::ostream& out)
 {
   m_mutex.lock();
@@ -99,15 +88,6 @@ Log& Log::operator << (Log::Level level)
   m_statementLevel = level;
   return *this;
 }
-
-
-// DisabledLogHandler implementation
-
-void Log::DisabledLogHandler::write(const std::string& statement GCC_UNUSED)
-{
-  // Do nothing
-}
-
 
 // StreamLogHandler implementation
 

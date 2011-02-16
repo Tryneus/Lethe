@@ -93,9 +93,14 @@ void BaseThread::threadMain()
   m_exitedEvent.set();
 }
 
+// This function should never be called.  A user derived class should implement
+//  iterate.  The reason this function is not left pure-virtual is so that during
+//  destruction of a Thread object, a call to iterate from within ThreadMain does
+//  not call the derived class's iterate after the derived destructor has completed
+//  but before the base destructor has completed.
 void BaseThread::iterate(Handle handle GCC_UNUSED)
 {
-  // Do nothing
+  throw std::runtime_error("BaseThread iterate called");
 }
 
 void BaseThread::start()

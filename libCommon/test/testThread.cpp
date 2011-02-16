@@ -90,7 +90,7 @@ class ExceptionThread : public Thread
 public:
   ExceptionThread() : Thread(0) { };
 
-private:
+protected:
   void iterate(Handle handle GCC_UNUSED) { throw std::logic_error("exception thread");  };
 };
 

@@ -3,76 +3,76 @@
 ***************
 *** 261,271 ****
         {  return 0;  }
-  
+
         void
 !       store_hash (std::size_t hash)
         { }
-  
+
         void
 !       copy_hash (const hash_storage& that)
         { }
-  
-  
+
+
 --- 261,271 ----
         {  return 0;  }
-  
+
         void
 !       store_hash (std::size_t hash __attribute__((unused)))
         { }
-  
+
         void
 !       copy_hash (const hash_storage& that __attribute__((unused)))
         { }
-  
-  
+
+
 ***************
 *** 371,377 ****
-  
-  
+
+
         void
 !       link (single_link_storage* that)
         { }
-  
+
         void
 --- 371,377 ----
-  
-  
+
+
         void
 !       link (single_link_storage* that __attribute__((unused)))
         { }
-  
+
         void
 ***************
 *** 497,503 ****
       public:
-  
+
         bool
 !       used_and_matches (std::size_t hash) const
         {  return !is_empty_or_debris ();  }
-  
+
         bool
 --- 497,503 ----
       public:
-  
+
         bool
 !       used_and_matches (std::size_t hash __attribute__((unused))) const
         {  return !is_empty_or_debris ();  }
-  
+
         bool
 ***************
 *** 707,713 ****
       public:
-  
+
         bool
 !       used_and_matches (std::size_t hash) const
         {  return !is_empty_or_debris ();  }
-  
-  
+
+
 --- 707,713 ----
       public:
-  
+
         bool
 !       used_and_matches (std::size_t hash __attribute__((unused))) const
         {  return !is_empty_or_debris ();  }
-  
-  
+
+

@@ -110,7 +110,7 @@ void WindowsPipe::asyncWrite(const void* buffer, uint32_t bufferSize)
   {
     m_asyncEnd = (m_asyncEnd + 1) % s_maxAsyncEvents;
   }
-  else 
+  else
   {
     delete [] m_asyncArray[m_asyncEnd].buffer;
     throw std::bad_syscall("WriteFile", lastError());

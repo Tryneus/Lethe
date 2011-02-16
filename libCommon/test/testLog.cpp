@@ -73,7 +73,7 @@ TEST_CASE("log/fileMode", "Test logging to a file")
   // logFile2:
   // <stamp> Quiddity 4
   std::ifstream in2(logFile2.c_str());
-  
+
   REQUIRE(in2.good());
   getline(in2, line); REQUIRE(line.find("Quiddity 4") != std::string::npos);
   getline(in2, line); REQUIRE(line == "");
@@ -101,7 +101,7 @@ TEST_CASE("log/streamMode", "Test logging to a stream")
 
   // Test info mode
   Log::getInstance().setLevel(Log::Info);
-  
+
   LogDebug("Log statement " << 2);
   REQUIRE(out.str() == "");
   out.str("");
@@ -116,7 +116,7 @@ TEST_CASE("log/streamMode", "Test logging to a stream")
 
   // Test error mode
   Log::getInstance().setLevel(Log::Error);
-  
+
   LogDebug("Log statement " << 3);
   REQUIRE(out.str() == "");
   out.str("");
@@ -132,7 +132,7 @@ TEST_CASE("log/streamMode", "Test logging to a stream")
   // Set a new stream, make sure Error mode is maintained
   std::stringstream out2;
   Log::getInstance().setStreamMode(out2);
-  
+
   LogDebug("Log statement " << 4);
   REQUIRE(out2.str() == "");
   out2.str("");
@@ -147,7 +147,7 @@ TEST_CASE("log/streamMode", "Test logging to a stream")
 
   // Test disabled level
   Log::getInstance().setLevel(Log::Disabled);
-  
+
   LogDebug("Log statement " << 5);
   REQUIRE(out2.str() == "");
   out2.str("");

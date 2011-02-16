@@ -15,13 +15,9 @@
 /libCommon/module/Module.symvers
 /libCommon/module/modules.order
 
-# Linux test results
-*/test/runTest.log
-*/test/valTest.log
-
-# Linux cppcheck results
-/check.log
-/checkTest.log
+# Ignore temporary files
+*.log
+*.swp
 
 # Windows build results
 *.lib

@@ -91,7 +91,7 @@ public:
   ExceptionThread() : Thread(0) { };
 
 private:
-  void iterate(Handle handle) { printf("iterate\n"); throw std::logic_error("exception thread");  };
+  void iterate(Handle handle GCC_UNUSED) { throw std::logic_error("exception thread");  };
 };
 
 TEST_CASE("thread/exception", "Test thread exception handling")

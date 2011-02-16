@@ -30,9 +30,10 @@ LinuxPipe::LinuxPipe() :
   if(fcntl(m_pipeRead, F_SETFL, O_NONBLOCK) != 0 ||
      fcntl(m_pipeWrite, F_SETFL, O_NONBLOCK) != 0)
   {
+    std::string errorString(lastError());
     close(m_pipeRead);
     close(m_pipeWrite);
-    throw std::bad_syscall("fcntl", lastError()); // TODO: this probably won't have the right errno
+    throw std::bad_syscall("fcntl", errorString);
   }
 
   setWaitHandle(m_pipeRead);

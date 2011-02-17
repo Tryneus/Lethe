@@ -6,7 +6,7 @@
 
 LinuxSemaphore::LinuxSemaphore(uint32_t maxCount GCC_UNUSED,
                                uint32_t initialCount) :
-  WaitObject(eventfd(initialCount, (EFD_NONBLOCK | EFD_SEMAPHORE | EFD_WAITREAD)))
+  WaitObject(eventfd(initialCount + 1, (EFD_NONBLOCK | EFD_SEMAPHORE | EFD_WAITREAD)))
 {
   if(getHandle() == INVALID_HANDLE_VALUE)
     throw std::bad_syscall("eventfd", lastError());

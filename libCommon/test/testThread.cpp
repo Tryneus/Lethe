@@ -3,6 +3,7 @@
 #include "catch.hpp"
 #include "testCommon.h"
 #include <stdio.h>
+#include "Log.h"
 
 // TestThreadDummy thread loops until manually stop()ed
 class TestThreadDummyThread : public Thread
@@ -80,9 +81,63 @@ TEST_CASE("thread/structor", "Test construction/destruction")
   }
 }
 
+class TestRunThread : public Thread
+{
+private:
+  WaitObject& m_primary;
+  WaitObject& m_secondary;
+  uint32_t m_primaryIterations;
+  uint32_t m_secondaryIterations;
+
+public:
+  TestRunThread(WaitObject& primary, WaitObject& secondary) :
+    Thread(INFINITE),
+    m_primary(primary),
+    m_secondary(secondary),
+    m_primaryIterations(0),
+    m_secondaryIterations(0)
+ {
+   addWaitObject(primary);
+   addWaitObject(secondary);
+ }
+
+  uint32_t getPrimaryIterations() { return m_primaryIterations; };
+  uint32_t getSecondaryIterations() { return m_secondaryIterations; };
+
+protected:
+  void iterate(Handle handle)
+  {
+    if(handle == m_primary.getHandle()) ++m_primaryIterations;
+    else if(handle == m_secondary.getHandle()) ++m_secondaryIterations;
+    else throw std::logic_error("incorrect handle");
+  }
+};
+
 TEST_CASE("thread/run", "Test running threads")
 {
-  // TODO: implement thread/run
+  for(uint32_t i = 0; i < 50; ++i)
+  {
+    Semaphore sem1(100, 25);
+    Semaphore sem2(100, 10);
+    TestRunThread thread(sem1, sem2);
+
+    thread.start();
+
+    for(uint32_t j = 0; j < 10; ++j)
+      sem2.unlock(5);
+
+    for(uint32_t j = 0; j < 50; ++j)
+    {
+      sem1.unlock(1);
+      sem2.unlock(1);
+    }
+
+    Sleep(40);
+
+    REQUIRE(thread.getError() == "");
+    REQUIRE(thread.getPrimaryIterations() == 75);
+    REQUIRE(thread.getSecondaryIterations() == 110);
+  }
 }
 
 class ExceptionThread : public Thread

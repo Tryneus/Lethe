@@ -130,18 +130,15 @@ WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
     if(preWaitEvents.size() != 0)
       timeout = 0;
 
+    m_eventCount = epoll_wait(m_epollSet, m_events, m_waitObjects->size(), timeout);
+
     if(m_eventCount == 0)
     {
-      m_eventCount = epoll_wait(m_epollSet, m_events, m_waitObjects->size(), timeout);
-
-      if(m_eventCount == 0)
-      {
-        handle = INVALID_HANDLE_VALUE;
-        return WaitTimeout;
-      }
-      else if(m_eventCount < 0)
-        throw std::bad_syscall("epoll_wait", lastError());
+      handle = INVALID_HANDLE_VALUE;
+      return WaitTimeout;
     }
+    else if(m_eventCount < 0)
+      throw std::bad_syscall("epoll_wait", lastError());
 
     if(preWaitEvents.size() != 0)
       appendEvents(preWaitEvents);

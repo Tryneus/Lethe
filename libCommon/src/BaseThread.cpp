@@ -141,6 +141,7 @@ void BaseThread::addWaitObject(WaitObject& obj)
   m_mutex.lock();
   m_objectQueue.push(std::pair<bool, WaitObject*>(true, &obj));
   m_mutex.unlock();
+  m_triggerEvent.set();
 }
 
 void BaseThread::removeWaitObject(WaitObject& obj)
@@ -148,6 +149,7 @@ void BaseThread::removeWaitObject(WaitObject& obj)
   m_mutex.lock();
   m_objectQueue.push(std::pair<bool, WaitObject*>(false, &obj));
   m_mutex.unlock();
+  m_triggerEvent.set();
 }
 
 void BaseThread::handleObjectQueue()

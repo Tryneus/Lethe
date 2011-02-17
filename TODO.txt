@@ -8,3 +8,4 @@ Fixes (see limitations):
   eventfd linux kernel patch
   timerfd linux kernel patch
   LinuxSemaphore initial value is slightly broken?  Acts like one less than it should be
+  Windows WaitForMultiple is limited to 64 handles, add limit to WaitSets

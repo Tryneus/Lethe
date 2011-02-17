@@ -78,6 +78,10 @@ TEST_CASE("log/fileMode", "Test logging to a file")
   getline(in2, line); REQUIRE(line.find("Quiddity 4") != std::string::npos);
   getline(in2, line); REQUIRE(line == "");
   REQUIRE(in2.eof());
+
+  // Set logging back to debug/stdout
+  Log::getInstance().setLevel(Log::Debug);
+  Log::getInstance().setStreamMode(std::cout);
 }
 
 TEST_CASE("log/streamMode", "Test logging to a stream")
@@ -159,4 +163,8 @@ TEST_CASE("log/streamMode", "Test logging to a stream")
   LogError("Quiddity " << 5);
   REQUIRE(out2.str() == "");
   out2.str("");
+
+  // Set logging back to debug/stdout
+  Log::getInstance().setLevel(Log::Debug);
+  Log::getInstance().setStreamMode(std::cout);
 }

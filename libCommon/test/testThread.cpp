@@ -3,7 +3,6 @@
 #include "catch.hpp"
 #include "testCommon.h"
 #include <stdio.h>
-#include "Log.h"
 
 // TestThreadDummy thread loops until manually stop()ed
 class TestThreadDummyThread : public Thread
@@ -166,11 +165,11 @@ TEST_CASE("thread/exception", "Test thread exception handling")
   try
   {
     thread.start();
-    REQUIRE(false);
+    FAIL("Starting a dead thread should throw an exception");
   }
   catch(std::runtime_error& ex)
   {
-    REQUIRE(std::string(ex.what()) == "Thread exited with exception: exception thread");
+    REQUIRE(std::string(ex.what()) == "thread exited with exception: exception thread");
   }
 
   thread.stop();
@@ -178,15 +177,93 @@ TEST_CASE("thread/exception", "Test thread exception handling")
   try
   {
     thread.start();
-    REQUIRE(false);
+    FAIL("Starting a dead thread should throw an exception");
   }
   catch(std::runtime_error& ex)
   {
-    REQUIRE(std::string(ex.what()) == "Thread exited with exception: exception thread");
+    REQUIRE(std::string(ex.what()) == "thread exited with exception: exception thread");
   }
 }
 
+TEST_CASE("thread/timeout", "Test thread iterate timeout")
+{
+
+}
+
+class TestStopThread : public Thread
+{
+private:
+  WaitObject& m_trigger;
+  uint32_t m_iterationCount;
+
+public:
+  TestStopThread(WaitObject& trigger) :
+    Thread(INFINITE),
+    m_trigger(trigger),
+    m_iterationCount(0)
+  {
+    addWaitObject(m_trigger);
+  }
+
+protected:
+  void iterate(Handle handle)
+  {
+    ++m_iterationCount;
+
+    if(m_iterationCount == 1)
+      Sleep(1000);
+    else if(m_iterationCount == 2)
+      stop();
+    else if(m_iterationCount == 3)
+      setWaitTimeout(300);
+
+    if(handle != m_trigger.getHandle())
+      throw std::runtime_error("Shutting down thread");
+  }
+};
+
 TEST_CASE("thread/stop", "Test stopping threads")
 {
-  // TODO: implement thread/stop
+  Event event(false, true);
+  uint32_t startTime;
+  TestStopThread thread(event);
+
+  REQUIRE(thread.isStopping()); // Thread should start out stopped
+  thread.stop();
+  REQUIRE(thread.isStopping()); // Nothing should have changed yet
+
+  // Iteration 0
+  thread.start(); // Thread won't do anything until we give it an event
+  REQUIRE_FALSE(thread.isStopping());
+  thread.stop();
+  REQUIRE(thread.isStopping());
+  REQUIRE(thread.getError() == "");
+
+  // Iteration 1
+  startTime = getTime();
+  thread.start();
+  REQUIRE_FALSE(thread.isStopping());
+  Sleep(20); // TODO: workaround for waitset problem with autoreset - see TODO.txt
+  event.set(); // Thread should now iterate, it will sleep 1 second the first time
+  Sleep(20);
+  thread.stop(); // Stop the thread, even though it's blocked in the iterate loop
+  REQUIRE(thread.isStopping());
+  REQUIRE(WaitForObject(thread, 1000) == WaitSuccess); // Wait for the thread to stop
+  REQUIRE(thread.getError() == "");
+  REQUIRE(getTime() - startTime >= 1000);
+  REQUIRE(thread.isStopping());
+
+  // Iteration 2
+  event.set();
+  thread.start(); // Thread should stop itself as soon as it completes an iteration
+  REQUIRE(WaitForObject(thread, 200) == WaitSuccess);
+  REQUIRE(thread.getError() == "");
+  REQUIRE(thread.isStopping());
+
+  // Iteration 3
+  event.set();
+  thread.start(); // Thread should iterate once, then again 300ms later and kill itself
+  REQUIRE(WaitForObject(thread, 500) == WaitSuccess);
+  REQUIRE(thread.isStopping());
+  REQUIRE(thread.getError() == "Shutting down thread");
 }

@@ -40,8 +40,6 @@ void BaseThread::threadMain()
       if(!m_running)
         continue;
 
-      m_stoppedEvent.reset();
-
       do
       {
         if(m_objectQueue.size() > 0)
@@ -77,6 +75,10 @@ void BaseThread::threadMain()
   {
     m_mutex.lock();
     m_error.assign(ex.what());
+
+    if(m_error.empty()) // Don't allow an empty error string
+      m_error.assign("empty exception text");
+
     m_mutex.unlock();
   }
   catch(...)
@@ -107,12 +109,14 @@ void BaseThread::start()
 {
   // Check if there is a problem with the thread
   m_mutex.lock();
-  if(!m_error.empty()) throw std::runtime_error("Thread exited with exception: " + m_error);
+  bool errored = !m_error.empty();
   m_mutex.unlock();
 
-  if(m_exit) throw std::logic_error("thread has stopped and cannot be restarted");
+  if(errored) throw std::runtime_error("thread exited with exception: " + m_error);
+  if(m_exit) throw std::logic_error("thread is being destructed and cannot start");
 
   m_running = true;
+  m_stoppedEvent.reset();
   m_triggerEvent.set();
 }
 

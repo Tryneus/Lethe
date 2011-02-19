@@ -23,9 +23,6 @@
   #error "Platform not detected"
 #endif
 
-void getFileList(const std::string& directory,
-                 std::vector<std::string>& fileList);
-
 uint64_t    getTime();
 std::string getTimeString();
 

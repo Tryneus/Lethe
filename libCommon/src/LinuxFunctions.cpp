@@ -41,12 +41,6 @@ uint32_t seedRandom(uint32_t seed)
   return seed;
 }
 
-void getFileList(const std::string& directory GCC_UNUSED,
-                 std::vector<std::string>& fileList GCC_UNUSED)
-{
-  throw std::logic_error("LinuxFunctions::getFileList not yet implemented");
-}
-
 uint64_t getTime()
 {
   timeval currentTime;

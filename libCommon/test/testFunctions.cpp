@@ -24,11 +24,6 @@ TEST_CASE("functions/sleep", "Test the sleep function")
   REQUIRE(getTime() - startTime <= 1035);
 }
 
-TEST_CASE("functions/getFileList", "Test getting a list of files")
-{
-  // TODO: implement functions/getFileList
-}
-
 TEST_CASE("functions/getTimeString", "Test getting the current time in string form")
 {
   // TODO: implement functions/getTimeString

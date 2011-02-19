@@ -24,7 +24,7 @@ void LinuxEvent::set()
 {
   uint64_t state(1);
 
-  if(write(getHandle(), &state, sizeof(state)) != sizeof(state) && errno != EAGAIN)
+  if(write(getHandle(), &state, sizeof(state)) != sizeof(state))
     throw std::bad_syscall("write to eventfd", lastError());
 }
 

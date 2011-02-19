@@ -29,25 +29,6 @@ std::string lastError()
   return retval;
 }
 
-void getFileList(const std::string& directory,
-                 std::vector<std::string>& fileList)
-{
-  WIN32_FIND_DATA fileData;
-  Handle findHandle(FindFirstFile(directory.c_str(), &fileData));
-
-  fileList.clear();
-
-  if(findHandle != INVALID_HANDLE_VALUE)
-  {
-    do
-    {
-      fileList.push_back(fileData.cFileName);
-    } while(FindNextFile(findHandle, &fileData));
-
-    FindClose(findHandle);
-  }
-}
-
 uint64_t getTime()
 {
   const uint64_t msPerYear = (uint64_t)(60 * 60 * 24) * 365240;

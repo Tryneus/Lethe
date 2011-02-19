@@ -37,17 +37,97 @@ TEST_CASE("event/structor", "Test construction/destruction")
   delete [] eventArray;
 }
 
-TEST_CASE("event/set", "Test setting of events")
+TEST_CASE("event/set", "Test setting and normal resetting of events")
 {
-  // TODO: implement event/set
-}
+  // Test an event constructed as set
+  Event event1(true, false);
+  REQUIRE(WaitForObject(event1, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(event1, 0) == WaitSuccess);
 
-TEST_CASE("event/reset", "Test resetting of events")
-{
-  // TODO: implement event/reset
+  // Set it again and make sure nothing breaks
+  event1.set();
+  REQUIRE(WaitForObject(event1, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(event1, 0) == WaitSuccess);
+
+  event1.reset();
+  REQUIRE(WaitForObject(event1, 20) == WaitTimeout);
+  REQUIRE(WaitForObject(event1, 20) == WaitTimeout);
+
+  event1.reset();
+  REQUIRE(WaitForObject(event1, 20) == WaitTimeout);
+  REQUIRE(WaitForObject(event1, 20) == WaitTimeout);
+
+  event1.set();
+  REQUIRE(WaitForObject(event1, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(event1, 0) == WaitSuccess);
+
+  // Test an event constructed as not set
+  Event event2(false, false);
+
+  event2.reset();
+  REQUIRE(WaitForObject(event2, 20) == WaitTimeout);
+  REQUIRE(WaitForObject(event2, 20) == WaitTimeout);
+
+  event2.set();
+  REQUIRE(WaitForObject(event2, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(event2, 0) == WaitSuccess);
+
+  event2.reset();
+  REQUIRE(WaitForObject(event2, 20) == WaitTimeout);
+  REQUIRE(WaitForObject(event2, 20) == WaitTimeout);
+
+  event2.reset();
+  REQUIRE(WaitForObject(event2, 20) == WaitTimeout);
+  REQUIRE(WaitForObject(event2, 20) == WaitTimeout);
+
+  event2.set();
+  REQUIRE(WaitForObject(event2, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(event2, 0) == WaitSuccess);
 }
 
 TEST_CASE("event/autoreset", "Test auto-reset of events")
 {
-  // TODO: implement event/autoreset
+  // Test an auto-reset event constructed as set
+  Event event1(true, true);
+  REQUIRE(WaitForObject(event1, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(event1, 20) == WaitTimeout);
+
+  event1.set();
+  REQUIRE(WaitForObject(event1, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(event1, 20) == WaitTimeout);
+
+  event1.reset();
+  REQUIRE(WaitForObject(event1, 20) == WaitTimeout);
+  REQUIRE(WaitForObject(event1, 20) == WaitTimeout);
+
+  event1.reset();
+  REQUIRE(WaitForObject(event1, 20) == WaitTimeout);
+  REQUIRE(WaitForObject(event1, 20) == WaitTimeout);
+
+  event1.set();
+  REQUIRE(WaitForObject(event1, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(event1, 20) == WaitTimeout);
+
+  // Test an auto-reset event constructed as not set
+  Event event2(false, true);
+
+  event2.reset();
+  REQUIRE(WaitForObject(event2, 20) == WaitTimeout);
+  REQUIRE(WaitForObject(event2, 20) == WaitTimeout);
+
+  event2.set();
+  REQUIRE(WaitForObject(event2, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(event2, 20) == WaitTimeout);
+
+  event2.reset();
+  REQUIRE(WaitForObject(event2, 20) == WaitTimeout);
+  REQUIRE(WaitForObject(event2, 20) == WaitTimeout);
+
+  event2.reset();
+  REQUIRE(WaitForObject(event2, 20) == WaitTimeout);
+  REQUIRE(WaitForObject(event2, 20) == WaitTimeout);
+
+  event2.set();
+  REQUIRE(WaitForObject(event2, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(event2, 20) == WaitTimeout);
 }

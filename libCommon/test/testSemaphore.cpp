@@ -12,7 +12,7 @@ TEST_CASE("semaphore/structor", "Test construction/destruction")
   for(uint32_t i(0); i < numSemaphores; ++i)
   {
     // Use 'i' to determine the parameters
-    semaphoreArray[i] = new Semaphore(i + 2, i & bit1 + 2);
+    semaphoreArray[i] = new Semaphore(i + 2, (i & bit1) + 2);
   }
 
   // Put the Semaphores into some different states

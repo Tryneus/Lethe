@@ -123,6 +123,7 @@ private:
   {
   public:
     virtual void write(const std::string& statement) = 0;
+    virtual ~LogHandler() { };
   };
 
   // Class for logging to standard output
@@ -142,7 +143,7 @@ private:
   {
   public:
     FileLogHandler(const std::string& filename);
-    virtual ~FileLogHandler();
+    ~FileLogHandler();
 
     void write(const std::string& statement);
 

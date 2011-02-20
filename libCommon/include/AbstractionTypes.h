@@ -42,8 +42,9 @@
 enum WaitResult
 {
   WaitSuccess = 0,
-  WaitAbandoned = -1,
-  WaitTimeout = -2
+  WaitError = 1,
+  WaitAbandoned = -2,
+  WaitTimeout = -3
 };
 
 #endif

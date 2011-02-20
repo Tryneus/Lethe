@@ -12,20 +12,20 @@ TEST_CASE("semaphore/structor", "Test construction/destruction")
   for(uint32_t i(0); i < numSemaphores; ++i)
   {
     // Use 'i' to determine the parameters
-    semaphoreArray[i] = new Semaphore(i, i & bit1);
+    semaphoreArray[i] = new Semaphore(i + 2, i & bit1 + 2);
   }
 
   // Put the Semaphores into some different states
   for(uint32_t i(0); i < numSemaphores; ++i)
   {
-//    if(i & bit2)
-//      semaphoreArray[i]->lock();
-//    if(i & bit3)
-//      semaphoreArray[i]->release();
-//    if(i & bit4)
-//      semaphoreArray[i]->lock();
-//    if(i & bit5)
-//      semaphoreArray[i]->release();
+    if(i & bit2)
+      semaphoreArray[i]->lock();
+    if(i & bit3)
+      semaphoreArray[i]->unlock(1);
+    if(i & bit4)
+      semaphoreArray[i]->lock();
+    if(i & bit5)
+      semaphoreArray[i]->unlock(1);
   }
 
   // Destroy
@@ -47,9 +47,9 @@ TEST_CASE("semaphore/lock", "Test semaphore lock behavior")
   // TODO: implement semaphore/lock
 }
 
-TEST_CASE("semaphore/release", "Test semaphore release behavior")
+TEST_CASE("semaphore/unlock", "Test semaphore unlock behavior")
 {
-  // TODO: implement semaphore/release
+  // TODO: implement semaphore/unlock
 }
 
 TEST_CASE("semaphore/exception", "Test semaphore exception behavior")

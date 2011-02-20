@@ -107,9 +107,11 @@ WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
     return WaitAbandoned;
 
   case WAIT_TIMEOUT:
+    obj.postWaitCallback(WaitTimeout);
     return WaitTimeout;
 
   default:
+    obj.postWaitCallback(WaitError);
     throw std::bad_syscall("WaitForSingleObject", lastError());
   }
 }

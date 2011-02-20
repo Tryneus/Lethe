@@ -69,6 +69,7 @@ std::string getTimeString()
 
 WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
 {
+  uint32_t endTime = getTime() + timeout;
   WaitResult result = WaitSuccess;
   struct pollfd pollData;
 
@@ -85,23 +86,23 @@ WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
     case 1:
       if(pollData.revents & (POLLERR | POLLNVAL | POLLHUP))
         result = WaitAbandoned;
-
       obj.postWaitCallback(result);
-      break;
+      return result;
 
     case 0:
-      result = WaitTimeout;
-      break;
+      obj.postWaitCallback(WaitTimeout);
+      return WaitTimeout;
 
     default:
       if(errno == EINTR)
+      {
+        uint32_t currentTime = getTime();
+        timeout = (endTime <= currentTime ? 0 : endTime - currentTime);
         continue;
-
+      }
+      obj.postWaitCallback(WaitError);
       throw std::bad_syscall("poll", lastError());
     }
-    break;
   }
-
-  return result;
 }
 

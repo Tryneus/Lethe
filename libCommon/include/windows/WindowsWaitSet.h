@@ -26,10 +26,6 @@ namespace mct
  *  WaitForMultipleObjects is moved around.  After receiving an event on a handle,
  *  the pointer is moved to just after that handle in the array, so it will be the
  *  least favored in the next call.
- *
- * Note that while waitAll is implemented on Windows, it is not on Linux, and there
- *  are no plans at the moment on how to implement it there.  For the most portability,
- *  only use waitAny.
  */
 class WindowsWaitSet
 {
@@ -44,7 +40,6 @@ public:
 
   size_t getSize() const;
 
-  WaitResult waitAll(uint32_t timeout, Handle& handle);
   WaitResult waitAny(uint32_t timeout, Handle& handle);
 
 private:

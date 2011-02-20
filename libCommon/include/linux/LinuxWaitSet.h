@@ -27,9 +27,6 @@ namespace mct
  *  overhead per wait call.  An epoll set is configured with the file descriptors
  *  being waited on, and a single call may return multiple events (allowing fair
  *  attention to multiple busy interfaces).
- *
- * The waitAll function is currently unimplemented on Linux.  There are no plans as
- *  to how to implement this at the moment.
  */
 class LinuxWaitSet
 {
@@ -44,12 +41,12 @@ public:
 
   size_t getSize() const;
 
-  WaitResult waitAll(uint32_t timeout, Handle& handle);
   WaitResult waitAny(uint32_t timeout, Handle& handle);
 
 private:
   void resizeEvents();
   void appendEvents(const std::list<Handle>& events);
+  void postWaitCallbacks(WaitResult result);
   WaitResult getEvent(Handle& handle);
 
   Handle m_epollSet;

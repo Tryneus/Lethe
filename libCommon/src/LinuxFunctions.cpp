@@ -75,24 +75,31 @@ WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
   if(obj.preWaitCallback())
     return WaitSuccess;
 
-  pollData.fd = obj.getHandle();
-  pollData.events = POLLIN | POLLERR | POLLHUP;
-
-  switch(poll(&pollData, 1, timeout))
+  while(true)
   {
-  case 1:
-    if(pollData.revents & (POLLERR | POLLNVAL | POLLHUP))
-      result = WaitAbandoned;
+    pollData.fd = obj.getHandle();
+    pollData.events = POLLIN | POLLERR | POLLHUP;
 
-    obj.postWaitCallback(result);
+    switch(poll(&pollData, 1, timeout))
+    {
+    case 1:
+      if(pollData.revents & (POLLERR | POLLNVAL | POLLHUP))
+        result = WaitAbandoned;
+
+      obj.postWaitCallback(result);
+      break;
+
+    case 0:
+      result = WaitTimeout;
+      break;
+
+    default:
+      if(errno == EINTR)
+        continue;
+
+      throw std::bad_syscall("poll", lastError());
+    }
     break;
-
-  case 0:
-    result = WaitTimeout;
-    break;
-
-  default:
-    throw std::bad_syscall("poll", lastError());
   }
 
   return result;

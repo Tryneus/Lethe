@@ -110,7 +110,7 @@ WaitResult LinuxWaitSet::waitAll(uint32_t timeout GCC_UNUSED,
 
 WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
 {
-  // TODO: save end time and rewait if EINTR
+  uint32_t endTime = getTime() + timeout;
 
   if(m_waitObjects->size() == 0)
   {
@@ -130,15 +130,25 @@ WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
     if(preWaitEvents.size() != 0)
       timeout = 0;
 
-    m_eventCount = epoll_wait(m_epollSet, m_events, m_waitObjects->size(), timeout);
-
-    if(m_eventCount == 0)
+    do
     {
-      handle = INVALID_HANDLE_VALUE;
-      return WaitTimeout;
-    }
-    else if(m_eventCount < 0)
-      throw std::bad_syscall("epoll_wait", lastError());
+      m_eventCount = epoll_wait(m_epollSet, m_events, m_waitObjects->size(), timeout);
+
+      if(m_eventCount == 0 && preWaitEvents.size() == 0)
+      {
+        if(errno == EINTR)
+        {
+          uint32_t currentTime = getTime();
+          timeout = (endTime <= currentTime ? 0 : endTime - currentTime);
+          continue;
+        }
+
+        handle = INVALID_HANDLE_VALUE;
+        return WaitTimeout;
+      }
+      else if(m_eventCount < 0)
+        throw std::bad_syscall("epoll_wait", lastError());
+    } while(false);
 
     if(preWaitEvents.size() != 0)
       appendEvents(preWaitEvents);

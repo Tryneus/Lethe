@@ -6,7 +6,8 @@
 
 LinuxSemaphore::LinuxSemaphore(uint32_t maxCount GCC_UNUSED,
                                uint32_t initialCount) :
-  WaitObject(eventfd(initialCount + 1, (EFD_NONBLOCK | EFD_SEMAPHORE | EFD_WAITREAD)))
+  WaitObject(eventfd(initialCount + 1, (EFD_NONBLOCK | EFD_SEMAPHORE | EFD_WAITREAD))),
+  m_count(initialCount)
 {
   if(getHandle() == INVALID_HANDLE_VALUE)
     throw std::bad_syscall("eventfd", lastError());
@@ -29,4 +30,18 @@ void LinuxSemaphore::unlock(uint32_t count)
 
   if(write(getHandle(), &internalCount, sizeof(internalCount)) != sizeof(internalCount))
     throw std::bad_syscall("write to eventfd", lastError());
+
+  ++m_count;
+}
+
+bool LinuxSemaphore::preWaitCallback()
+{
+  --m_count;
+  return false;
+}
+
+void LinuxSemaphore::postWaitCallback(WaitResult result)
+{
+  if(result != WaitSuccess)
+    ++m_count;
 }

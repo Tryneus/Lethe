@@ -21,6 +21,12 @@ public:
 
   void lock(uint32_t timeout = INFINITE);
   void unlock(uint32_t count);
+
+private:
+  int32_t m_count;
+
+  bool preWaitCallback();
+  void postWaitCallback(WaitResult result);
 };
 
 #endif

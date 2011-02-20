@@ -101,13 +101,6 @@ size_t LinuxWaitSet::getSize() const
   return m_waitObjects->size();
 }
 
-WaitResult LinuxWaitSet::waitAll(uint32_t timeout GCC_UNUSED,
-                                 Handle& handle GCC_UNUSED)
-{
-  // TODO: implement waitAll, may be too prone to deadlock, though
-  throw std::logic_error("waitAll is not implemented on this platform");
-}
-
 WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
 {
   uint32_t endTime = getTime() + timeout;
@@ -144,17 +137,50 @@ WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
         }
 
         handle = INVALID_HANDLE_VALUE;
+        postWaitCallbacks(WaitTimeout);
         return WaitTimeout;
       }
       else if(m_eventCount < 0)
+      {
+        postWaitCallbacks(WaitError);
         throw std::bad_syscall("epoll_wait", lastError());
+      }
     } while(false);
 
     if(preWaitEvents.size() != 0)
       appendEvents(preWaitEvents);
+
+    postWaitCallbacks(WaitTimeout);
   }
 
   return getEvent(handle);
+}
+
+void LinuxWaitSet::postWaitCallbacks(WaitResult result)
+{
+  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i = m_waitObjects->begin();
+      i != m_waitObjects->end(); ++i)
+  {
+    if(m_eventCount > 0) // Check for successful or abandoned events in the pending list
+    {                    // TODO: this is O(n), worth it to use a more complicated solution?
+      int32_t j;
+      for(j = 0; j < m_eventCount; ++j)
+        if(m_events[j].data.fd == i->first)
+          break;
+
+      if(j != m_eventCount)
+      {
+        if(m_events[j].events & (EPOLLERR | EPOLLHUP))
+          i->second->postWaitCallback(WaitAbandoned);
+        else
+          i->second->postWaitCallback(WaitSuccess);
+      }
+      else
+        i->second->postWaitCallback(result);
+    }
+    else
+      i->second->postWaitCallback(result);
+  }
 }
 
 void LinuxWaitSet::appendEvents(const std::list<Handle>& events)
@@ -182,7 +208,6 @@ WaitResult LinuxWaitSet::getEvent(Handle& handle)
     result = WaitAbandoned;
   }
 
-  (*m_waitObjects)[handle]->postWaitCallback(result);
   return result;
 }
 

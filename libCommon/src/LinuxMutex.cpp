@@ -57,7 +57,7 @@ bool LinuxMutex::preWaitCallback()
 
 void LinuxMutex::postWaitCallback(WaitResult result)
 {
-  if(result == WaitSuccess)
+  if(result == WaitSuccess && m_ownerThread != pthread_self())
   {
     m_ownerThread = pthread_self();
     ++m_count;

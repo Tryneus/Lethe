@@ -1,12 +1,10 @@
 Features:
   libCommon:
     Enforce limits on semaphore value
-    Add LinuxWaitSet::waitAll implementation
     Investigate replacing ostream-style Log interface with fastformat::write
 
 Fixes (see limitations):
   eventfd linux kernel patch
   timerfd linux kernel patch
-  LinuxSemaphore initial value is slightly broken?  Acts like one less than it should be
   Windows WaitForMultiple is limited to 64 handles, add limit to WaitSets
-  It appears that an autoreset file descriptor added to a wait set after being set does not trigger correctly during a wait
+  Adding a file descriptor to an epoll_wait set causes a poll to be done on the fd.  This is causing problems with autoreset.  Fix: use poll instead of epoll?

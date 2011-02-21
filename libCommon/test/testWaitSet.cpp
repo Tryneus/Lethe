@@ -299,24 +299,6 @@ TEST_CASE("waitSet/waitAny2", "Test behavior of waitAny in different conditions"
   while(unfinished.size() > 0)
   {
     REQUIRE(waitSet.waitAny(0, waitHandle) == WaitSuccess);
-
-    LogInfo("Wait Success, handle: " << waitHandle);
-
-    // Special handling to reset timer, thread, and pipe handles
-    // TODO: remove this, shouldn't be necessary
-    if(waitHandle == timer.getHandle())
-      timer.clear();
-    else if(waitHandle == thread.getHandle())
-      waitSet.remove(thread);
-    else if(waitHandle == pipe.getHandle())
-      pipe.receive(buffer, 5);
-    else if(waitHandle == mutex.getHandle())
-      waitSet.remove(mutex);
-    else if(waitHandle == event1.getHandle())
-      event1.reset();
-    else if(waitHandle == event3.getHandle())
-      event3.reset();
-
     REQUIRE(unfinished.erase(waitHandle) == 1);
   }
 }

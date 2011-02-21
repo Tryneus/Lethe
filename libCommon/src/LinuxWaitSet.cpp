@@ -162,7 +162,7 @@ void LinuxWaitSet::postWaitCallbacks(WaitResult result)
       i != m_waitObjects->end(); ++i)
   {
     if(m_eventCount > 0) // Check for successful or abandoned events in the pending list
-    {                    // TODO: this is O(n), worth it to use a more complicated solution?
+    {                    // TODO: this is O(n^2), worth it to use a more complicated solution?
       int32_t j;
       for(j = 0; j < m_eventCount; ++j)
         if(m_events[j].data.fd == i->first)

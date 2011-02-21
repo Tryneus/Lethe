@@ -4,47 +4,53 @@
 #include "mct/hash-map.hpp"
 #include <string.h>
 #include <errno.h>
+#include <poll.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 LinuxWaitSet::LinuxWaitSet() :
-  m_epollSet(epoll_create(10)),
   m_waitObjects(new mct::closed_hash_map<Handle,
                                          WaitObject*,
                                          std::tr1::hash<Handle>,
                                          std::equal_to<Handle>,
                                          std::allocator<std::pair<const Handle, WaitObject*> >,
                                          false>),
-  m_events(NULL),
-  m_eventCount(0)
+  m_waitArray(NULL),
+  m_eventOffset(0)
 {
-  if(m_epollSet == INVALID_HANDLE_VALUE)
-    throw std::bad_syscall("epoll_create", lastError());
+  // Do nothing
 }
 
 LinuxWaitSet::~LinuxWaitSet()
 {
-  delete [] m_events;
+  delete [] m_waitArray;
   delete m_waitObjects;
-
-  close(m_epollSet);
 }
 
 bool LinuxWaitSet::add(WaitObject& obj)
 {
+  // Make sure handle is valid
+  if(fcntl(obj.getHandle(), F_GETFL) == -1 && errno == EBADF)
+    throw std::bad_syscall("fcntl", lastError());
+
   if(!m_waitObjects->insert(std::make_pair<Handle, WaitObject*>(obj.getHandle(), &obj)).second)
     return false;
 
-  epoll_event event;
-  memset(&event, 0, sizeof(event));
-  event.events = EPOLLIN | EPOLLERR | EPOLLHUP;
-  event.data.fd = obj.getHandle();
+  pollfd* oldArray = m_waitArray;
+  m_waitArray = new pollfd[m_waitObjects->size()];
 
-  if(epoll_ctl(m_epollSet, EPOLL_CTL_ADD, event.data.fd, &event) != 0)
-  {
-    m_waitObjects->erase(obj.getHandle());
-    throw std::bad_syscall("epoll_ctl", lastError());
-  }
+  // Copy over the old array
+  uint32_t i = 0;
+  for(; i < m_waitObjects->size() - 1; ++i)
+    m_waitArray[i] = oldArray[i];
 
-  resizeEvents();
+  // Add the new handle at the end of the array
+  m_waitArray[i].fd = obj.getHandle();
+  m_waitArray[i].events = POLLIN;
+  m_waitArray[i].revents = 0;
+
+  delete [] oldArray;
+
   return true;
 }
 
@@ -55,45 +61,25 @@ bool LinuxWaitSet::remove(WaitObject& obj)
 
 bool LinuxWaitSet::remove(Handle handle)
 {
-  bool retval = m_waitObjects->erase(handle);
+  if(!m_waitObjects->erase(handle))
+    return false;
 
-  epoll_event event;
-  memset(&event, 0, sizeof(event));
-  event.events = EPOLLIN | EPOLLERR | EPOLLHUP;
-  event.data.fd = handle;
+  pollfd* oldArray = m_waitArray;
+  m_waitArray = new pollfd[m_waitObjects->size()];
 
-  try
+  // Copy over the old array, skipping over the removed handle
+  uint32_t j = 0;
+  for(uint32_t i = 0; i < m_waitObjects->size() + 1; ++i)
   {
-    if(epoll_ctl(m_epollSet, EPOLL_CTL_DEL, event.data.fd, &event) != 0 &&
-       errno != ENOENT &&
-       errno != EBADF)
-      throw std::bad_syscall("epoll_ctl", lastError());
-  }
-  catch(...)
-  {
-    resizeEvents();
-    throw;
+    if(oldArray[i].fd != handle)
+      m_waitArray[j++] = oldArray[i];
+    else
+      m_eventOffset = i;
   }
 
-  resizeEvents();
+  delete [] oldArray;
 
-  return retval;
-}
-
-void LinuxWaitSet::resizeEvents()
-{
-  epoll_event* oldEvents(m_events);
-  m_events = new epoll_event[m_waitObjects->size()];
-
-  // Copy any unprocessed events over and verify each handle
-  uint32_t j(0);
-  for(int i(0); i < m_eventCount; ++i)
-    if(m_waitObjects->find(oldEvents[i].data.fd) != m_waitObjects->end())
-      m_events[j++] = oldEvents[i];
-
-  m_eventCount = j;
-
-  delete [] oldEvents;
+  return true;
 }
 
 size_t LinuxWaitSet::getSize() const
@@ -101,6 +87,7 @@ size_t LinuxWaitSet::getSize() const
   return m_waitObjects->size();
 }
 
+// TODO: break this function up
 WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
 {
   uint32_t endTime = getTime() + timeout;
@@ -111,7 +98,9 @@ WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
     return WaitTimeout;
   }
 
-  if(m_eventCount == 0)
+  WaitResult result = getEvent(handle);
+
+  if(result == WaitTimeout)
   {
     std::list<Handle> preWaitEvents;
 
@@ -123,11 +112,13 @@ WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
     if(preWaitEvents.size() != 0)
       timeout = 0;
 
+    m_eventOffset = 0;
+
     do
     {
-      m_eventCount = epoll_wait(m_epollSet, m_events, m_waitObjects->size(), timeout);
+      int32_t eventCount = poll(m_waitArray, m_waitObjects->size(), timeout);
 
-      if(m_eventCount == 0 && preWaitEvents.size() == 0)
+      if(eventCount == 0)
       {
         if(errno == EINTR)
         {
@@ -135,78 +126,75 @@ WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
           timeout = (endTime <= currentTime ? 0 : endTime - currentTime);
           continue;
         }
-
-        handle = INVALID_HANDLE_VALUE;
-        postWaitCallbacks(WaitTimeout);
-        return WaitTimeout;
+        result = WaitTimeout;
       }
-      else if(m_eventCount < 0)
-      {
-        postWaitCallbacks(WaitError);
-        throw std::bad_syscall("epoll_wait", lastError());
-      }
+      else if(eventCount < 0)
+        result = WaitError;
+      else
+        result = WaitSuccess;
     } while(false);
 
     if(preWaitEvents.size() != 0)
-      appendEvents(preWaitEvents);
+      addEvents(preWaitEvents);
 
-    postWaitCallbacks(WaitTimeout);
-  }
-
-  return getEvent(handle);
-}
-
-void LinuxWaitSet::postWaitCallbacks(WaitResult result)
-{
-  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i = m_waitObjects->begin();
-      i != m_waitObjects->end(); ++i)
-  {
-    if(m_eventCount > 0) // Check for successful or abandoned events in the pending list
-    {                    // TODO: this is O(n^2), worth it to use a more complicated solution?
-      int32_t j;
-      for(j = 0; j < m_eventCount; ++j)
-        if(m_events[j].data.fd == i->first)
-          break;
-
-      if(j != m_eventCount)
-      {
-        if(m_events[j].events & (EPOLLERR | EPOLLHUP))
-          i->second->postWaitCallback(WaitAbandoned);
-        else
-          i->second->postWaitCallback(WaitSuccess);
-      }
+    // Call postWaitCallback on all waitobjects
+    for(uint32_t i = 0; i < m_waitObjects->size(); ++i)
+    {
+      if(m_waitArray[i].revents & (POLLERR | POLLHUP | POLLNVAL))
+        m_waitObjects->at(m_waitArray[i].fd)->postWaitCallback(WaitAbandoned);
+      else if(m_waitArray[i].revents & POLLIN)
+        m_waitObjects->at(m_waitArray[i].fd)->postWaitCallback(WaitSuccess);
       else
-        i->second->postWaitCallback(result);
+        m_waitObjects->at(m_waitArray[i].fd)->postWaitCallback(WaitTimeout);
     }
-    else
-      i->second->postWaitCallback(result);
+
+    if(result == WaitError)
+      throw std::bad_syscall("epoll_wait", lastError());
+    if(result == WaitSuccess)
+      result = getEvent(handle);
   }
+
+  return result;
 }
 
-void LinuxWaitSet::appendEvents(const std::list<Handle>& events)
+void LinuxWaitSet::addEvents(const std::list<Handle>& events)
 {
   for(std::list<Handle>::const_iterator i = events.begin(); i != events.end(); ++i)
-  {
-    m_events[m_eventCount].data.fd = *i;
-    m_events[m_eventCount++].events = EPOLLIN;
-  }
+    for(uint32_t j = 0; j < m_waitObjects->size(); ++j)
+      if(m_waitArray[j].fd == *i)
+      {
+        m_waitArray[j].revents |= POLLIN;
+        break;
+      }
 }
 
 WaitResult LinuxWaitSet::getEvent(Handle& handle)
 {
-  WaitResult result = WaitSuccess;
-  handle = m_events[--m_eventCount].data.fd;
+  WaitResult result = WaitTimeout;
 
-  // In the case of an error, return WaitAbandoned
-  if(m_events[m_eventCount].events & (EPOLLERR | EPOLLHUP))
+  // Scan for the next valid handle in the waitArray
+  while(m_eventOffset < m_waitObjects->size())
   {
-    // If the wait was also successful, hold onto that part of the event to be
-    //  handled later (if the wait object isn't removed)
-    if(m_events[m_eventCount].events & EPOLLIN)
-      m_events[m_eventCount++].events = EPOLLIN;
+    if(m_waitArray[m_eventOffset].revents & (POLLERR | POLLHUP | POLLNVAL))
+    {
+      result = WaitAbandoned;
+      m_waitArray[m_eventOffset].revents &= ~(POLLERR | POLLHUP | POLLNVAL); // Mask out the flags we used
+      break;
+    }
+    else if(m_waitArray[m_eventOffset].revents & POLLIN)
+    {
+      result = WaitSuccess;
+      m_waitArray[m_eventOffset].revents = 0;
+      break;
+    }
 
-    result = WaitAbandoned;
+    ++m_eventOffset;
   }
+
+  if(result == WaitTimeout)
+    handle = INVALID_HANDLE_VALUE;
+  else
+    handle = m_waitArray[m_eventOffset].fd;
 
   return result;
 }

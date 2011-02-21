@@ -4,7 +4,7 @@
 #include "AbstractionTypes.h"
 #include "WaitObject.h"
 #include <tr1/functional>
-#include <sys/epoll.h>
+#include <poll.h>
 #include <list>
 #include <set>
 
@@ -23,10 +23,9 @@ namespace mct
  *  result will be WaitAbandoned, and the user should take measures to fix or remove
  *  the broken handle.
  *
- * The underlying system call used for waiting is epoll_wait, which allows minimal
- *  overhead per wait call.  An epoll set is configured with the file descriptors
- *  being waited on, and a single call may return multiple events (allowing fair
- *  attention to multiple busy interfaces).
+ * The underlying system call used for waiting is poll, which allows minimal
+ *  overhead per wait call.  A single call may return multiple wait objects.  This
+ *  may lead to a deadlock if used incorrectly.
  */
 class LinuxWaitSet
 {
@@ -49,11 +48,9 @@ private:
   LinuxWaitSet& operator = (const LinuxWaitSet&);
 
   void resizeEvents();
-  void appendEvents(const std::list<Handle>& events);
+  void addEvents(const std::list<Handle>& events);
   void postWaitCallbacks(WaitResult result);
   WaitResult getEvent(Handle& handle);
-
-  Handle m_epollSet;
 
   mct::closed_hash_map<Handle,
                        WaitObject*,
@@ -62,8 +59,8 @@ private:
                        std::allocator<std::pair<const Handle, WaitObject*> >,
                        false>* m_waitObjects;
 
-  epoll_event* m_events;
-  int m_eventCount;
+  pollfd* m_waitArray;
+  uint32_t m_eventOffset;
 };
 
 #endif

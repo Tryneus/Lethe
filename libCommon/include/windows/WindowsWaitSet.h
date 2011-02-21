@@ -43,6 +43,10 @@ public:
   WaitResult waitAny(uint32_t timeout, Handle& handle);
 
 private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  WindowsWaitSet(const WindowsWaitSet&);
+  WindowsWaitSet& operator = (const WindowsWaitSet&);
+
   void resizeEvents();
 
   mct::closed_hash_map<Handle,

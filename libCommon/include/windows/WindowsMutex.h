@@ -17,6 +17,11 @@ public:
 
   void lock(uint32_t timeout = INFINITE);
   void unlock();
+
+private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  WindowsMutex(const WindowsMutex&);
+  WindowsMutex& operator = (const WindowsMutex&);
 };
 
 #endif

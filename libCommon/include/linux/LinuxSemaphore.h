@@ -23,6 +23,10 @@ public:
   void unlock(uint32_t count);
 
 private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  LinuxSemaphore(const LinuxSemaphore&);
+  LinuxSemaphore& operator = (const LinuxSemaphore&);
+
   int32_t m_count;
 
   bool preWaitCallback();

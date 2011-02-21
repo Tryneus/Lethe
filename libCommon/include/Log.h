@@ -118,6 +118,10 @@ private:
   Log();
   ~Log();
 
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  Log(const Log&);
+  Log& operator = (const Log&);
+
   // Abstract base class for different styles of logging
   class LogHandler
   {

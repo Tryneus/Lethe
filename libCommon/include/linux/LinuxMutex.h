@@ -24,6 +24,10 @@ protected:
   void postWaitCallback(WaitResult result);
 
 private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  LinuxMutex(const LinuxMutex&);
+  LinuxMutex& operator = (const LinuxMutex&);
+
   pthread_t m_ownerThread;
   uint32_t m_count;
 };

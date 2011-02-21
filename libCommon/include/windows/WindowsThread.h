@@ -45,6 +45,10 @@ public:
   virtual ~WindowsThread();
 
 private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  WindowsThread(const WindowsThread&);
+  WindowsThread& operator = (const WindowsThread&);
+
   static DWORD WINAPI threadHook(void*);
   Handle m_handle;
 };

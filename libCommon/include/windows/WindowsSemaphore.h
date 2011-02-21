@@ -22,6 +22,11 @@ public:
 
   void lock(uint32_t timeout = INFINITE);
   void unlock(uint32_t count);
+
+private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  WindowsSemaphore(const WindowsSemaphore&);
+  WindowsSemaphore& operator = (const WindowsSemaphore&);
 };
 
 #endif

@@ -42,6 +42,10 @@ public:
   virtual ~LinuxThread();
 
 private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  LinuxThread(const LinuxThread&);
+  LinuxThread& operator = (const LinuxThread&);
+
   static void* threadHook(void*);
 
   pthread_t m_thread;

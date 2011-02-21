@@ -22,6 +22,10 @@ protected:
   void setWaitHandle(Handle handle);
 
 private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  WaitObject(const WaitObject&);
+  WaitObject& operator = (const WaitObject&);
+
   Handle m_handle;
 
   // Friend WaitSets (and single-object wait), so they can access callbacks

@@ -23,6 +23,10 @@ public:
   uint32_t receive(void* buffer, uint32_t bufferSize);
 
 private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  WindowsPipe(const WindowsPipe&);
+  WindowsPipe& operator = (const WindowsPipe&);
+
   static std::string getPipeName();
 
   static const uint32_t s_maxAsyncEvents  = 10;

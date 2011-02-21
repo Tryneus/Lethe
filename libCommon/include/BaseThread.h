@@ -32,6 +32,10 @@ protected:
   void threadMain();
 
 private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  BaseThread(const BaseThread&);
+  BaseThread& operator = (const BaseThread&);
+ 
   void handleObjectQueue(); // Internal function for handling queued WaitObject add/remove operations
 
   bool m_running; // Indicates that the thread should be looping

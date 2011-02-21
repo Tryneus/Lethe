@@ -16,6 +16,11 @@ public:
 
   void start(uint32_t timeout);
   void clear();
+
+private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  LinuxTimer(const LinuxTimer&);
+  LinuxTimer& operator = (const LinuxTimer&);
 };
 
 #endif

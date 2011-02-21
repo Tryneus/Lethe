@@ -18,6 +18,10 @@ public:
   void clear();
 
 private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  WindowsTimer(const WindowsTimer&);
+  WindowsTimer& operator = (const WindowsTimer&);
+
   static const int64_t s_resetTimeout;
 };
 

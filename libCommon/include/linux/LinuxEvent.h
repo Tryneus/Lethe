@@ -21,6 +21,11 @@ public:
 
   void set();
   void reset();
+
+private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  LinuxEvent(const LinuxEvent&);
+  LinuxEvent& operator = (const LinuxEvent&);
 };
 
 #endif

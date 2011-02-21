@@ -23,6 +23,10 @@ public:
   uint32_t receive(void* buffer, uint32_t bufferSize);
 
 private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  LinuxPipe(const LinuxPipe&);
+  LinuxPipe& operator = (const LinuxPipe&);
+
   static const uint32_t s_maxAsyncEvents = 10;
 
   void asyncWrite(const void* buffer, uint32_t bufferSize);

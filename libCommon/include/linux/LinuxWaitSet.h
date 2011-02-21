@@ -44,6 +44,10 @@ public:
   WaitResult waitAny(uint32_t timeout, Handle& handle);
 
 private:
+  // Private, undefined copy constructor and assignment operator so they can't be used
+  LinuxWaitSet(const LinuxWaitSet&);
+  LinuxWaitSet& operator = (const LinuxWaitSet&);
+
   void resizeEvents();
   void appendEvents(const std::list<Handle>& events);
   void postWaitCallbacks(WaitResult result);

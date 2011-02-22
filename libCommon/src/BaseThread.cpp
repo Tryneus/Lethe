@@ -8,7 +8,7 @@ BaseThread::BaseThread(uint32_t timeout) :
   m_running(false),
   m_exit(false),
   m_triggerEvent(false, true),
-  m_stoppedEvent(false, false),
+  m_stoppedEvent(true, false),
   m_exitedEvent(false, false),
   m_mutex(false),
   m_timeout(timeout)

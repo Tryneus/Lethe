@@ -1,7 +1,6 @@
 #include "Abstraction.h"
 #include "AbstractionException.h"
 #include "catch.hpp"
-#include "Log.h"
 
 TEST_CASE("waitSet/structor", "Test constructor/destructor")
 {
@@ -19,9 +18,9 @@ TEST_CASE("waitSet/structor", "Test constructor/destructor")
 class WaitSetDummyThread : public Thread
 {
 public:
-  WaitSetDummyThread() : Thread(0) { };
+  WaitSetDummyThread() : Thread(INFINITE) { };
 protected:
-  void iterate(Handle handle GCC_UNUSED) { stop(); };
+  void iterate(Handle handle GCC_UNUSED) { };
 };
 
 // Create an error condition with a custom WaitObject
@@ -175,6 +174,9 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
   waitSet.add(pipe);
   REQUIRE(waitSet.getSize() == 5);
 
+  // Thread starts out signalled, start it to clear that
+  thread.start();
+
   // Trigger each object, make sure we get exactly one at a time
   event.set();
   REQUIRE(waitSet.waitAny(0, waitHandle) == WaitSuccess); // Event is reset here
@@ -192,10 +194,10 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
   REQUIRE(waitHandle == semaphore.getHandle());
   REQUIRE(waitSet.waitAny(100, waitHandle) == WaitTimeout);
 
-  thread.start();
+  thread.stop();
   REQUIRE(waitSet.waitAny(100, waitHandle) == WaitSuccess); // WaitSetDummyThread may take a little time to exit
   REQUIRE(waitHandle == thread.getHandle());
-  waitSet.remove(thread); // Thread is not resettable at the moment
+  thread.start(); // Resets thread
   REQUIRE(waitSet.waitAny(100, waitHandle) == WaitTimeout);
 
   pipe.send(buffer, 5);
@@ -204,12 +206,8 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
   pipe.receive(buffer, 5);
   REQUIRE(waitSet.waitAny(100, waitHandle) == WaitTimeout);
 
-  // Create a second thread since we used up the first
-  WaitSetDummyThread thread2;
-  waitSet.add(thread2);
-
   // Now try triggering all the objects at once and make sure that every object finishes
-  thread2.start();
+  thread.stop();
   timer.start(1);
   event.set();
   semaphore.unlock(1);
@@ -217,7 +215,7 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
 
   // Create a set to track the handles we still need to wait on
   std::set<Handle> unfinished;
-  unfinished.insert(thread2.getHandle());
+  unfinished.insert(thread.getHandle());
   unfinished.insert(timer.getHandle());
   unfinished.insert(event.getHandle());
   unfinished.insert(semaphore.getHandle());
@@ -231,9 +229,16 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
     REQUIRE(waitSet.waitAny(20, waitHandle) == WaitSuccess);
     REQUIRE(unfinished.erase(waitHandle) == 1);
   }
+
+  // Clear manual reset objects and make sure wait times out
+  thread.start();
+  timer.clear();
+  pipe.receive(buffer, 5);
+
+  REQUIRE(waitSet.waitAny(20, waitHandle) == WaitTimeout);
+  REQUIRE(waitHandle == INVALID_HANDLE_VALUE);
 }
 
-/* TODO: Enable this test case once fixed on linux
 TEST_CASE("waitSet/waitAny2", "Test behavior of waitAny in different conditions")
 {
   WaitSet waitSet;
@@ -282,17 +287,6 @@ TEST_CASE("waitSet/waitAny2", "Test behavior of waitAny in different conditions"
   unfinished.insert(sem2.getHandle());
   unfinished.insert(pipe.getHandle());
 
-  LogInfo("Thread handle: " << thread.getHandle());
-  LogInfo("Timer handle: " << timer.getHandle());
-  LogInfo("Mutex handle: " << mutex.getHandle());
-  LogInfo("Event1 handle: " << event1.getHandle());
-  LogInfo("Event2 handle: " << event2.getHandle());
-  LogInfo("Event3 handle: " << event3.getHandle());
-  LogInfo("Event4 handle: " << event4.getHandle());
-  LogInfo("Sem1 handle: " << sem1.getHandle());
-  LogInfo("Sem2 handle: " << sem2.getHandle());
-  LogInfo("Pipe handle: " << pipe.getHandle());
-
   // Sleep a bit to make sure the timer finishes
   Sleep(5);
 
@@ -301,7 +295,17 @@ TEST_CASE("waitSet/waitAny2", "Test behavior of waitAny in different conditions"
     REQUIRE(waitSet.waitAny(0, waitHandle) == WaitSuccess);
     REQUIRE(unfinished.erase(waitHandle) == 1);
   }
+
+  // Clear persistent objects, make sure wait fails
+  event1.reset();
+  event3.reset();
+  timer.clear();
+  waitSet.remove(mutex);
+  waitSet.remove(thread);
+  pipe.receive(buffer, 5);
+
+  REQUIRE(waitSet.waitAny(20, waitHandle) == WaitTimeout);
+  REQUIRE(waitHandle == INVALID_HANDLE_VALUE);
 }
-*/
 
 // TODO: add test for abandoned (deleted) WaitObjects

@@ -73,19 +73,117 @@ TEST_CASE("semaphore/limit", "Test semaphore maximum value behavior")
   REQUIRE_THROWS_AS(sem3.unlock(11), std::bad_syscall);
   sem3.unlock(10);
 
+  // Semaphore maximum value 10, initial value 10
   Semaphore sem4(10, 10);
-  // TODO: add these
+  REQUIRE_THROWS_AS(sem4.unlock(1), std::bad_syscall);
+  for(uint32_t i = 0; i < 10; ++i)
+    REQUIRE(WaitForObject(sem4, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(sem4, 20) == WaitTimeout);
+  REQUIRE_THROWS_AS(sem4.unlock(11), std::bad_syscall);
+  sem4.unlock(10);
+  for(uint32_t i = 0; i < 10; ++i)
+    REQUIRE(WaitForObject(sem4, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(sem4, 20) == WaitTimeout);
 
+  // Semaphore maximum value 1000, initial value 100
   Semaphore sem5(1000, 100);
+  REQUIRE_THROWS_AS(sem5.unlock(901), std::bad_syscall);
+  sem5.unlock(900);
+  for(uint32_t i = 0; i < 1000; ++i)
+    REQUIRE(WaitForObject(sem5, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(sem5, 20) == WaitTimeout);
+  REQUIRE_THROWS_AS(sem5.unlock(1001), std::bad_syscall);
+  sem5.unlock(1000);
+  for(uint32_t i = 0; i < 1000; ++i)
+    REQUIRE(WaitForObject(sem5, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(sem5, 20) == WaitTimeout);
 }
 
-TEST_CASE("semaphore/lock", "Test semaphore lock behavior")
+TEST_CASE("semaphore/waitSet", "Test semaphore using waitSets")
 {
-  // TODO: implement semaphore/lock
-}
+  WaitSet waitSet;
+  Handle handle;
 
-TEST_CASE("semaphore/unlock", "Test semaphore unlock behavior")
-{
-  // TODO: implement semaphore/unlock
+  // Semaphore maximum value 1, initial value 0
+  Semaphore sem1(1, 0);
+  waitSet.add(sem1);
+  REQUIRE(waitSet.waitAny(0, handle) == WaitTimeout);
+  REQUIRE_THROWS_AS(sem1.unlock(2), std::bad_syscall);
+  sem1.unlock(1);
+  REQUIRE_THROWS_AS(sem1.unlock(1), std::bad_syscall);
+  REQUIRE(waitSet.waitAny(0, handle) == WaitSuccess);
+  REQUIRE(handle == sem1.getHandle());
+  REQUIRE(waitSet.waitAny(20, handle) == WaitTimeout);
+  REQUIRE_THROWS_AS(sem1.unlock(2), std::bad_syscall);
+  sem1.unlock(1);
+  REQUIRE(waitSet.waitAny(0, handle) == WaitSuccess);
+  REQUIRE(handle == sem1.getHandle());
+  REQUIRE(waitSet.waitAny(20, handle) == WaitTimeout);
+
+  // Semaphore maximum value 1, initial value 1
+  Semaphore sem2(1, 1);
+  waitSet.add(sem2);
+  REQUIRE_THROWS_AS(sem2.unlock(1), std::bad_syscall);
+  REQUIRE(waitSet.waitAny(0, handle) == WaitSuccess);
+  REQUIRE(handle == sem2.getHandle());
+  REQUIRE(waitSet.waitAny(20, handle) == WaitTimeout);
+  REQUIRE_THROWS_AS(sem2.unlock(2), std::bad_syscall);
+  sem2.unlock(1);
+  REQUIRE_THROWS_AS(sem2.unlock(1), std::bad_syscall);
+  REQUIRE(waitSet.waitAny(0, handle) == WaitSuccess);
+  REQUIRE(handle == sem2.getHandle());
+  REQUIRE(waitSet.waitAny(20, handle) == WaitTimeout);
+
+  // Semaphore maximum value 10, initial value 5
+  Semaphore sem3(10, 5);
+  waitSet.add(sem3);
+  REQUIRE_THROWS_AS(sem3.unlock(6), std::bad_syscall);
+  sem3.unlock(5);
+  for(uint32_t i = 0; i < 10; ++i)
+  {
+    REQUIRE(waitSet.waitAny(0, handle) == WaitSuccess);
+    REQUIRE(handle == sem3.getHandle());
+  }
+  REQUIRE(waitSet.waitAny(20, handle) == WaitTimeout);
+  REQUIRE_THROWS_AS(sem3.unlock(11), std::bad_syscall);
+
+  // Semaphore maximum value 10, initial value 10
+  Semaphore sem4(10, 10);
+  waitSet.add(sem4);
+  REQUIRE_THROWS_AS(sem4.unlock(1), std::bad_syscall);
+  for(uint32_t i = 0; i < 10; ++i)
+  {
+    REQUIRE(waitSet.waitAny(0, handle) == WaitSuccess);
+    REQUIRE(handle == sem4.getHandle());
+  }
+  REQUIRE(waitSet.waitAny(20, handle) == WaitTimeout);
+  REQUIRE_THROWS_AS(sem4.unlock(11), std::bad_syscall);
+  sem4.unlock(10);
+  for(uint32_t i = 0; i < 10; ++i)
+  {
+    REQUIRE(waitSet.waitAny(0, handle) == WaitSuccess);
+    REQUIRE(handle == sem4.getHandle());
+  }
+  REQUIRE(waitSet.waitAny(20, handle) == WaitTimeout);
+
+  // Semaphore maximum value 1000, initial value 100
+  Semaphore sem5(1000, 100);
+  waitSet.add(sem5);
+  REQUIRE_THROWS_AS(sem5.unlock(901), std::bad_syscall);
+  sem5.unlock(900);
+  for(uint32_t i = 0; i < 1000; ++i)
+  {
+    REQUIRE(waitSet.waitAny(0, handle) == WaitSuccess);
+    REQUIRE(handle == sem5.getHandle());
+  }
+  REQUIRE(waitSet.waitAny(20, handle) == WaitTimeout);
+  REQUIRE_THROWS_AS(sem5.unlock(1001), std::bad_syscall);
+  sem5.unlock(1000);
+  for(uint32_t i = 0; i < 1000; ++i)
+  {
+    REQUIRE(waitSet.waitAny(0, handle) == WaitSuccess);
+    REQUIRE(handle == sem5.getHandle());
+  }
+  REQUIRE(waitSet.waitAny(20, handle) == WaitTimeout);
 }
 

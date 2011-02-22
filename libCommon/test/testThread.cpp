@@ -117,7 +117,7 @@ TEST_CASE("thread/run", "Test running threads")
   for(uint32_t i = 0; i < 50; ++i)
   {
     Semaphore sem1(100, 25);
-    Semaphore sem2(100, 10);
+    Semaphore sem2(110, 10);
     TestRunThread thread(sem1, sem2);
 
     thread.start();

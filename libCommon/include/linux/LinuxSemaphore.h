@@ -3,6 +3,7 @@
 
 #include "WaitObject.h"
 #include "AbstractionTypes.h"
+#include <cstdatomic>
 
 /*
  * The LinuxSemaphore class provides a wrapper to the eventfd subsystem,
@@ -27,9 +28,9 @@ private:
   LinuxSemaphore(const LinuxSemaphore&);
   LinuxSemaphore& operator = (const LinuxSemaphore&);
 
-  int32_t m_count;
+  const uint32_t m_maxCount;
+  std::atomic<uint32_t> m_count;
 
-  bool preWaitCallback();
   void postWaitCallback(WaitResult result);
 };
 

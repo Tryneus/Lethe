@@ -1,10 +1,8 @@
 Features:
   libCommon:
-    Enforce limits on semaphore value
     Investigate replacing ostream-style Log interface with fastformat::write
 
 Fixes (see limitations):
   eventfd linux kernel patch
   timerfd linux kernel patch
   Windows WaitForMultiple is limited to 64 handles, add limit to WaitSets
-  Adding a file descriptor to an epoll_wait set causes a poll to be done on the fd.  This is causing problems with autoreset.  Fix: use poll instead of epoll?

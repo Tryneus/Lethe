@@ -37,9 +37,46 @@ TEST_CASE("semaphore/structor", "Test construction/destruction")
   delete [] semaphoreArray;
 }
 
-TEST_CASE("semaphore/autolock", "Test semaphore autolock behavior")
+TEST_CASE("semaphore/limit", "Test semaphore maximum value behavior")
 {
-  // TODO: implement semaphore/autolock
+  // Semaphore maximum value 1, initial value 0
+  Semaphore sem1(1, 0);
+  REQUIRE(WaitForObject(sem1, 20) == WaitTimeout);
+  REQUIRE_THROWS_AS(sem1.unlock(2), std::bad_syscall);
+  sem1.unlock(1);
+  REQUIRE_THROWS_AS(sem1.unlock(1), std::bad_syscall);
+  REQUIRE(WaitForObject(sem1, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(sem1, 20) == WaitTimeout);
+  REQUIRE_THROWS_AS(sem1.unlock(2), std::bad_syscall);
+  sem1.unlock(1);
+  REQUIRE(WaitForObject(sem1, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(sem1, 20) == WaitTimeout);
+
+  // Semaphore maximum value 1, initial value 1
+  Semaphore sem2(1, 1);
+  REQUIRE_THROWS_AS(sem2.unlock(1), std::bad_syscall);
+  REQUIRE(WaitForObject(sem2, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(sem2, 20) == WaitTimeout);
+  REQUIRE_THROWS_AS(sem2.unlock(2), std::bad_syscall);
+  sem2.unlock(1);
+  REQUIRE_THROWS_AS(sem2.unlock(1), std::bad_syscall);
+  REQUIRE(WaitForObject(sem2, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(sem2, 20) == WaitTimeout);
+
+  // Semaphore maximum value 10, initial value 5
+  Semaphore sem3(10, 5);
+  REQUIRE_THROWS_AS(sem3.unlock(6), std::bad_syscall);
+  sem3.unlock(5);
+  for(uint32_t i = 0; i < 10; ++i)
+    REQUIRE(WaitForObject(sem3, 0) == WaitSuccess);
+  REQUIRE(WaitForObject(sem3, 20) == WaitTimeout);
+  REQUIRE_THROWS_AS(sem3.unlock(11), std::bad_syscall);
+  sem3.unlock(10);
+
+  Semaphore sem4(10, 10);
+  // TODO: add these
+
+  Semaphore sem5(1000, 100);
 }
 
 TEST_CASE("semaphore/lock", "Test semaphore lock behavior")
@@ -50,10 +87,5 @@ TEST_CASE("semaphore/lock", "Test semaphore lock behavior")
 TEST_CASE("semaphore/unlock", "Test semaphore unlock behavior")
 {
   // TODO: implement semaphore/unlock
-}
-
-TEST_CASE("semaphore/exception", "Test semaphore exception behavior")
-{
-  // TODO: implement semaphore/exception
 }
 

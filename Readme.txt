@@ -13,6 +13,9 @@ Requirements:
   Visual Studio:
     Requires TR1 headers to be installed (feature pack/service pack)
 
+  GCC:
+    Requires -std=c++0x (for std::atomic)
+
 
 libCommon
   libCommon is meant to be a general-purpose library for platform-agnostic multi-threaded applications.  At the moment, it contains Windows and Linux implementations of the following classes:
@@ -24,7 +27,7 @@ libCommon
     Event
     Timer
 
-  Also included are WaitSets (used to aggregate the synchronization objects above to perform multiplexed waits), a Log class (providing a thread-safe ostream-style interface), a base Exception class (nothing special), and a base Singleton class.
+  Also included are WaitSets (used to aggregate the synchronization objects above to perform multiplexed waits), a Log class (providing a thread-safe ostream-style interface), and a base Singleton class.
 
 
 libThreadComm

@@ -5,7 +5,7 @@ INCLUDE_FLAGS:=-I../include \
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
 HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')
 
-COMPILE_FLAGS:=-c -Wall -Wextra -Wno-sign-compare -O3 -g $(INCLUDE_FLAGS)
+COMPILE_FLAGS:=-c -std=c++0x -Wall -Wextra -Wno-sign-compare -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS :=-L/usr/lib/gcc/i486-linux-gnu/4.3.2/ -lrt -lstdc++
 
 BINARY_DIR   :=../bin

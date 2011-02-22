@@ -15,7 +15,7 @@ EchoThread::EchoThread(ThreadComm::Channel& channel) :
 
 EchoThread::~EchoThread()
 {
-  // Try to push through any messages left on the line, if we run out of space, oh well
+  // Try to get any messages left on the line
   try
   {
     while(true)
@@ -26,6 +26,7 @@ EchoThread::~EchoThread()
     // A logic error is thrown when receive is called with nothing to receive
   }
 
+  // If this runs out of space, oh well
   sendReplies();
 
   LogInfo("Echo thread performed " << m_iterationCount << " iterations");

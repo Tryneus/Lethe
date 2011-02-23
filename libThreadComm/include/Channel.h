@@ -7,23 +7,26 @@
 namespace ThreadComm
 {
 
-  class Channel : public WaitObject
+  class Channel
   {
   public:
     Channel(Header& in,
-            Header& out);
+            Header& out,
+            WaitObject& obj);
     ~Channel();
+
+    operator WaitObject&();
+    Handle getHandle();
 
     void* allocate(uint32_t size);
     void  send(void* msg);
     void* receive();
     void  release(void* msg);
 
-    // TODO: implement postWaitCallback to notify Header that there is a message ready
-
   private:
     Header& m_in;
     Header& m_out;
+    WaitObject& m_waitObject;
   };
 
 }

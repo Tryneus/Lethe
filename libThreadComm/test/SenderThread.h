@@ -14,7 +14,6 @@ private:
   void sendMessages();
 
   ThreadComm::Channel& m_channel;
-  Handle m_chanHandle;
   uint32_t m_iterationCount;
   uint32_t m_messagesSent;
   uint32_t m_messagesReleased;

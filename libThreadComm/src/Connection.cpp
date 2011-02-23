@@ -1,13 +1,16 @@
 #include "Connection.h"
+#include "Message.h"
 #include "AbstractionException.h"
 
 using namespace ThreadComm;
 
 Connection::Connection(uint32_t sizeAtoB, uint32_t sizeBtoA) :
-  m_headerAtoB(checkSize(sizeAtoB)),
-  m_headerBtoA(checkSize(sizeBtoA)),
-  m_channelA(m_headerBtoA, m_headerAtoB),
-  m_channelB(m_headerAtoB, m_headerBtoA)
+  m_semaphoreAtoB(sizeAtoB / sizeof(Message), 0),
+  m_semaphoreBtoA(sizeBtoA / sizeof(Message), 0),
+  m_headerAtoB(checkSize(sizeAtoB), m_semaphoreAtoB),
+  m_headerBtoA(checkSize(sizeBtoA), m_semaphoreBtoA),
+  m_channelA(m_headerBtoA, m_headerAtoB, m_semaphoreBtoA),
+  m_channelB(m_headerAtoB, m_headerBtoA, m_semaphoreAtoB)
 {
   // Do nothing
 }

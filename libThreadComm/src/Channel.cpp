@@ -5,17 +5,28 @@
 using namespace ThreadComm;
 
 Channel::Channel(Header& in,
-                 Header& out) :
-  WaitObject(INVALID_HANDLE_VALUE),
+                 Header& out,
+                 WaitObject& obj) :
   m_in(in),
-  m_out(out)
+  m_out(out),
+  m_waitObject(obj)
 {
-  setWaitHandle(m_in.getHandle());
+
 }
 
 Channel::~Channel()
 {
   // Do nothing
+}
+
+Channel::operator WaitObject&()
+{
+  return m_waitObject;
+}
+
+Handle Channel::getHandle()
+{
+  return m_waitObject.getHandle();
 }
 
 void* Channel::allocate(uint32_t size)

@@ -5,7 +5,6 @@
 EchoThread::EchoThread(ThreadComm::Channel& channel) :
   Thread(INFINITE),
   m_channel(channel),
-  m_chanHandle(m_channel.getHandle()),
   m_iterationCount(0),
   m_repliesToSend(0)
 {

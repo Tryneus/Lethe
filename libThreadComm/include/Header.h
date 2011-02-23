@@ -12,7 +12,7 @@ namespace ThreadComm
   class Header
   {
   public:
-    Header(uint32_t size);
+    Header(uint32_t size, Semaphore& semaphore);
     ~Header();
 
     Message& allocate(uint32_t size);
@@ -25,7 +25,7 @@ namespace ThreadComm
 
   private:
     uint32_t m_size;
-    Semaphore m_semaphore;
+    Semaphore& m_semaphore;
 
     char* m_dataArea;
 

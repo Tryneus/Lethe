@@ -7,10 +7,9 @@
 
 using namespace ThreadComm;
 
-Header::Header(uint32_t size) :
+Header::Header(uint32_t size, Semaphore& semaphore) :
   m_size(size),
-  m_semaphore(size / sizeof(Message), 0), // Semaphore max set slightly larger
-                                          //  than the most buffers we can allocate
+  m_semaphore(semaphore),
   m_dataArea(new char[size]),
   m_receiveList(m_dataArea),
   m_releaseList(m_dataArea + sizeof(Message)),

@@ -5,7 +5,6 @@
 SenderThread::SenderThread(ThreadComm::Channel& channel) :
   Thread(200),
   m_channel(channel),
-  m_chanHandle(m_channel.getHandle()),
   m_iterationCount(0),
   m_messagesSent(0),
   m_messagesReleased(0)

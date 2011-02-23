@@ -243,7 +243,6 @@ TEST_CASE("thread/stop", "Test stopping threads")
   startTime = getTime();
   thread.start();
   REQUIRE_FALSE(thread.isStopping());
-  Sleep(20); // TODO: workaround for waitset problem with autoreset - see TODO.txt
   event.set(); // Thread should now iterate, it will sleep 1 second the first time
   Sleep(20);
   thread.stop(); // Stop the thread, even though it's blocked in the iterate loop

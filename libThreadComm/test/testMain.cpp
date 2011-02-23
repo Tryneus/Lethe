@@ -10,6 +10,7 @@ int main()
   uint32_t testSeconds = 10;
   SenderThread* sender(NULL);
   EchoThread* echo(NULL);
+  ThreadComm::Connection* conn(NULL);
 
   // Seed RNG
   {
@@ -19,11 +20,11 @@ int main()
 
   try
   {
-    ThreadComm::Connection conn(500000, 500000);
+    conn = new ThreadComm::Connection(500000, 500000);
 
     // Dynamically allocated so we can destroy them in order
-    sender = new SenderThread(conn.getChannelA());
-    echo = new EchoThread(conn.getChannelB());
+    sender = new SenderThread(conn->getChannelA());
+    echo = new EchoThread(conn->getChannelB());
 
     echo->start();
     sender->start();
@@ -57,6 +58,7 @@ int main()
     // Delete in order to push through messages on the line
     delete echo;
     delete sender;
+    delete conn;
   }
   catch(std::exception& ex)
   {
@@ -66,6 +68,7 @@ int main()
     {
       delete echo;
       delete sender;
+      delete conn;
     }
     catch(std::exception& ex)
     {

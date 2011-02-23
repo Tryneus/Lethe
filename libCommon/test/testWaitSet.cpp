@@ -308,4 +308,110 @@ TEST_CASE("waitSet/waitAny2", "Test behavior of waitAny in different conditions"
   REQUIRE(waitHandle == INVALID_HANDLE_VALUE);
 }
 
-// TODO: add test for abandoned (deleted) WaitObjects
+TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
+{
+  // Construct two sets to try slightly different situations
+  WaitSet waitSet;
+  WaitSet waitSet2;
+  std::set<Handle> unfinished;
+  std::set<Handle> unfinished2;
+
+  {
+    // Have an object of every type in different states
+    Mutex mutex1(false);
+    Mutex mutex2(true);
+    Event event1(false, false);
+    Event event2(false, true);
+    Event event3(true, false);
+    Event event4(true, true);
+    WaitSetDummyThread thread1;
+    WaitSetDummyThread thread2;
+    Timer timer1;
+    Timer timer2;
+    Timer timer3;
+    Pipe pipe1;
+    Pipe pipe2;
+    Semaphore sem1(10, 0);
+    Semaphore sem2(10, 5);
+    Semaphore sem3(10, 10);
+
+    // Create some different states (if not done at construction)
+    thread2.start();
+    timer2.start(1);
+    timer3.start(10000);
+    pipe2.send("text", 5);
+
+    // Add WaitObject handles to the sets
+    unfinished.insert(mutex1.getHandle());
+    unfinished.insert(mutex2.getHandle());
+    unfinished.insert(event1.getHandle());
+    unfinished.insert(event2.getHandle());
+    unfinished.insert(event3.getHandle());
+    unfinished.insert(event4.getHandle());
+    unfinished.insert(thread1.getHandle());
+    unfinished.insert(thread2.getHandle());
+    unfinished.insert(timer1.getHandle());
+    unfinished.insert(timer2.getHandle());
+    unfinished.insert(timer3.getHandle());
+    unfinished.insert(pipe1.getHandle());
+    unfinished.insert(pipe2.getHandle());
+    unfinished.insert(sem1.getHandle());
+    unfinished.insert(sem2.getHandle());
+    unfinished.insert(sem3.getHandle());
+
+    unfinished2 = unfinished;
+
+    waitSet.add(mutex1);
+    waitSet.add(mutex2);
+    waitSet.add(event1);
+    waitSet.add(event2);
+    waitSet.add(event3);
+    waitSet.add(event4);
+    waitSet.add(thread1);
+    waitSet.add(thread2);
+    waitSet.add(timer1);
+    waitSet.add(timer2);
+    waitSet.add(timer3);
+    waitSet.add(pipe1);
+    waitSet.add(pipe2);
+    waitSet.add(sem1);
+    waitSet.add(sem2);
+    waitSet.add(sem3);
+
+    waitSet2.add(mutex1);
+    waitSet2.add(mutex2);
+    waitSet2.add(event1);
+    waitSet2.add(event2);
+    waitSet2.add(event3);
+    waitSet2.add(event4);
+    waitSet2.add(thread1);
+    waitSet2.add(thread2);
+    waitSet2.add(timer1);
+    waitSet2.add(timer2);
+    waitSet2.add(timer3);
+    waitSet2.add(pipe1);
+    waitSet2.add(pipe2);
+    waitSet2.add(sem1);
+    waitSet2.add(sem2);
+    waitSet2.add(sem3);
+  }
+
+  Handle waitHandle;
+
+  while(unfinished.size() > 0)
+  {
+    REQUIRE(waitSet.waitAny(0, waitHandle) == WaitAbandoned);
+    REQUIRE(unfinished.erase(waitHandle) == 1);
+    REQUIRE(waitSet.remove(waitHandle));
+  }
+
+  // Make sure that all abandoned events are still received (without duplicates),
+  //  even if the wait object is not removed.
+  // This test will prove if fair load balancing is done in the wait set
+  while(unfinished2.size() > 0)
+  {
+    REQUIRE(waitSet2.waitAny(0, waitHandle) == WaitAbandoned);
+    REQUIRE(unfinished2.erase(waitHandle) == 1);
+  }
+}
+

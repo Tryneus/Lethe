@@ -8,7 +8,7 @@
 
 /*
  * The WindowsPipe class encapsulates an anonymous pipe in Windows.  The
- *  getHandle function returns a Handle to the read side of the pipe.  If a send
+ *  Handle of this object is the Handle to the read side of the pipe.  If a send
  *  fails outright, an exception will be thrown.  For a partly completed send,
  *  the unsent part is buffered and will be pushed through by subsequent send
  *  operations.

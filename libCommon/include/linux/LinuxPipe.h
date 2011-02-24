@@ -7,8 +7,8 @@
 #include <aio.h>
 
 /*
- * The LinuxPipe class encapsulates an anonymous pipe in Linux.  The getHandle
- *  function returns a file descriptor to the read side of the pipe.  If a send
+ * The LinuxPipe class encapsulates an anonymous pipe in Linux.  The Handle
+ *  of this object is a file descriptor to the read side of the pipe.  If a send
  *  fails outright, an exception will be thrown.  For a partly completed send,
  *  the unsent part is buffered and will be pushed through by subsequent send
  *  operations.

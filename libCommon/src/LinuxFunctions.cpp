@@ -67,6 +67,11 @@ std::string getTimeString()
   return stream.str();
 }
 
+uint32_t getProcessId()
+{
+  return static_cast<uint32_t>(getpid());
+}
+
 WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
 {
   uint32_t endTime = getTime() + timeout;

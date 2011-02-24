@@ -8,6 +8,12 @@
 #include <sstream>
 #include <iomanip>
 
+
+std::ostream& operator << (std::ostream& out, const Handle& handle)
+{
+  return out << static_cast<uint32_t>(handle);
+}
+
 std::string lastError()
 {
   TCHAR* buffer(NULL);
@@ -79,6 +85,11 @@ std::string getTimeString()
     << std::setw(3) << sysTime.wMilliseconds;
 
   return timeString.str();
+}
+
+uint32_t getProcessId()
+{
+  return static_cast<uint32_t>(GetCurrentProcessId());
 }
 
 uint32_t seedRandom(uint32_t seed)

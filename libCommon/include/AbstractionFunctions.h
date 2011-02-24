@@ -12,7 +12,8 @@
 #include "WaitObject.h"
 
 #if defined(__WIN32__) || defined(_WIN32)
-  // Do nothing
+  std::ostream& operator << (std::ostream& out, const Handle& handle);
+
 #elif defined(__linux__)
   #include <stddef.h>
   #include <stdlib.h>
@@ -25,6 +26,8 @@
 
 uint64_t    getTime();
 std::string getTimeString();
+
+uint32_t getProcessId();
 
 uint32_t seedRandom(uint32_t seed = 0);
 

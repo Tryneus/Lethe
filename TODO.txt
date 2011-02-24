@@ -1,8 +1,30 @@
 Features:
   libCommon:
     Investigate replacing ostream-style Log interface with fastformat::write
+  libProcessComm:
+    ByteStream
+    MessageStream
+  libSocketComm:
+    ByteStream
+    MessageStream
+  libThreadUtil:
+    ThreadRegistry
+    ConnectionRegistry
+
+Tests:
+  libCommon:
+    finish mutex tests
+  libThreadComm:
+    ByteStream test
+    More comprehensive tests
+  libProcessComm:
+    all tests
+  libSocketComm:
+    all tests
+  libThreadUtil:
+    all tests
 
 Fixes (see limitations):
-  eventfd linux kernel patch
+  eventfd linux kernel patch - probably not going to happen, investigate fixing for epoll_ctl(ADD)
   timerfd linux kernel patch
   Windows WaitForMultiple is limited to 64 handles, add limit to WaitSets

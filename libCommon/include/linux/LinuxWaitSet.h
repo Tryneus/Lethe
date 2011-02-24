@@ -49,7 +49,7 @@ private:
 
   void resizeEvents();
   void addEvents(const std::list<Handle>& events);
-  void postWaitCallbacks(WaitResult result);
+  WaitResult pollEvents(uint32_t timeout, uint32_t endTime);
   WaitResult getEvent(Handle& handle);
 
   mct::closed_hash_map<Handle,

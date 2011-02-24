@@ -87,7 +87,6 @@ size_t LinuxWaitSet::getSize() const
   return m_waitObjects->size();
 }
 
-// TODO: break this function up
 WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
 {
   uint32_t endTime = getTime() + timeout;
@@ -110,32 +109,12 @@ WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
         preWaitEvents.push_back(i->second->getHandle());
 
     if(preWaitEvents.size() != 0)
-      timeout = 0;
-
-    m_eventOffset = 0;
-
-    do
     {
-      int32_t eventCount = poll(m_waitArray, m_waitObjects->size(), timeout);
-
-      if(eventCount == 0)
-      {
-        if(errno == EINTR)
-        {
-          uint32_t currentTime = getTime();
-          timeout = (endTime <= currentTime ? 0 : endTime - currentTime);
-          continue;
-        }
-        result = WaitTimeout;
-      }
-      else if(eventCount < 0)
-        result = WaitError;
-      else
-        result = WaitSuccess;
-    } while(false);
-
-    if(preWaitEvents.size() != 0)
+      result = pollEvents(0, endTime);
       addEvents(preWaitEvents);
+    }
+    else
+      result = pollEvents(timeout, endTime);
 
     // Call postWaitCallback on all waitobjects
     for(uint32_t i = 0; i < m_waitObjects->size(); ++i)
@@ -149,10 +128,39 @@ WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
     }
 
     if(result == WaitError)
-      throw std::bad_syscall("epoll_wait", lastError());
+      throw std::bad_syscall("poll", lastError());
     if(result == WaitSuccess)
       result = getEvent(handle);
   }
+
+  return result;
+}
+
+WaitResult LinuxWaitSet::pollEvents(uint32_t timeout, uint32_t endTime)
+{
+  WaitResult result = WaitTimeout;
+
+  m_eventOffset = 0;
+
+  do
+  {
+    int32_t eventCount = poll(m_waitArray, m_waitObjects->size(), timeout);
+
+    if(eventCount == 0)
+    {
+      if(errno == EINTR)
+      {
+        uint32_t currentTime = getTime();
+        timeout = (endTime <= currentTime ? 0 : endTime - currentTime);
+        continue;
+      }
+      result = WaitTimeout;
+    }
+    else if(eventCount < 0)
+      result = WaitError;
+    else
+      result = WaitSuccess;
+  } while(false);
 
   return result;
 }

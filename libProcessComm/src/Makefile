@@ -4,13 +4,16 @@ INCLUDE_FLAGS:=-I../include \
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
 HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')
 
-COMPILE_FLAGS:=-c -Wall -Wextra -Werror -O3 -g $(INCLUDE_FLAGS)
+COMPILE_FLAGS:=-c -std=c++0x -Wall -Wextra -Werror -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS :=-rcv
 
 LIBRARY_DIR  :=../bin
 LIBRARY_FILE :=$(LIBRARY_DIR)/libProcessComm.a
 
-OBJECT_FILES :=
+OBJECT_FILES :=ByteStream/LinuxProcessByteStream.o \
+               ByteStream/WindowsProcessByteStream.o \
+               MessageStream/LinuxProcessMessageStream.o \
+               MessageStream/WindowsProcessMessageStream.o
 
 all: $(LIBRARY_FILE)
 

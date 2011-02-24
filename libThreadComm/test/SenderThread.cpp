@@ -9,7 +9,7 @@ SenderThread::SenderThread(MessageStream& channel) :
   m_messagesSent(0),
   m_messagesReleased(0)
 {
-  LogInfo("Sender thread handle: " << (uint32_t)getHandle());
+  LogInfo("Sender thread handle: " << getHandle());
   addWaitObject(m_channel);
 }
 

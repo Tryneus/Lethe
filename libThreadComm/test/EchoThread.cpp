@@ -8,7 +8,7 @@ EchoThread::EchoThread(MessageStream& channel) :
   m_iterationCount(0),
   m_repliesToSend(0)
 {
-  LogInfo("Echo thread handle: " << (uint32_t)getHandle());
+  LogInfo("Echo thread handle: " << getHandle());
   addWaitObject(m_channel);
 }
 

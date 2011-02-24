@@ -42,17 +42,14 @@ int main()
     waitSet.add(*sender);
     waitSet.add(*echo);
 
-    // TODO: this can be simplified if waitAll is implemented for linux
-    // if(waitSet.waitAll(2000, finished) != WaitSuccess)
-    //   throw std::runtime_error("threads did not stop");
     LogInfo("Waiting for threads to exit");
     while(waitSet.getSize() != 0)
     {
       if(waitSet.waitAny(2000, finished) != WaitSuccess)
-        throw std::runtime_error("threads did not stop");
+        throw std::runtime_error("threads did not stop correctly");
 
       waitSet.remove(finished);
-      LogInfo("Thread " << (uint32_t)finished << " exited");
+      LogInfo("Thread " << finished << " exited");
     }
 
     // Delete in order to push through messages on the line

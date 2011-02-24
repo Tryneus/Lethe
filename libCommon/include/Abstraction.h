@@ -12,9 +12,9 @@
  */
 
 #include "AbstractionTypes.h"     // Provides non-class types
-#include "AbstractionBasic.h"     // Provides basic objects
 #include "AbstractionException.h" // Provides exceptions thrown by libCommon
+#include "AbstractionFunctions.h" // Provides common functions which require separate implementations on each platform
+#include "AbstractionBasic.h"     // Provides basic objects
 #include "AbstractionComplex.h"   // Provides complex objects, using basic objects
-#include "AbstractionFunctions.h" // Provides common functions implemented on each platform
 
 #endif

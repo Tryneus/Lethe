@@ -12,18 +12,19 @@ LIBRARY_FILE :=$(LIBRARY_DIR)/libCommon.a
 
 OBJECT_FILES :=Log.o \
                AbstractionException.o \
-               LinuxTimer.o \
-               LinuxEvent.o \
-               LinuxFunctions.o \
-               LinuxSemaphore.o \
-               LinuxMutex.o \
-               LinuxPipe.o \
-               LinuxThread.o \
-               LinuxWaitSet.o \
                BaseThread.o \
                WaitObject.o \
                ByteStream.o \
-               MessageStream.o
+               MessageStream.o \
+               linux/LinuxTimer.o \
+               linux/LinuxEvent.o \
+               linux/LinuxFunctions.o \
+               linux/LinuxSemaphore.o \
+               linux/LinuxMutex.o \
+               linux/LinuxPipe.o \
+               linux/LinuxThread.o \
+               linux/LinuxWaitSet.o \
+               linux/LinuxSharedMemory.o
 
 all: $(LIBRARY_FILE)
 

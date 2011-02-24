@@ -19,6 +19,7 @@
   class WindowsSemaphore;
   class WindowsPipe;
   class WindowsTimer;
+  class WindowsSharedMemory;
 
   typedef WindowsWaitSet WaitSet;
   typedef WindowsEvent Event;
@@ -26,6 +27,7 @@
   typedef WindowsSemaphore Semaphore;
   typedef WindowsPipe Pipe;
   typedef WindowsTimer Timer;
+  typedef WindowsSharedMemory SharedMemory;
 
   #include "windows/WindowsWaitSet.h"
   #include "windows/WindowsEvent.h"
@@ -33,6 +35,7 @@
   #include "windows/WindowsSemaphore.h"
   #include "windows/WindowsPipe.h"
   #include "windows/WindowsTimer.h"
+  #include "windows/WindowsSharedMemory.h"
 
 #elif defined(__linux__)
 
@@ -42,6 +45,7 @@
   class LinuxSemaphore;
   class LinuxPipe;
   class LinuxTimer;
+  class LinuxSharedMemory;
 
   typedef LinuxWaitSet WaitSet;
   typedef LinuxEvent Event;
@@ -49,6 +53,7 @@
   typedef LinuxSemaphore Semaphore;
   typedef LinuxPipe Pipe;
   typedef LinuxTimer Timer;
+  typedef LinuxSharedMemory SharedMemory;
 
   #include "linux/LinuxWaitSet.h"
   #include "linux/LinuxEvent.h"
@@ -56,6 +61,7 @@
   #include "linux/LinuxSemaphore.h"
   #include "linux/LinuxPipe.h"
   #include "linux/LinuxTimer.h"
+  #include "linux/LinuxSharedMemory.h"
 
 #else
   #error "Platform not detected"

@@ -19,7 +19,8 @@ OBJECT_FILES :=testMain.o \
                testThread.o \
                testSemaphore.o \
                testMutex.o \
-               testLog.o
+               testLog.o \
+               testSharedMemory.o
 
 INCLUDE_LIBS :=../bin/libCommon.a
 

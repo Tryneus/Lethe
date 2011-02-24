@@ -1,10 +1,9 @@
 #include "Abstraction.h"
-#include "ThreadComm.h"
 
 class EchoThread : public Thread
 {
 public:
-  EchoThread(ThreadComm::Channel& channel);
+  EchoThread(MessageStream& channel);
   ~EchoThread();
 
 private:
@@ -13,7 +12,7 @@ private:
   void receiveMessage();
   void sendReplies();
 
-  ThreadComm::Channel& m_channel;
+  MessageStream& m_channel;
   uint32_t m_iterationCount;
   uint32_t m_repliesToSend;
 };

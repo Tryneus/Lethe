@@ -1,1 +1,2 @@
-#include "Connection.h"
+#include "MessageStream/ThreadMessageConnection.h"
+#include "ByteStream/ThreadByteConnection.h"

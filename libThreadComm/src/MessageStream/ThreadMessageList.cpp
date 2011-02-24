@@ -1,17 +1,17 @@
-#include "List.h"
+#include "MessageStream/ThreadMessageList.h"
 #include "Abstraction.h"
 
-using namespace ThreadComm;
+using namespace comm;
 
-List::List(void* firstMessage)
+ThreadMessageList::ThreadMessageList(void* firstMessage)
 {
-  Message* message = reinterpret_cast<Message*>(firstMessage);
+  ThreadMessage* message = reinterpret_cast<ThreadMessage*>(firstMessage);
 
   m_front = message;
   m_back = message;
 }
 
-void List::pushBack(Message& message)
+void ThreadMessageList::pushBack(ThreadMessage& message)
 {
   message.setNext(NULL);
   message.setPrev(m_back);
@@ -19,7 +19,7 @@ void List::pushBack(Message& message)
   message.getPrev()->setNext(&message);
 }
 
-void List::pushFront(Message& message)
+void ThreadMessageList::pushFront(ThreadMessage& message)
 {
   message.setNext(m_front);
   message.setPrev(NULL);
@@ -33,9 +33,9 @@ void List::pushFront(Message& message)
   m_front = &message;
 }
 
-Message* List::pop()
+ThreadMessage* ThreadMessageList::pop()
 {
-  Message* message = NULL;
+  ThreadMessage* message = NULL;
 
   if(m_front->getNext() != NULL)
   {

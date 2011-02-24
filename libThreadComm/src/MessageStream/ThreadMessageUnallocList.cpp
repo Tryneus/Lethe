@@ -1,35 +1,35 @@
-#include "UnallocList.h"
+#include "MessageStream/ThreadMessageUnallocList.h"
 #include "AbstractionException.h"
 
-using namespace ThreadComm;
+using namespace comm;
 
-UnallocList::UnallocList(void* firstMessage, void* bufferEnd) :
-  List(firstMessage),
+ThreadMessageUnallocList::ThreadMessageUnallocList(void* firstMessage, void* bufferEnd) :
+  ThreadMessageList(firstMessage),
   m_bufferEnd(bufferEnd)
 {
   // Do nothing
 }
 
-void UnallocList::unallocate(Message* message)
+void ThreadMessageUnallocList::unallocate(ThreadMessage* message)
 {
-  Message* prevMessage = message->getLastOnStack();
-  message->setState(Message::Free);
+  ThreadMessage* prevMessage = message->getLastOnStack();
+  message->setState(ThreadMessage::Free);
 
   // Check if we can merge with the previous buffer in memory
   if(prevMessage != NULL &&
-     prevMessage->getState() == Message::Free)
+     prevMessage->getState() == ThreadMessage::Free)
   {
     prevMessage->setSize(prevMessage->getSize() + message->getSize());
     remove(*prevMessage);
     message = prevMessage;
   }
 
-  Message& nextMessage = message->getNextOnStack();
+  ThreadMessage& nextMessage = message->getNextOnStack();
 
   // Check if we can merge with the next buffer in memory
   if(reinterpret_cast<void*>(&nextMessage) != m_bufferEnd)
   {
-    if(nextMessage.getState() == Message::Free)
+    if(nextMessage.getState() == ThreadMessage::Free)
     {
       remove(nextMessage);
       message->setSize(nextMessage.getSize() + message->getSize());
@@ -44,9 +44,9 @@ void UnallocList::unallocate(Message* message)
   pushFront(*message);
 }
 
-Message& UnallocList::allocate(uint32_t size)
+ThreadMessage& ThreadMessageUnallocList::allocate(uint32_t size)
 {
-  Message* message = m_front;
+  ThreadMessage* message = m_front;
 
   while(message != NULL && message->getSize() < size)
   {
@@ -58,16 +58,16 @@ Message& UnallocList::allocate(uint32_t size)
 
   remove(*message);
 
-  Message* extra = message->split(size);
+  ThreadMessage* extra = message->split(size);
   if(extra != NULL)
     pushFront(*extra);
 
-  message->setState(Message::Alloc);
+  message->setState(ThreadMessage::Alloc);
 
   return *message;
 }
 
-void UnallocList::remove(Message& message)
+void ThreadMessageUnallocList::remove(ThreadMessage& message)
 {
   if(message.getPrev() != NULL)
     message.getPrev()->setNext(message.getNext());

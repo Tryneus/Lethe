@@ -8,6 +8,8 @@
  */
 
 #include "WaitObject.h"
+#include "ByteStream.h"
+#include "MessageStream.h"
 
 #if defined(__WIN32__) || defined(_WIN32)
 

@@ -2,8 +2,8 @@
 #include "AbstractionException.h"
 #include "Log.h"
 
-SenderThread::SenderThread(ThreadComm::Channel& channel) :
-  Thread(200),
+SenderThread::SenderThread(MessageStream& channel) :
+  Thread(100),
   m_channel(channel),
   m_iterationCount(0),
   m_messagesSent(0),

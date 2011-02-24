@@ -21,7 +21,9 @@ OBJECT_FILES :=Log.o \
                LinuxThread.o \
                LinuxWaitSet.o \
                BaseThread.o \
-               WaitObject.o
+               WaitObject.o \
+               ByteStream.o \
+               MessageStream.o
 
 all: $(LIBRARY_FILE)
 

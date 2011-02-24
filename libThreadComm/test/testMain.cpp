@@ -10,7 +10,7 @@ int main()
   uint32_t testSeconds = 10;
   SenderThread* sender(NULL);
   EchoThread* echo(NULL);
-  ThreadComm::Connection* conn(NULL);
+  comm::ThreadMessageConnection* conn(NULL);
 
   // Seed RNG
   {
@@ -20,11 +20,11 @@ int main()
 
   try
   {
-    conn = new ThreadComm::Connection(500000, 500000);
+    conn = new comm::ThreadMessageConnection(500000, 500000);
 
     // Dynamically allocated so we can destroy them in order
-    sender = new SenderThread(conn->getChannelA());
-    echo = new EchoThread(conn->getChannelB());
+    sender = new SenderThread(conn->getStreamA());
+    echo = new EchoThread(conn->getStreamB());
 
     echo->start();
     sender->start();

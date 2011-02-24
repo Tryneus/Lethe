@@ -10,13 +10,15 @@ LINKER_FLAGS :=-rcv
 LIBRARY_DIR  :=../bin
 LIBRARY_FILE :=$(LIBRARY_DIR)/libThreadComm.a
 
-OBJECT_FILES :=Channel.o \
-               Connection.o \
-               Header.o \
-               List.o \
-               Message.o \
-               ReceiveList.o \
-               UnallocList.o
+OBJECT_FILES :=MessageStream/ThreadMessageConnection.o \
+               MessageStream/ThreadMessageStream.o \
+               MessageStream/ThreadMessageHeader.o \
+               MessageStream/ThreadMessageList.o \
+               MessageStream/ThreadMessage.o \
+               MessageStream/ThreadMessageReceiveList.o \
+               MessageStream/ThreadMessageUnallocList.o \
+               ByteStream/ThreadByteConnection.o \
+               ByteStream/ThreadByteStream.o
 
 all: $(LIBRARY_FILE)
 

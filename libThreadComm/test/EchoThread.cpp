@@ -2,7 +2,7 @@
 #include "AbstractionException.h"
 #include "Log.h"
 
-EchoThread::EchoThread(ThreadComm::Channel& channel) :
+EchoThread::EchoThread(MessageStream& channel) :
   Thread(INFINITE),
   m_channel(channel),
   m_iterationCount(0),

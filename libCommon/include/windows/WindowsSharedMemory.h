@@ -7,24 +7,25 @@
 class WindowsSharedMemory
 {
 public:
-  WindowsSharedMemory(const std::string& name, uint32_t size = 0);
+  WindowsSharedMemory(const std::string& name, uint32_t size);
   ~WindowsSharedMemory();
 
   void* begin() const;
   void* end() const;
 
-  uint32_t getSize() const;
+  uint32_t size() const;
+  const std::string& name() const;
 
 private:
   // Private, undefined copy constructor and assignment operator so they can't be used
   WindowsSharedMemory(const WindowsSharedMemory&);
   WindowsSharedMemory& operator = (const WindowsSharedMemory&);
 
-  static const std::string s_shmNameBase;
-  const std::string m_shmName;
+  static const std::string s_nameBase;
+  const std::string m_name;
   Handle m_handle;
-  void* m_shmBegin;
-  uint32_t m_shmSize;
+  void* m_data;
+  uint32_t m_size;
 };
 
 #endif

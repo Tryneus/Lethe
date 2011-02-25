@@ -85,3 +85,8 @@ uint32_t WindowsSharedMemory::getSize() const
 {
   return m_size;
 }
+
+const std::string& WindowsSharedMemory::name() const
+{
+  return m_name;
+}

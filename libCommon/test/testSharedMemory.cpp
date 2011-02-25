@@ -41,7 +41,31 @@ TEST_CASE("sharedMemory/structor", "Test shared memory construction and destruct
   REQUIRE_THROWS_AS(shm1 = new SharedMemory(filename.str() + "-test2", 0), std::bad_syscall);
 }
 
+// This doesn't test across separate process or threads, but with the way memory mapping
+//  works, it shouldn't be necessary
 TEST_CASE("sharedMemory/data", "Test passing data through shared memory")
 {
+  const uint32_t shmSize = 1000;
+  uint8_t i;
+  std::stringstream filename;
+  filename << getProcessId() << "-test3";
 
+  SharedMemory shm1(filename.str(), shmSize);
+  SharedMemory shm2(filename.str(), 0);
+
+  // Check parameters
+  REQUIRE(shm1.name() == filename.str());
+  REQUIRE(shm2.name() == filename.str());
+  REQUIRE((uint8_t*)shm1.end() - (uint8_t*)shm1.begin() == shmSize);
+  REQUIRE((uint8_t*)shm2.end() - (uint8_t*)shm2.begin() == shmSize);
+  REQUIRE(shm1.size() == shmSize);
+  REQUIRE(shm2.size() == shmSize);
+
+  i = 0;
+  for(uint8_t* data = (uint8_t*)shm1.begin(); data != shm1.end(); ++data)
+    *data = i++;
+
+  i = 0;
+  for(uint8_t* data = (uint8_t*)shm2.begin(); data != shm2.end(); ++data)
+    REQUIRE(*data == i++);
 }

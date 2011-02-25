@@ -1,12 +1,14 @@
 #include "linux/LinuxWaitSet.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include "mct/hash-map.hpp"
 #include <string.h>
 #include <errno.h>
 #include <poll.h>
 #include <unistd.h>
 #include <fcntl.h>
+
+using namespace lethe;
 
 LinuxWaitSet::LinuxWaitSet() :
   m_waitObjects(new mct::closed_hash_map<Handle,

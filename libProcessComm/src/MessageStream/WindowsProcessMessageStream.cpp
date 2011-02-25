@@ -1,7 +1,10 @@
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "MessageStream/WindowsProcessMessageStream.h"
 
-WindowsProcessMessageStream::WindowsProcessMessageStream()
+using namespace lethe;
+
+WindowsProcessMessageStream::WindowsProcessMessageStream(uint32_t remoteProcessId,
+                                                         uint32_t outgoingSize)
 {
 
 }

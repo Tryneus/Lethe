@@ -1,12 +1,12 @@
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "MessageStream/LinuxProcessMessageStream.h"
+
+using namespace lethe;
 
 LinuxProcessMessageStream::LinuxProcessMessageStream(uint32_t remoteProcessId,
                                                      uint32_t outgoingSize GCC_UNUSED) :
   m_inName(getInName(remoteProcessId)),
   m_outName(getOutName(remoteProcessId)),
-  m_pipeIn(m_inName),
-  m_pipeOut(m_outName),
   m_shmIn(NULL),
   m_shmOut(NULL),
   m_headerIn(NULL),

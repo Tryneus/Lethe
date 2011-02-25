@@ -1,21 +1,24 @@
 #ifndef _WINDOWSSOCKETMESSAGESTREAM_H
 #define _WINDOWSSOCKETMESSAGESTREAM_H
 
-#include "Abstraction.h"
+#include "Lethe.h"
 
-class WindowsSocketMessageStream
+namespace lethe
 {
-public:
-  WindowsSocketMessageStream();
-  ~WindowsSocketMessageStream();
+  class WindowsSocketMessageStream
+  {
+  public:
+    WindowsSocketMessageStream();
+    ~WindowsSocketMessageStream();
 
-  operator WaitObject&();
-  Handle getHandle() const;
+    operator WaitObject&();
+    Handle getHandle() const;
 
-  void* allocate(uint32_t size);
-  void send(void* buffer);
-  void* receive();
-  void release(void* buffer);
-};
+    void* allocate(uint32_t size);
+    void send(void* buffer);
+    void* receive();
+    void release(void* buffer);
+  };
+}
 
 #endif

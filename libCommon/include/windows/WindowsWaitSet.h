@@ -1,7 +1,7 @@
 #ifndef _WINDOWSWAITSET_H
 #define _WINDOWSWAITSET_H
 
-#include "AbstractionTypes.h"
+#include "LetheTypes.h"
 #include "WaitObject.h"
 #include <set>
 
@@ -27,37 +27,40 @@ namespace mct
  *  the pointer is moved to just after that handle in the array, so it will be the
  *  least favored in the next call.
  */
-class WindowsWaitSet
+namespace lethe
 {
-public:
-  WindowsWaitSet();
-  ~WindowsWaitSet();
+  class WindowsWaitSet
+  {
+  public:
+    WindowsWaitSet();
+    ~WindowsWaitSet();
 
-  bool add(WaitObject& obj);
+    bool add(WaitObject& obj);
 
-  bool remove(WaitObject& obj);
-  bool remove(Handle handle);
+    bool remove(WaitObject& obj);
+    bool remove(Handle handle);
 
-  size_t getSize() const;
+    size_t getSize() const;
 
-  WaitResult waitAny(uint32_t timeout, Handle& handle);
+    WaitResult waitAny(uint32_t timeout, Handle& handle);
 
-private:
-  // Private, undefined copy constructor and assignment operator so they can't be used
-  WindowsWaitSet(const WindowsWaitSet&);
-  WindowsWaitSet& operator = (const WindowsWaitSet&);
+  private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    WindowsWaitSet(const WindowsWaitSet&);
+    WindowsWaitSet& operator = (const WindowsWaitSet&);
 
-  void resizeEvents();
+    void resizeEvents();
 
-  mct::closed_hash_map<Handle,
-                       WaitObject*,
-                       std::tr1::hash<Handle>,
-                       std::equal_to<Handle>,
-                       std::allocator<std::pair<const Handle, WaitObject*> >,
-                       false>* m_waitObjects;
+    mct::closed_hash_map<Handle,
+                         WaitObject*,
+                         std::tr1::hash<Handle>,
+                         std::equal_to<Handle>,
+                         std::allocator<std::pair<const Handle, WaitObject*> >,
+                         false>* m_waitObjects;
 
-  Handle* m_handleArray;
-  uint32_t m_offset;
-};
+    Handle* m_handleArray;
+    uint32_t m_offset;
+  };
+}
 
 #endif

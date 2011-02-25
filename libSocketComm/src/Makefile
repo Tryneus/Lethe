@@ -11,9 +11,7 @@ LIBRARY_DIR  :=../bin
 LIBRARY_FILE :=$(LIBRARY_DIR)/libSocketComm.a
 
 OBJECT_FILES :=ByteStream/LinuxSocketByteStream.o \
-               ByteStream/WindowsSocketByteStream.o \
-               MessageStream/LinuxSocketMessageStream.o \
-               MessageStream/WindowsSocketMessageStream.o
+               MessageStream/LinuxSocketMessageStream.o
 
 all: $(LIBRARY_FILE)
 

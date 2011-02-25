@@ -1,32 +1,35 @@
 #ifndef _WINDOWSPROCESSMESSAGESTREAM_H
 #define _WINDOWSPROCESSMESSAGESTREAM_H
 
-#include "Abstraction.h"
+#include "Lethe.h"
 
-class ProcessMessageHeader;
-
-class WindowsProcessMessageStream
+namespace lethe
 {
-public:
-  WindowsProcessMessageStream();
-  ~WindowsProcessMessageStream();
+  class ProcessMessageHeader;
 
-  operator WaitObject&();
-  Handle getHandle() const;
+  class WindowsProcessMessageStream
+  {
+  public:
+    WindowsProcessMessageStream(uint32_t remoteProcessId, uint32_t outgoingSize);
+    ~WindowsProcessMessageStream();
 
-  void* allocate(uint32_t size);
-  void send(void* buffer);
-  void* receive();
-  void release(void* buffer);
+    operator WaitObject&();
+    Handle getHandle() const;
 
-private:
-  // TODO: figure out event notification
+    void* allocate(uint32_t size);
+    void send(void* buffer);
+    void* receive();
+    void release(void* buffer);
 
-  SharedMemory* m_shmIn;
-  SharedMemory* m_shmOut;
+  private:
+    // TODO: figure out event notification
 
-  ProcessMessageHeader* m_headerIn;
-  ProcessMessageHeader* m_headerOut;
-};
+    SharedMemory* m_shmIn;
+    SharedMemory* m_shmOut;
+
+    ProcessMessageHeader* m_headerIn;
+    ProcessMessageHeader* m_headerOut;
+  };
+}
 
 #endif

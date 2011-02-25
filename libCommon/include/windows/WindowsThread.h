@@ -1,7 +1,7 @@
 #ifndef _WINDOWSTHREAD_H
 #define _WINDOWSTHREAD_H
 
-#include "AbstractionTypes.h"
+#include "LetheTypes.h"
 #include "BaseThread.h"
 #include "WindowsEvent.h"
 #include "WindowsWaitSet.h"
@@ -38,19 +38,22 @@
  *  problem with a user-provided handle.  Thread will not automatically remove this handle,
  *  but the user needs to fix or remove it, or abandoned will keep getting called.
  */
-class WindowsThread : public BaseThread
+namespace lethe
 {
-public:
-  WindowsThread(uint32_t timeout);
-  virtual ~WindowsThread();
+  class WindowsThread : public BaseThread
+  {
+  public:
+    WindowsThread(uint32_t timeout);
+    virtual ~WindowsThread();
 
-private:
-  // Private, undefined copy constructor and assignment operator so they can't be used
-  WindowsThread(const WindowsThread&);
-  WindowsThread& operator = (const WindowsThread&);
+  private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    WindowsThread(const WindowsThread&);
+    WindowsThread& operator = (const WindowsThread&);
 
-  static DWORD WINAPI threadHook(void*);
-  Handle m_handle;
-};
+    static DWORD WINAPI threadHook(void*);
+    Handle m_handle;
+  };
+}
 
 #endif

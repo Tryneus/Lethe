@@ -1,9 +1,11 @@
-#include "Abstraction.h"
-#include "AbstractionException.h"
+#include "Lethe.h"
+#include "LetheException.h"
 #include "Log.h"
 #include "catch.hpp"
 #include <sstream>
 #include <fstream>
+
+using namespace lethe;
 
 const std::string logFile1("libCommonTest1.log");
 const std::string logFile2("libCommonTest2.log");

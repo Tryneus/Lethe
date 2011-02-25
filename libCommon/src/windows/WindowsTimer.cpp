@@ -1,8 +1,10 @@
 #define __STDC_LIMIT_MACROS // Get INT64_MIN from stdint.h
 #include "windows/WindowsTimer.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include <Windows.h>
+
+using namespace lethe;
 
 const int64_t WindowsTimer::s_resetTimeout(INT64_MIN);
 

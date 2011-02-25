@@ -1,4 +1,4 @@
-#include "AbstractionException.h"
+#include "LetheException.h"
 
 std::bad_syscall::bad_syscall(const std::string& syscall, const std::string& error) :
   m_message(syscall + " failed: " + error)

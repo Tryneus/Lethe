@@ -1,5 +1,7 @@
 #include "linux/LinuxThread.h"
 
+using namespace lethe;
+
 LinuxThread::LinuxThread(uint32_t timeout) :
   BaseThread(timeout)
 {

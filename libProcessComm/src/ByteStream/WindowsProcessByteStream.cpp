@@ -1,5 +1,7 @@
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "ByteStream/WindowsProcessByteStream.h"
+
+using namespace lethe;
 
 WindowsProcessByteStream::WindowsProcessByteStream()
 {

@@ -35,20 +35,23 @@
  *  problem with a user-provided handle.  Thread will not automatically remove this handle,
  *  but the user needs to fix or remove it, or abandoned will keep getting called.
  */
-class LinuxThread : public BaseThread
+namespace lethe
 {
-public:
-  LinuxThread(uint32_t timeout);
-  virtual ~LinuxThread();
+  class LinuxThread : public BaseThread
+  {
+  public:
+    LinuxThread(uint32_t timeout);
+    virtual ~LinuxThread();
 
-private:
-  // Private, undefined copy constructor and assignment operator so they can't be used
-  LinuxThread(const LinuxThread&);
-  LinuxThread& operator = (const LinuxThread&);
+  private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    LinuxThread(const LinuxThread&);
+    LinuxThread& operator = (const LinuxThread&);
 
-  static void* threadHook(void*);
+    static void* threadHook(void*);
 
-  pthread_t m_thread;
-};
+    pthread_t m_thread;
+  };
+}
 
 #endif

@@ -1,9 +1,9 @@
 #include "EchoThread.h"
-#include "AbstractionException.h"
+#include "LetheException.h"
 #include "Log.h"
 
-EchoThread::EchoThread(MessageStream& channel) :
-  Thread(INFINITE),
+EchoThread::EchoThread(lethe::MessageStream& channel) :
+  lethe::Thread(INFINITE),
   m_channel(channel),
   m_iterationCount(0),
   m_repliesToSend(0)
@@ -31,7 +31,7 @@ EchoThread::~EchoThread()
   LogInfo("Echo thread performed " << m_iterationCount << " iterations");
 }
 
-void EchoThread::iterate(Handle handle)
+void EchoThread::iterate(lethe::Handle handle)
 {
   if(handle == m_channel.getHandle())
     receiveMessage();
@@ -68,7 +68,7 @@ void EchoThread::sendReplies()
   catch(std::bad_alloc&) { }
 }
 
-void EchoThread::abandoned(Handle handle)
+void EchoThread::abandoned(lethe::Handle handle)
 {
   if(handle == m_channel.getHandle())
     throw std::logic_error("handle abandoned");

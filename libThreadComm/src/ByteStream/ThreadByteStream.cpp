@@ -1,7 +1,7 @@
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "ByteStream/ThreadByteStream.h"
 
-using namespace comm;
+using namespace lethe;
 
 ThreadByteStream::ThreadByteStream(Pipe& pipeIn, Pipe& pipeOut) :
   m_pipeIn(pipeIn),

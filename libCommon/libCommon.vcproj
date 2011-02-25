@@ -288,7 +288,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\AbstractionException.cpp"
+				RelativePath=".\src\LetheException.cpp"
 				>
 			</File>
 			<File
@@ -342,23 +342,23 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\include\Abstraction.h"
+				RelativePath=".\include\Lethe.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\AbstractionBasic.h"
+				RelativePath=".\include\LetheBasic.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\AbstractionComplex.h"
+				RelativePath=".\include\LetheComplex.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\AbstractionFunctions.h"
+				RelativePath=".\include\LetheFunctions.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\AbstractionTypes.h"
+				RelativePath=".\include\LetheTypes.h"
 				>
 			</File>
 			<File
@@ -366,7 +366,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\include\AbstractionException.h"
+				RelativePath=".\include\LetheException.h"
 				>
 			</File>
 			<File

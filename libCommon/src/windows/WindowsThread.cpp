@@ -1,6 +1,8 @@
 #include "windows/WindowsThread.h"
 #include <Windows.h>
 
+using namespace lethe;
+
 WindowsThread::WindowsThread(uint32_t timeout) :
   BaseThread(timeout),
 #pragma warning(disable:4355) // Suppress warning about using 'this'

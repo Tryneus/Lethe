@@ -1,7 +1,7 @@
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "ByteStream/ThreadByteConnection.h"
 
-using namespace comm;
+using namespace lethe;
 
 ThreadByteConnection::ThreadByteConnection() :
   m_streamA(m_pipeBtoA, m_pipeAtoB),

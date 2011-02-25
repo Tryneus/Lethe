@@ -1,7 +1,9 @@
-#include "Abstraction.h"
-#include "AbstractionException.h"
+#include "Lethe.h"
+#include "LetheException.h"
 #include "catch.hpp"
 #include "testCommon.h"
+
+using namespace lethe;
 
 // This test case may have issues if any files are left over from previous runs, especially if they fail
 TEST_CASE("sharedMemory/structor", "Test shared memory construction and destruction")

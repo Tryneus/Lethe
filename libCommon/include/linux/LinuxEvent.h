@@ -13,19 +13,22 @@
  *  the eventfd subsystem in Linux, and a kernel module is under development for
  *  this purpose.
  */
-class LinuxEvent : public WaitObject
+namespace lethe
 {
-public:
-  LinuxEvent(bool initialState, bool autoReset);
-  ~LinuxEvent();
+  class LinuxEvent : public WaitObject
+  {
+  public:
+    LinuxEvent(bool initialState, bool autoReset);
+    ~LinuxEvent();
 
-  void set();
-  void reset();
+    void set();
+    void reset();
 
-private:
-  // Private, undefined copy constructor and assignment operator so they can't be used
-  LinuxEvent(const LinuxEvent&);
-  LinuxEvent& operator = (const LinuxEvent&);
-};
+  private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    LinuxEvent(const LinuxEvent&);
+    LinuxEvent& operator = (const LinuxEvent&);
+  };
+}
 
 #endif

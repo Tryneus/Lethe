@@ -1,5 +1,7 @@
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "MessageStream/WindowsSocketMessageStream.h"
+
+using namespace lethe;
 
 WindowsSocketMessageStream::WindowsSocketMessageStream()
 {

@@ -1,11 +1,13 @@
 #include "linux/LinuxEvent.h"
-#include "AbstractionTypes.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheTypes.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include "eventfd.h"
 #include <errno.h>
+
+using namespace lethe;
 
 LinuxEvent::LinuxEvent(bool initialState, bool autoReset) :
   WaitObject(eventfd(initialState,

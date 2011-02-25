@@ -1,7 +1,9 @@
-#include "AbstractionTypes.h"
-#include "AbstractionException.h"
-#include "AbstractionFunctions.h"
+#include "LetheTypes.h"
+#include "LetheException.h"
+#include "LetheFunctions.h"
 #include "windows/WindowsSharedMemory.h"
+
+using namespace lethe;
 
 const std::string WindowsSharedMemory::s_nameBase("Global\\");
 

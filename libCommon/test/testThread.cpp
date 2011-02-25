@@ -1,8 +1,10 @@
-#include "Abstraction.h"
-#include "AbstractionException.h"
+#include "Lethe.h"
+#include "LetheException.h"
 #include "catch.hpp"
 #include "testCommon.h"
 #include <stdio.h>
+
+using namespace lethe;
 
 // TestThreadDummy thread loops until manually stop()ed
 class TestThreadDummyThread : public Thread

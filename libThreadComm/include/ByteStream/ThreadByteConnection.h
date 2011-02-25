@@ -1,12 +1,11 @@
 #ifndef _THREADBYTECONNECTION_H
 #define _THREADBYTECONNECTION_H
 
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "ByteStream/ThreadByteStream.h"
 
-namespace comm
+namespace lethe
 {
-
   class ThreadByteConnection
   {
   public:
@@ -22,7 +21,6 @@ namespace comm
     ThreadByteStream m_streamA;
     ThreadByteStream m_streamB;
   };
-
 }
 
 #endif

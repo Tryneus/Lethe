@@ -1,9 +1,9 @@
 #ifndef _THREADMESSAGE_H
 #define _THREADMESSAGE_H
 
-#include "Abstraction.h"
+#include "Lethe.h"
 
-namespace comm
+namespace lethe
 {
   class ThreadMessageHeader;
 

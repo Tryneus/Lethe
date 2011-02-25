@@ -4,7 +4,7 @@
 #include "WaitObject.h"
 #include "WindowsMutex.h"
 #include "WindowsEvent.h"
-#include "AbstractionTypes.h"
+#include "LetheTypes.h"
 
 /*
  * The WindowsPipe class encapsulates an anonymous pipe in Windows.  The
@@ -13,48 +13,51 @@
  *  the unsent part is buffered and will be pushed through by subsequent send
  *  operations.
  */
-class WindowsPipe : public WaitObject
+namespace lethe
 {
-public:
-  WindowsPipe();
-  ~WindowsPipe();
-
-  void send(const void* buffer, uint32_t bufferSize);
-  uint32_t receive(void* buffer, uint32_t bufferSize);
-
-private:
-  // Private, undefined copy constructor and assignment operator so they can't be used
-  WindowsPipe(const WindowsPipe&);
-  WindowsPipe& operator = (const WindowsPipe&);
-
-  static std::string getPipeName();
-
-  static const uint32_t s_maxAsyncEvents  = 10;
-  static DWORD s_procId;
-  static uint32_t s_uniqueId;
-
-  void asyncWrite(const void* buffer, uint32_t bufferSize);
-  void getAsyncResults();
-
-  void updateDataEvent(uint32_t bytesWritten);
-
-  const std::string m_pipeName;
-
-  WindowsMutex m_mutex;
-  WindowsEvent m_dataEvent;
-  uint32_t m_dataCount;
-  Handle m_pipeRead;
-  Handle m_pipeWrite;
-
-  struct
+  class WindowsPipe : public WaitObject
   {
-    OVERLAPPED overlapped;
-    uint8_t* buffer;
-  } m_asyncArray[s_maxAsyncEvents];
+  public:
+    WindowsPipe();
+    ~WindowsPipe();
 
-  uint32_t m_asyncStart;
-  uint32_t m_asyncEnd;
-  bool m_isBlocking;
-};
+    void send(const void* buffer, uint32_t bufferSize);
+    uint32_t receive(void* buffer, uint32_t bufferSize);
+
+  private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    WindowsPipe(const WindowsPipe&);
+    WindowsPipe& operator = (const WindowsPipe&);
+
+    static std::string getPipeName();
+
+    static const uint32_t s_maxAsyncEvents  = 10;
+    static DWORD s_procId;
+    static uint32_t s_uniqueId;
+
+    void asyncWrite(const void* buffer, uint32_t bufferSize);
+    void getAsyncResults();
+
+    void updateDataEvent(uint32_t bytesWritten);
+
+    const std::string m_pipeName;
+
+    WindowsMutex m_mutex;
+    WindowsEvent m_dataEvent;
+    uint32_t m_dataCount;
+    Handle m_pipeRead;
+    Handle m_pipeWrite;
+
+    struct
+    {
+      OVERLAPPED overlapped;
+      uint8_t* buffer;
+    } m_asyncArray[s_maxAsyncEvents];
+
+    uint32_t m_asyncStart;
+    uint32_t m_asyncEnd;
+    bool m_isBlocking;
+  };
+}
 
 #endif

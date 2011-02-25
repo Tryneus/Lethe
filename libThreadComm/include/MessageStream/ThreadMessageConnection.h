@@ -1,12 +1,11 @@
 #ifndef _THREADMESSAGECONNECTION_H
 #define _THREADMESSAGECONNECTION_H
 
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "MessageStream/ThreadMessageStream.h"
 
-namespace comm
+namespace lethe
 {
-
   class ThreadMessageConnection
   {
   public:
@@ -29,7 +28,6 @@ namespace comm
     ThreadMessageStream m_streamA;
     ThreadMessageStream m_streamB;
   };
-
 }
 
 #endif

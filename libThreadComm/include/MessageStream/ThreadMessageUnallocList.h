@@ -1,11 +1,11 @@
 #ifndef _THREADMESSAGEUNALLOCLIST_H
 #define _THREADMESSAGEUNALLOCLIST_H
 
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "MessageStream/ThreadMessageList.h"
 #include "MessageStream/ThreadMessage.h"
 
-namespace comm
+namespace lethe
 {
   class ThreadMessageUnallocList : public ThreadMessageList
   {

@@ -1,12 +1,12 @@
 #include "MessageStream/ThreadMessage.h"
 #include "MessageStream/ThreadMessageHeader.h"
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "Log.h"
 
 #define FIRST_MAGIC 0x849D07F3 // Guaranteed to be random, chosen by a fair dice roll
 #define SECOND_MAGIC ~FIRST_MAGIC
 
-using namespace comm;
+using namespace lethe;
 
 ThreadMessage::ThreadMessage(ThreadMessageHeader* header, uint32_t size, State state) :
   m_header(header),

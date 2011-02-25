@@ -1,7 +1,7 @@
 #include "MessageStream/ThreadMessageUnallocList.h"
-#include "AbstractionException.h"
+#include "LetheException.h"
 
-using namespace comm;
+using namespace lethe;
 
 ThreadMessageUnallocList::ThreadMessageUnallocList(void* firstMessage, void* bufferEnd) :
   ThreadMessageList(firstMessage),

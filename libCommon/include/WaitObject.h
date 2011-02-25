@@ -1,40 +1,41 @@
 #ifndef _WAITOBJECT_H
 #define _WAITOBJECT_H
 
-class WaitObject;
+#include "LetheTypes.h"
+#include "LetheFunctions.h"
 
-#include "AbstractionTypes.h"
-#include "AbstractionFunctions.h"
-
-// Prototypes of WaitSets for friending purposes
-class WindowsWaitSet;
-class LinuxWaitSet;
-
-class WaitObject
+namespace lethe
 {
-public:
-  WaitObject(Handle handle);
-  virtual ~WaitObject();
+  // Prototypes of WaitSets for friending purposes
+  class WindowsWaitSet;
+  class LinuxWaitSet;
 
-  Handle getHandle() const;
+  class WaitObject
+  {
+  public:
+    WaitObject(Handle handle);
+    virtual ~WaitObject();
 
-protected:
-  void setWaitHandle(Handle handle);
+    Handle getHandle() const;
 
-private:
-  // Private, undefined copy constructor and assignment operator so they can't be used
-  WaitObject(const WaitObject&);
-  WaitObject& operator = (const WaitObject&);
+  protected:
+    void setWaitHandle(Handle handle);
 
-  Handle m_handle;
+  private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    WaitObject(const WaitObject&);
+    WaitObject& operator = (const WaitObject&);
 
-  // Friend WaitSets (and single-object wait), so they can access callbacks
-  friend WaitResult WaitForObject(WaitObject& obj, uint32_t timeout);
-  friend class WindowsWaitSet;
-  friend class LinuxWaitSet;
+    Handle m_handle;
 
-  virtual bool preWaitCallback();
-  virtual void postWaitCallback(WaitResult result);
-};
+    // Friend WaitSets (and single-object wait), so they can access callbacks
+    friend WaitResult WaitForObject(WaitObject& obj, uint32_t timeout);
+    friend class WindowsWaitSet;
+    friend class LinuxWaitSet;
+
+    virtual bool preWaitCallback();
+    virtual void postWaitCallback(WaitResult result);
+  };
+}
 
 #endif

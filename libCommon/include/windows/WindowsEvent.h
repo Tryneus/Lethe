@@ -13,19 +13,22 @@
  *  the eventfd subsystem in Linux, and a kernel module is under development for
  *  this purpose.
  */
-class WindowsEvent : public WaitObject
+namespace lethe
 {
-public:
-  WindowsEvent(bool initialState, bool autoReset);
-  ~WindowsEvent();
+  class WindowsEvent : public WaitObject
+  {
+  public:
+    WindowsEvent(bool initialState, bool autoReset);
+    ~WindowsEvent();
 
-  void set();
-  void reset();
+    void set();
+    void reset();
 
-private:
-  // Private, undefined copy constructor and assignment operator so they can't be used
-  WindowsEvent(const WindowsEvent&);
-  WindowsEvent& operator = (const WindowsEvent&);
-};
+  private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    WindowsEvent(const WindowsEvent&);
+    WindowsEvent& operator = (const WindowsEvent&);
+  };
+}
 
 #endif

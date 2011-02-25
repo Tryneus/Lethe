@@ -1,7 +1,9 @@
-#include "Abstraction.h"
-#include "AbstractionException.h"
+#include "Lethe.h"
+#include "LetheException.h"
 #include "catch.hpp"
 #include "testCommon.h"
+
+using namespace lethe;
 
 TEST_CASE("timer/structor", "Test construction/destruction")
 {

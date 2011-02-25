@@ -2,7 +2,7 @@
 #define _LINUXMUTEX_H
 
 #include "WaitObject.h"
-#include "AbstractionTypes.h"
+#include "LetheTypes.h"
 #include <pthread.h>
 
 /*
@@ -10,26 +10,29 @@
  *  semaphore with a maximum value of 1.
  *
  */
-class LinuxMutex : public WaitObject
+namespace lethe
 {
-public:
-  LinuxMutex(bool locked = false);
-  ~LinuxMutex();
+  class LinuxMutex : public WaitObject
+  {
+  public:
+    LinuxMutex(bool locked = false);
+    ~LinuxMutex();
 
-  void lock(uint32_t timeout = INFINITE);
-  void unlock();
+    void lock(uint32_t timeout = INFINITE);
+    void unlock();
 
-protected:
-  bool preWaitCallback();
-  void postWaitCallback(WaitResult result);
+  protected:
+    bool preWaitCallback();
+    void postWaitCallback(WaitResult result);
 
-private:
-  // Private, undefined copy constructor and assignment operator so they can't be used
-  LinuxMutex(const LinuxMutex&);
-  LinuxMutex& operator = (const LinuxMutex&);
+  private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    LinuxMutex(const LinuxMutex&);
+    LinuxMutex& operator = (const LinuxMutex&);
 
-  pthread_t m_ownerThread;
-  uint32_t m_count;
-};
+    pthread_t m_ownerThread;
+    uint32_t m_count;
+  };
+}
 
 #endif

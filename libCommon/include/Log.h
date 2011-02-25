@@ -2,7 +2,7 @@
 #define _LOG_H
 
 #include "StaticSingleton.h"
-#include "AbstractionBasic.h"
+#include "LetheBasic.h"
 #include <fstream>
 #include <sstream>
 
@@ -31,145 +31,153 @@
 
 // The LOG_BASE may be overridden by a user who knows what they're doing (before including this file)
 #if !defined(LOG_BASE)
-  #define LOG_BASE(level) level << Log::Time << ", " << __FILE__ << ":" << __LINE__
+  #define LOG_BASE(level) level << lethe::Log::Time << ", " << __FILE__ << ":" << __LINE__
 #endif
 
 #ifndef DISABLE_LOG_ERROR
-  #define LogError(a) do                                 \
-                      {                                  \
-                        Log& log = Log::getInstance();   \
-                        if(log.getLevel() >= Log::Error) \
-                        {                                \
-                          log.lock();                    \
-                          log << LOG_BASE(Log::Error) << " Error - " << a << Log::Commit; \
-                          log.unlock();                  \
-                        }                                \
+  #define LogError(a) do                                             \
+                      {                                              \
+                        lethe::Log& log = lethe::Log::getInstance(); \
+                        if(log.getLevel() >= lethe::Log::Error)      \
+                        {                                            \
+                          log.lock();                                \
+                          log << LOG_BASE(lethe::Log::Error)         \
+                              << " Error - " << a                    \
+                              << lethe::Log::Commit;                 \
+                          log.unlock();                              \
+                        }                                            \
                       } while(0)
 #else
   #define LogError(...) do { ; } while(0)
 #endif
 
 #ifndef DISABLE_LOG_INFO
-  #define LogInfo(a)  do                                \
-                      {                                 \
-                        Log& log = Log::getInstance();  \
-                        if(log.getLevel() >= Log::Info) \
-                        {                               \
-                          log.lock();                   \
-                          log << LOG_BASE(Log::Info) << " Info - " << a << Log::Commit; \
-                          log.unlock();                 \
-                        }                               \
+  #define LogInfo(a)  do                                             \
+                      {                                              \
+                        lethe::Log& log = lethe::Log::getInstance(); \
+                        if(log.getLevel() >= lethe::Log::Info)       \
+                        {                                            \
+                          log.lock();                                \
+                          log << LOG_BASE(lethe::Log::Info)          \
+                              << " Info - " << a                     \
+                              << lethe::Log::Commit;                 \
+                          log.unlock();                              \
+                        }                                            \
                       } while(0)
 #else
   #define LogInfo(...) do { ; } while(0)
 #endif
 
 #ifndef DISABLE_LOG_DEBUG
-  #define LogDebug(a) do                                 \
-                      {                                  \
-                        Log& log = Log::getInstance();   \
-                        if(log.getLevel() >= Log::Debug) \
-                        {                                \
-                          log.lock();                    \
-                          log << LOG_BASE(Log::Debug) << " Debug - " << a << Log::Commit; \
-                          log.unlock();                  \
-                        }                                \
+  #define LogDebug(a) do                                             \
+                      {                                              \
+                        lethe::Log& log = lethe::Log::getInstance(); \
+                        if(log.getLevel() >= lethe::Log::Debug)      \
+                        {                                            \
+                          log.lock();                                \
+                          log << LOG_BASE(lethe::Log::Debug)         \
+                              << " Debug - " << a                    \
+                              << lethe::Log::Commit;                 \
+                          log.unlock();                              \
+                        }                                            \
                       } while(0)
 #else
   #define LogDebug(...) do { ; } while(0)
 #endif
 
-class Log : public StaticSingleton<Log>
+namespace lethe
 {
-public:
-
-  enum Level
+  class Log : public StaticSingleton<Log>
   {
-    Disabled = 0,
-    Error = 1,
-    Info = 2,
-    Debug = 3,
-    NumLevels = 4
+  public:
+
+    enum Level
+    {
+      Disabled = 0,
+      Error = 1,
+      Info = 2,
+      Debug = 3,
+      NumLevels = 4
+    };
+
+    Level getLevel() const;
+    void setLevel(Level level);
+
+    void setStreamMode(std::ostream& out);
+    void setFileMode(const std::string& filename);
+
+    void lock();
+    void unlock();
+
+    template <typename T>
+    Log& operator << (const T& data);
+
+    enum Command
+    {
+      Commit = 0,
+      Time = 1
+    };
+
+    Log& operator << (Command c);
+    Log& operator << (Level level);
+
+  private:
+    friend class StaticSingleton<Log>;
+    Log();
+    ~Log();
+
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    Log(const Log&);
+    Log& operator = (const Log&);
+
+    // Abstract base class for different styles of logging
+    class LogHandler
+    {
+    public:
+      virtual void write(const std::string& statement) = 0;
+      virtual ~LogHandler() { };
+    };
+
+    // Class for logging to standard output
+    class StreamLogHandler : public LogHandler
+    {
+    public:
+      StreamLogHandler(std::ostream& out);
+
+      void write(const std::string& statement);
+
+    private:
+      std::ostream& m_out;
+    };
+
+    // Class for logging to a file
+    class FileLogHandler : public LogHandler
+    {
+    public:
+      FileLogHandler(const std::string& filename);
+      ~FileLogHandler();
+
+      void write(const std::string& statement);
+
+    private:
+      const std::string m_filename;
+      std::ofstream m_out;
+    };
+
+    Mutex m_mutex;
+    Level m_logLevel;
+    Level m_statementLevel;
+    std::stringstream m_statement;
+    LogHandler* m_handler;
   };
 
-  Level getLevel() const;
-  void setLevel(Level level);
-
-  void setStreamMode(std::ostream& out);
-  void setFileMode(const std::string& filename);
-
-  void lock();
-  void unlock();
-
+  // Note: locking should be done by the Log* macros (to keep lock/unlock cycles low)
   template <typename T>
-  Log& operator << (const T& data);
-
-  enum Command
+  Log& Log::operator << (const T& data)
   {
-    Commit = 0,
-    Time = 1
-  };
-
-  Log& operator << (Command c);
-  Log& operator << (Level level);
-
-private:
-  friend class StaticSingleton<Log>;
-  Log();
-  ~Log();
-
-  // Private, undefined copy constructor and assignment operator so they can't be used
-  Log(const Log&);
-  Log& operator = (const Log&);
-
-  // Abstract base class for different styles of logging
-  class LogHandler
-  {
-  public:
-    virtual void write(const std::string& statement) = 0;
-    virtual ~LogHandler() { };
-  };
-
-  // Class for logging to standard output
-  class StreamLogHandler : public LogHandler
-  {
-  public:
-    StreamLogHandler(std::ostream& out);
-
-    void write(const std::string& statement);
-
-  private:
-    std::ostream& m_out;
-  };
-
-  // Class for logging to a file
-  class FileLogHandler : public LogHandler
-  {
-  public:
-    FileLogHandler(const std::string& filename);
-    ~FileLogHandler();
-
-    void write(const std::string& statement);
-
-  private:
-    const std::string m_filename;
-    std::ofstream m_out;
-  };
-
-  Mutex m_mutex;
-  Level m_logLevel;
-  Level m_statementLevel;
-  std::stringstream m_statement;
-  LogHandler* m_handler;
-};
-
-
-// Note: locking should be done by the Log* macros (to keep lock/unlock cycles low)
-template <typename T>
-Log& Log::operator << (const T& data)
-{
-  m_statement << data;
-  return *this;
+    m_statement << data;
+    return *this;
+  }
 }
 
 #endif

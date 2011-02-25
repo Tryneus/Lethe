@@ -1,5 +1,7 @@
 #include "WaitObject.h"
 
+using namespace lethe;
+
 WaitObject::WaitObject(Handle handle) :
   m_handle(handle)
 {

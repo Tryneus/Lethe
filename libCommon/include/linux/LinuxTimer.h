@@ -2,25 +2,28 @@
 #define _LINUXTIMER_H
 
 #include "WaitObject.h"
-#include "AbstractionTypes.h"
+#include "LetheTypes.h"
 
 /*
  * The LinuxTimer class wraps the timerfd subsystem.  When the timer expires,
  *  it remains triggered until reset.
  */
-class LinuxTimer : public WaitObject
+namespace lethe
 {
-public:
-  LinuxTimer();
-  ~LinuxTimer();
+  class LinuxTimer : public WaitObject
+  {
+  public:
+    LinuxTimer();
+    ~LinuxTimer();
 
-  void start(uint32_t timeout);
-  void clear();
+    void start(uint32_t timeout);
+    void clear();
 
-private:
-  // Private, undefined copy constructor and assignment operator so they can't be used
-  LinuxTimer(const LinuxTimer&);
-  LinuxTimer& operator = (const LinuxTimer&);
-};
+  private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    LinuxTimer(const LinuxTimer&);
+    LinuxTimer& operator = (const LinuxTimer&);
+  };
+}
 
 #endif

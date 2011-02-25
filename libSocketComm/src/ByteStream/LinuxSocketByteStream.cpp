@@ -1,5 +1,7 @@
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "ByteStream/LinuxSocketByteStream.h"
+
+using namespace lethe;
 
 LinuxSocketByteStream::LinuxSocketByteStream()
 {

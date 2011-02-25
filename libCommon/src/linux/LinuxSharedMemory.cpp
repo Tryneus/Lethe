@@ -1,12 +1,14 @@
-#include "AbstractionTypes.h"
-#include "AbstractionException.h"
-#include "AbstractionFunctions.h"
+#include "LetheTypes.h"
+#include "LetheException.h"
+#include "LetheFunctions.h"
 #include "linux/LinuxSharedMemory.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
+
+using namespace lethe;
 
 const std::string LinuxSharedMemory::s_nameBase("/");
 const mode_t LinuxSharedMemory::s_filePermissions(0666);

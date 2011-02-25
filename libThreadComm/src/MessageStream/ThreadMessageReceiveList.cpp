@@ -1,7 +1,7 @@
 #include "MessageStream/ThreadMessageReceiveList.h"
-#include "Abstraction.h"
+#include "Lethe.h"
 
-using namespace comm;
+using namespace lethe;
 
 ThreadMessageReceiveList::ThreadMessageReceiveList(void* firstMessage) :
   ThreadMessageList(firstMessage)

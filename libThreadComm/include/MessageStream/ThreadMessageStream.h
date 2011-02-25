@@ -1,10 +1,10 @@
 #ifndef _THREADMESSAGESTREAM_H
 #define _THREADMESSAGESTREAM_H
 
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "MessageStream/ThreadMessageHeader.h"
 
-namespace comm
+namespace lethe
 {
   class ThreadMessageStream : public MessageStream
   {

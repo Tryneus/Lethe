@@ -1,5 +1,7 @@
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "MessageStream/LinuxSocketMessageStream.h"
+
+using namespace lethe;
 
 LinuxSocketMessageStream::LinuxSocketMessageStream()
 {

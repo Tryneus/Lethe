@@ -1,8 +1,8 @@
 #include "MessageStream/ThreadMessageConnection.h"
 #include "MessageStream/ThreadMessage.h"
-#include "AbstractionException.h"
+#include "LetheException.h"
 
-using namespace comm;
+using namespace lethe;
 
 ThreadMessageConnection::ThreadMessageConnection(uint32_t sizeAtoB, uint32_t sizeBtoA) :
   m_semaphoreAtoB(sizeAtoB / sizeof(ThreadMessage), 0),

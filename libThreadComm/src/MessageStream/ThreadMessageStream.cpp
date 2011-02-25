@@ -1,8 +1,8 @@
 #include "MessageStream/ThreadMessageStream.h"
 #include "MessageStream/ThreadMessage.h"
-#include "AbstractionException.h"
+#include "LetheException.h"
 
-using namespace comm;
+using namespace lethe;
 
 ThreadMessageStream::ThreadMessageStream(ThreadMessageHeader& in,
                                          ThreadMessageHeader& out,

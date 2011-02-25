@@ -1,13 +1,15 @@
 #include "linux/LinuxPipe.h"
-#include "AbstractionTypes.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheTypes.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include <queue>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
 #include <aio.h>
+
+using namespace lethe;
 
 LinuxPipe::LinuxPipe() :
   WaitObject(INVALID_HANDLE_VALUE),

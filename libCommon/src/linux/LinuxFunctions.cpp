@@ -1,6 +1,6 @@
-#include "AbstractionFunctions.h"
-#include "AbstractionBasic.h"
-#include "AbstractionException.h"
+#include "LetheFunctions.h"
+#include "LetheBasic.h"
+#include "LetheException.h"
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -13,12 +13,12 @@
 #include <iomanip>
 #include <ctime>
 
-void Sleep(uint32_t timeout)
+void lethe::Sleep(uint32_t timeout)
 {
   usleep(timeout * 1000);
 }
 
-std::string lastError()
+std::string lethe::lastError()
 {
   int errorCode(errno);
   char buffer[200];
@@ -26,7 +26,7 @@ std::string lastError()
   return std::string(strerror_r(errorCode, buffer, 200));
 }
 
-uint32_t seedRandom(uint32_t seed)
+uint32_t lethe::seedRandom(uint32_t seed)
 {
   if(seed == 0)
   {
@@ -41,17 +41,17 @@ uint32_t seedRandom(uint32_t seed)
   return seed;
 }
 
-uint64_t getTime()
+uint64_t lethe::getTime()
 {
   timeval currentTime;
 
   if(gettimeofday(&currentTime, NULL) != 0)
-    throw std::bad_syscall("gettimeofday", lastError());
+    throw std::bad_syscall("gettimeofday", lethe::lastError());
 
   return (currentTime.tv_sec * 1000) + (currentTime.tv_usec / 1000);
 }
 
-std::string getTimeString()
+std::string lethe::getTimeString()
 {
   std::ostringstream stream;
   char buffer[100];
@@ -67,19 +67,19 @@ std::string getTimeString()
   return stream.str();
 }
 
-uint32_t getProcessId()
+uint32_t lethe::getProcessId()
 {
   return static_cast<uint32_t>(getpid());
 }
 
-WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
+lethe::WaitResult lethe::WaitForObject(lethe::WaitObject& obj, uint32_t timeout)
 {
-  uint32_t endTime = getTime() + timeout;
-  WaitResult result = WaitSuccess;
+  uint32_t endTime = lethe::getTime() + timeout;
+  lethe::WaitResult result = lethe::WaitSuccess;
   struct pollfd pollData;
 
   if(obj.preWaitCallback())
-    return WaitSuccess;
+    return lethe::WaitSuccess;
 
   while(true)
   {
@@ -90,23 +90,23 @@ WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
     {
     case 1:
       if(pollData.revents & (POLLERR | POLLNVAL | POLLHUP))
-        result = WaitAbandoned;
+        result = lethe::WaitAbandoned;
       obj.postWaitCallback(result);
       return result;
 
     case 0:
       obj.postWaitCallback(WaitTimeout);
-      return WaitTimeout;
+      return lethe::WaitTimeout;
 
     default:
       if(errno == EINTR)
       {
-        uint32_t currentTime = getTime();
+        uint32_t currentTime = lethe::getTime();
         timeout = (endTime <= currentTime ? 0 : endTime - currentTime);
         continue;
       }
       obj.postWaitCallback(WaitError);
-      throw std::bad_syscall("poll", lastError());
+      throw std::bad_syscall("poll", lethe::lastError());
     }
   }
 }

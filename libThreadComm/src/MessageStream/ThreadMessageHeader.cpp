@@ -1,7 +1,7 @@
 #include "MessageStream/ThreadMessageHeader.h"
-#include "AbstractionException.h"
+#include "LetheException.h"
 
-using namespace comm;
+using namespace lethe;
 
 ThreadMessageHeader::ThreadMessageHeader(uint32_t size, Semaphore& semaphore) :
   m_size(size),

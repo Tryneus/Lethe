@@ -1,8 +1,10 @@
 #include "linux/LinuxSemaphore.h"
-#include "AbstractionTypes.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheTypes.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include "eventfd.h"
+
+using namespace lethe;
 
 LinuxSemaphore::LinuxSemaphore(uint32_t maxCount GCC_UNUSED,
                                uint32_t initialCount) :

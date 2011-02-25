@@ -11,7 +11,7 @@ LIBRARY_DIR  :=../bin
 LIBRARY_FILE :=$(LIBRARY_DIR)/libCommon.a
 
 OBJECT_FILES :=Log.o \
-               AbstractionException.o \
+               LetheException.o \
                BaseThread.o \
                WaitObject.o \
                ByteStream.o \

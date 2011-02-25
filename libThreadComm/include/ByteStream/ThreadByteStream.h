@@ -1,9 +1,9 @@
 #ifndef _THREADBYTESTREAM_H
 #define _THREADBYTESTREAM_H
 
-#include "Abstraction.h"
+#include "Lethe.h"
 
-namespace comm
+namespace lethe
 {
   class ThreadByteStream : public ByteStream
   {

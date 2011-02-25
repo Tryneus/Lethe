@@ -1,7 +1,9 @@
 #include "windows/WindowsEvent.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include <Windows.h>
+
+using namespace lethe;
 
 WindowsEvent::WindowsEvent(bool initialState, bool autoReset) :
   WaitObject(CreateEvent(NULL, !autoReset, initialState, NULL))

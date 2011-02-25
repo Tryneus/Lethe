@@ -1,9 +1,9 @@
 #include "SenderThread.h"
-#include "AbstractionException.h"
+#include "LetheException.h"
 #include "Log.h"
 
-SenderThread::SenderThread(MessageStream& channel) :
-  Thread(100),
+SenderThread::SenderThread(lethe::MessageStream& channel) :
+  lethe::Thread(100),
   m_channel(channel),
   m_iterationCount(0),
   m_messagesSent(0),
@@ -35,7 +35,7 @@ SenderThread::~SenderThread()
   }
 }
 
-void SenderThread::iterate(Handle handle)
+void SenderThread::iterate(lethe::Handle handle)
 {
   if(handle == m_channel.getHandle())
     receiveMessage();
@@ -68,7 +68,7 @@ void SenderThread::sendMessages()
   catch(std::bad_alloc&) { }
 }
 
-void SenderThread::abandoned(Handle handle)
+void SenderThread::abandoned(lethe::Handle handle)
 {
   if(handle == m_channel.getHandle())
     throw std::runtime_error("handle abandoned");

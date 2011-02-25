@@ -2,7 +2,7 @@
 #define _WINDOWSSEMAPHORE_H
 
 #include "WaitObject.h"
-#include "AbstractionTypes.h"
+#include "LetheTypes.h"
 
 /*
  * The WindowsSemaphore class provides a wrapper of CreateSemaphore on Windows.
@@ -14,19 +14,22 @@
  *  but that will require a change to the eventfd subsystem in Linux.  A
  *  kernel module is in development to extend eventfd (see ../module).
  */
-class WindowsSemaphore : public WaitObject
+namespace lethe
 {
-public:
-  WindowsSemaphore(uint32_t maxCount, uint32_t initialCount);
-  ~WindowsSemaphore();
+  class WindowsSemaphore : public WaitObject
+  {
+  public:
+    WindowsSemaphore(uint32_t maxCount, uint32_t initialCount);
+    ~WindowsSemaphore();
 
-  void lock(uint32_t timeout = INFINITE);
-  void unlock(uint32_t count);
+    void lock(uint32_t timeout = INFINITE);
+    void unlock(uint32_t count);
 
-private:
-  // Private, undefined copy constructor and assignment operator so they can't be used
-  WindowsSemaphore(const WindowsSemaphore&);
-  WindowsSemaphore& operator = (const WindowsSemaphore&);
-};
+  private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    WindowsSemaphore(const WindowsSemaphore&);
+    WindowsSemaphore& operator = (const WindowsSemaphore&);
+  };
+}
 
 #endif

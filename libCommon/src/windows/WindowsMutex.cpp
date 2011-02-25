@@ -1,7 +1,9 @@
 #include "windows/WindowsMutex.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include <Windows.h>
+
+using namespace lethe;
 
 WindowsMutex::WindowsMutex(bool locked) :
   WaitObject(CreateMutex(NULL, locked, NULL))

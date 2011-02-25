@@ -3,7 +3,7 @@
 
 #include "MessageStream/ThreadMessageList.h"
 
-namespace comm
+namespace lethe
 {
   class ThreadMessageReceiveList : public ThreadMessageList
   {

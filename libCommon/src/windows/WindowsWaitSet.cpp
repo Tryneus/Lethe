@@ -1,8 +1,10 @@
 #include "windows/WindowsWaitSet.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include "mct/hash-map.hpp"
 #include <Windows.h>
+
+using namespace lethe;
 
 WindowsWaitSet::WindowsWaitSet() :
   m_waitObjects(new mct::closed_hash_map<Handle, WaitObject*>),

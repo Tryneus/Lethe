@@ -1,11 +1,11 @@
-#ifndef _ABSTRACTIONEXCEPTION_H
-#define _ABSTRACTIONEXCEPTION_H
+#ifndef _LETHEEXCEPTION_H
+#define _LETHEEXCEPTION_H
 
 #include <string>
 #include <exception>
 #include <stdexcept>
 
-namespace std
+namespace std // Not using lethe namespace since this is an extension of std::exception
 {
 
   class bad_syscall : public std::exception

@@ -1,10 +1,12 @@
 #include "linux/LinuxTimer.h"
-#include "AbstractionTypes.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheTypes.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include <sys/timerfd.h>
 #include <fcntl.h>
 #include <errno.h>
+
+using namespace lethe;
 
 LinuxTimer::LinuxTimer() :
   WaitObject(timerfd_create(CLOCK_MONOTONIC, O_NONBLOCK))

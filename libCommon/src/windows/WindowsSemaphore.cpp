@@ -1,7 +1,9 @@
 #include "windows/WindowsSemaphore.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include <Windows.h>
+
+using namespace lethe;
 
 WindowsSemaphore::WindowsSemaphore(uint32_t maxCount, uint32_t initialCount) :
   WaitObject(CreateSemaphore(NULL, initialCount, maxCount, NULL))

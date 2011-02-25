@@ -1,5 +1,7 @@
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "ByteStream/WindowsSocketByteStream.h"
+
+using namespace lethe;
 
 WindowsSocketByteStream::WindowsSocketByteStream()
 {

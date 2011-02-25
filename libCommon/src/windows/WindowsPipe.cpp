@@ -1,8 +1,10 @@
 #include "windows/WindowsPipe.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include <Windows.h>
 #include <sstream>
+
+using namespace lethe;
 
 //const uint32_t WindowsPipe::s_maxAsyncEvents = 10;
 DWORD WindowsPipe::s_procId = 0;

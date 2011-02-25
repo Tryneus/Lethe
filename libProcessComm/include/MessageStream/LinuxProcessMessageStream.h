@@ -1,40 +1,43 @@
 #ifndef _LINUXPROCESSMESSAGESTREAM_H
 #define _LINUXPROCESSMESSAGESTREAM_H
 
-#include "Abstraction.h"
+#include "Lethe.h"
 
-class ProcessMessageHeader;
-
-class LinuxProcessMessageStream
+namespace lethe
 {
-public:
-  LinuxProcessMessageStream(uint32_t remoteProcessId, uint32_t outgoingSize);
-  ~LinuxProcessMessageStream();
+  class ProcessMessageHeader;
 
-  operator WaitObject&();
-  Handle getHandle() const;
+  class LinuxProcessMessageStream
+  {
+  public:
+    LinuxProcessMessageStream(uint32_t remoteProcessId, uint32_t outgoingSize);
+    ~LinuxProcessMessageStream();
 
-  void* allocate(uint32_t size);
-  void send(void* buffer);
-  void* receive();
-  void release(void* buffer);
+    operator WaitObject&();
+    Handle getHandle() const;
 
-private:
-  static const std::string getInName(uint32_t remoteProcessId);
-  static const std::string getOutName(uint32_t remoteProcessId);
+    void* allocate(uint32_t size);
+    void send(void* buffer);
+    void* receive();
+    void release(void* buffer);
 
-  const std::string m_inName;
-  const std::string m_outName;
+  private:
+    static const std::string getInName(uint32_t remoteProcessId);
+    static const std::string getOutName(uint32_t remoteProcessId);
 
-  // TODO: possible to share semaphores instead?
-  Pipe m_pipeIn;
-  Pipe m_pipeOut;
+    const std::string m_inName;
+    const std::string m_outName;
 
-  SharedMemory* m_shmIn;
-  SharedMemory* m_shmOut;
+    // TODO: possible to share semaphores instead?
+    Pipe m_pipeIn;
+    Pipe m_pipeOut;
 
-  ProcessMessageHeader* m_headerIn;
-  ProcessMessageHeader* m_headerOut;
-};
+    SharedMemory* m_shmIn;
+    SharedMemory* m_shmOut;
+
+    ProcessMessageHeader* m_headerIn;
+    ProcessMessageHeader* m_headerOut;
+  };
+}
 
 #endif

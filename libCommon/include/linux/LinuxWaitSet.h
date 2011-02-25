@@ -1,7 +1,7 @@
 #ifndef _LINUXWAITSET_H
 #define _LINUXWAITSET_H
 
-#include "AbstractionTypes.h"
+#include "LetheTypes.h"
 #include "WaitObject.h"
 #include <tr1/functional>
 #include <poll.h>
@@ -27,40 +27,43 @@ namespace mct
  *  overhead per wait call.  A single call may return multiple wait objects.  This
  *  may lead to a deadlock if used incorrectly.
  */
-class LinuxWaitSet
+namespace lethe
 {
-public:
-  LinuxWaitSet();
-  ~LinuxWaitSet();
+  class LinuxWaitSet
+  {
+  public:
+    LinuxWaitSet();
+    ~LinuxWaitSet();
 
-  bool add(WaitObject& obj);
+    bool add(WaitObject& obj);
 
-  bool remove(WaitObject& obj);
-  bool remove(Handle handle);
+    bool remove(WaitObject& obj);
+    bool remove(Handle handle);
 
-  size_t getSize() const;
+    size_t getSize() const;
 
-  WaitResult waitAny(uint32_t timeout, Handle& handle);
+    WaitResult waitAny(uint32_t timeout, Handle& handle);
 
-private:
-  // Private, undefined copy constructor and assignment operator so they can't be used
-  LinuxWaitSet(const LinuxWaitSet&);
-  LinuxWaitSet& operator = (const LinuxWaitSet&);
+  private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    LinuxWaitSet(const LinuxWaitSet&);
+    LinuxWaitSet& operator = (const LinuxWaitSet&);
 
-  void resizeEvents();
-  void addEvents(const std::list<Handle>& events);
-  WaitResult pollEvents(uint32_t timeout, uint32_t endTime);
-  WaitResult getEvent(Handle& handle);
+    void resizeEvents();
+    void addEvents(const std::list<Handle>& events);
+    WaitResult pollEvents(uint32_t timeout, uint32_t endTime);
+    WaitResult getEvent(Handle& handle);
 
-  mct::closed_hash_map<Handle,
-                       WaitObject*,
-                       std::tr1::hash<Handle>,
-                       std::equal_to<Handle>,
-                       std::allocator<std::pair<const Handle, WaitObject*> >,
-                       false>* m_waitObjects;
+    mct::closed_hash_map<Handle,
+                         WaitObject*,
+                         std::tr1::hash<Handle>,
+                         std::equal_to<Handle>,
+                         std::allocator<std::pair<const Handle, WaitObject*> >,
+                         false>* m_waitObjects;
 
-  pollfd* m_waitArray;
-  uint32_t m_eventOffset;
-};
+    pollfd* m_waitArray;
+    uint32_t m_eventOffset;
+  };
+}
 
 #endif

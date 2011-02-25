@@ -5,9 +5,9 @@
 #include "MessageStream/ThreadMessageUnallocList.h"
 #include "MessageStream/ThreadMessageReceiveList.h"
 #include "MessageStream/ThreadMessage.h"
-#include "Abstraction.h"
+#include "Lethe.h"
 
-namespace comm
+namespace lethe
 {
   class ThreadMessageHeader
   {

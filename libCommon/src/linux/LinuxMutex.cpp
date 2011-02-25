@@ -1,8 +1,10 @@
 #include "linux/LinuxMutex.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include <pthread.h>
 #include "eventfd.h"
+
+using namespace lethe;
 
 LinuxMutex::LinuxMutex(bool locked) :
   WaitObject(eventfd((locked ? 0 : 1), (EFD_NONBLOCK | EFD_SEMAPHORE | EFD_WAITREAD))),

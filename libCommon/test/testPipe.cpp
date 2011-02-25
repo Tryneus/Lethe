@@ -1,6 +1,8 @@
-#include "Abstraction.h"
-#include "AbstractionException.h"
+#include "Lethe.h"
+#include "LetheException.h"
 #include "catch.hpp"
+
+using namespace lethe;
 
 TEST_CASE("pipe/structor", "Test construction/destruction")
 {

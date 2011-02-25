@@ -1,18 +1,18 @@
-#include "Abstraction.h"
+#include "Lethe.h"
 
-class EchoThread : public Thread
+class EchoThread : public lethe::Thread
 {
 public:
-  EchoThread(MessageStream& channel);
+  EchoThread(lethe::MessageStream& channel);
   ~EchoThread();
 
 private:
-  void iterate(Handle handle);
-  void abandoned(Handle handle);
+  void iterate(lethe::Handle handle);
+  void abandoned(lethe::Handle handle);
   void receiveMessage();
   void sendReplies();
 
-  MessageStream& m_channel;
+  lethe::MessageStream& m_channel;
   uint32_t m_iterationCount;
   uint32_t m_repliesToSend;
 };

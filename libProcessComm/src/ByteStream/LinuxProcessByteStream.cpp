@@ -1,5 +1,7 @@
-#include "Abstraction.h"
+#include "Lethe.h"
 #include "ByteStream/LinuxProcessByteStream.h"
+
+using namespace lethe;
 
 LinuxProcessByteStream::LinuxProcessByteStream(uint32_t remoteProcessId GCC_UNUSED)
 {

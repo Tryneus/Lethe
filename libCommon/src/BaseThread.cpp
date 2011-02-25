@@ -1,7 +1,9 @@
 #include "BaseThread.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include <sstream>
+
+using namespace lethe;
 
 BaseThread::BaseThread(uint32_t timeout) :
   WaitObject(INVALID_HANDLE_VALUE),

@@ -1,19 +1,22 @@
 #ifndef _WINDOWSSOCKETBYTESTREAM_H
 #define _WINDOWSSOCKETBYTESTREAM_H
 
-#include "Abstraction.h"
+#include "Lethe.h"
 
-class WindowsSocketByteStream
+namespace lethe
 {
-public:
-  WindowsSocketByteStream();
-  ~WindowsSocketByteStream();
+  class WindowsSocketByteStream
+  {
+  public:
+    WindowsSocketByteStream();
+    ~WindowsSocketByteStream();
 
-  operator WaitObject&();
-  Handle getHandle() const;
+    operator WaitObject&();
+    Handle getHandle() const;
 
-  void send(void* buffer, uint32_t size);
-  uint32_t receive(void* buffer, uint32_t size);
-};
+    void send(void* buffer, uint32_t size);
+    uint32_t receive(void* buffer, uint32_t size);
+  };
+}
 
 #endif

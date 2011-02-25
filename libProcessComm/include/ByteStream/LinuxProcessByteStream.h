@@ -1,23 +1,26 @@
 #ifndef _LINUXPROCESSBYTESTREAM_H
 #define _LINUXPROCESSBYTESTREAM_H
 
-#include "Abstraction.h"
+#include "Lethe.h"
 
-class LinuxProcessByteStream
+namespace lethe
 {
-public:
-  LinuxProcessByteStream(uint32_t remoteProcessId);
-  ~LinuxProcessByteStream();
+  class LinuxProcessByteStream
+  {
+  public:
+    LinuxProcessByteStream(uint32_t remoteProcessId);
+    ~LinuxProcessByteStream();
 
-  operator WaitObject&();
-  Handle getHandle() const;
+    operator WaitObject&();
+    Handle getHandle() const;
 
-  void send(void* buffer, uint32_t size);
-  uint32_t receive(void* buffer, uint32_t size);
+    void send(void* buffer, uint32_t size);
+    uint32_t receive(void* buffer, uint32_t size);
 
-private:
-  Handle m_pipeOut;
-  Handle m_pipeIn;
-};
+  private:
+    Handle m_pipeOut;
+    Handle m_pipeIn;
+  };
+}
 
 #endif

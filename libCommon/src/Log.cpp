@@ -1,7 +1,9 @@
 #include "Log.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include <iostream>
+
+using namespace lethe;
 
 ////////////////////////////////////
 // Log implementation

@@ -26,20 +26,23 @@
  *    Foo();
  *  };
  */
-template <class T>
-class StaticSingleton
+namespace lethe
 {
-public:
-  static T& getInstance()
+  template <class T>
+  class StaticSingleton
   {
-    return s_instance;
+  public:
+    static T& getInstance()
+    {
+      return s_instance;
+    };
+
+  private:
+    static T s_instance;
   };
 
-private:
-  static T s_instance;
-};
-
-template <class T>
-T StaticSingleton<T>::s_instance;
+  template <class T>
+  T StaticSingleton<T>::s_instance;
+}
 
 #endif

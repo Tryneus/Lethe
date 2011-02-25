@@ -1,20 +1,19 @@
-#include "AbstractionTypes.h"
-#include "AbstractionBasic.h"
-#include "AbstractionFunctions.h"
-#include "AbstractionException.h"
+#include "LetheTypes.h"
+#include "LetheBasic.h"
+#include "LetheFunctions.h"
+#include "LetheException.h"
 #include <Windows.h>
 #include <string>
 #include <vector>
 #include <sstream>
 #include <iomanip>
 
-
-std::ostream& operator << (std::ostream& out, const Handle& handle)
+std::ostream& operator << (std::ostream& out, const lethe::Handle& handle)
 {
   return out << static_cast<uint32_t>(handle);
 }
 
-std::string lastError()
+std::string lethe::lastError()
 {
   TCHAR* buffer(NULL);
 
@@ -35,7 +34,7 @@ std::string lastError()
   return retval;
 }
 
-uint64_t getTime()
+uint64_t lethe::getTime()
 {
   const uint64_t msPerYear = (uint64_t)(60 * 60 * 24) * 365240;
   const uint64_t unixEpochDelta = 369 * msPerYear;
@@ -53,7 +52,7 @@ uint64_t getTime()
   return retval;
 }
 
-std::string getTimeString()
+std::string lethe::getTimeString()
 {
   std::stringstream timeString;
   SYSTEMTIME sysTime;
@@ -87,12 +86,12 @@ std::string getTimeString()
   return timeString.str();
 }
 
-uint32_t getProcessId()
+uint32_t lethe::getProcessId()
 {
   return static_cast<uint32_t>(GetCurrentProcessId());
 }
 
-uint32_t seedRandom(uint32_t seed)
+uint32_t lethe::seedRandom(uint32_t seed)
 {
   if(seed == 0)
     seed = GetTickCount();
@@ -102,28 +101,28 @@ uint32_t seedRandom(uint32_t seed)
   return seed;
 }
 
-WaitResult WaitForObject(WaitObject& obj, uint32_t timeout)
+lethe::WaitResult lethe::WaitForObject(lethe::WaitObject& obj, uint32_t timeout)
 {
   if(obj.preWaitCallback())
-    return WaitSuccess;
+    return lethe::WaitSuccess;
 
   switch(WaitForSingleObject(obj.getHandle(), timeout))
   {
   case WAIT_OBJECT_0:
-    obj.postWaitCallback(WaitSuccess);
-    return WaitSuccess;
+    obj.postWaitCallback(lethe::WaitSuccess);
+    return lethe::WaitSuccess;
 
   case WAIT_ABANDONED_0:
-    obj.postWaitCallback(WaitAbandoned);
-    return WaitAbandoned;
+    obj.postWaitCallback(lethe::WaitAbandoned);
+    return lethe::WaitAbandoned;
 
   case WAIT_TIMEOUT:
-    obj.postWaitCallback(WaitTimeout);
-    return WaitTimeout;
+    obj.postWaitCallback(lethe::WaitTimeout);
+    return lethe::WaitTimeout;
 
   default:
-    obj.postWaitCallback(WaitError);
-    throw std::bad_syscall("WaitForSingleObject", lastError());
+    obj.postWaitCallback(lethe::WaitError);
+    throw std::bad_syscall("WaitForSingleObject", lethe::lastError());
   }
 }
 

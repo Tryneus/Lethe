@@ -1,7 +1,7 @@
 #include "Abstraction.h"
 #include "ByteStream/LinuxProcessByteStream.h"
 
-LinuxProcessByteStream::LinuxProcessByteStream()
+LinuxProcessByteStream::LinuxProcessByteStream(uint32_t remoteProcessId GCC_UNUSED)
 {
 
 }

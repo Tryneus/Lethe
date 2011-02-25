@@ -6,7 +6,7 @@
 class WindowsProcessByteStream
 {
 public:
-  WindowsProcessByteStream();
+  WindowsProcessByteStream(uint32_t remoteProcessId);
   ~WindowsProcessByteStream();
 
   operator WaitObject&();

@@ -11,9 +11,7 @@ LIBRARY_DIR  :=../bin
 LIBRARY_FILE :=$(LIBRARY_DIR)/libProcessComm.a
 
 OBJECT_FILES :=ByteStream/LinuxProcessByteStream.o \
-               ByteStream/WindowsProcessByteStream.o \
-               MessageStream/LinuxProcessMessageStream.o \
-               MessageStream/WindowsProcessMessageStream.o
+               MessageStream/LinuxProcessMessageStream.o
 
 all: $(LIBRARY_FILE)
 

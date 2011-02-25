@@ -1,7 +1,16 @@
 #include "Abstraction.h"
 #include "MessageStream/LinuxProcessMessageStream.h"
 
-LinuxProcessMessageStream::LinuxProcessMessageStream()
+LinuxProcessMessageStream::LinuxProcessMessageStream(uint32_t remoteProcessId,
+                                                     uint32_t outgoingSize GCC_UNUSED) :
+  m_inName(getInName(remoteProcessId)),
+  m_outName(getOutName(remoteProcessId)),
+  m_pipeIn(m_inName),
+  m_pipeOut(m_outName),
+  m_shmIn(NULL),
+  m_shmOut(NULL),
+  m_headerIn(NULL),
+  m_headerOut(NULL)
 {
 
 }
@@ -11,14 +20,24 @@ LinuxProcessMessageStream::~LinuxProcessMessageStream()
 
 }
 
+const std::string getInName(uint32_t remoteProcessId GCC_UNUSED)
+{
+  return "";
+}
+
+const std::string getOutName(uint32_t remoteProcessId GCC_UNUSED)
+{
+  return "";
+}
+
 LinuxProcessMessageStream::operator WaitObject&()
 {
-  return *((WaitObject*)NULL);
+  return m_pipeIn;
 }
 
 Handle LinuxProcessMessageStream::getHandle() const
 {
-  return INVALID_HANDLE_VALUE;
+  return m_pipeIn.getHandle();
 }
 
 void* LinuxProcessMessageStream::allocate(uint32_t size GCC_UNUSED)

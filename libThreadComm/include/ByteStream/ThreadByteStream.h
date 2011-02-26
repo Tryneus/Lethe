@@ -14,7 +14,7 @@ namespace lethe
     operator WaitObject&();
     Handle getHandle() const;
 
-    void send(void* buffer, uint32_t size);
+    void send(const void* buffer, uint32_t size);
     uint32_t receive(void* buffer, uint32_t size);
 
   private:

@@ -25,7 +25,7 @@ Handle ThreadByteStream::getHandle() const
   return m_pipeIn.getHandle();
 }
 
-void ThreadByteStream::send(void* buffer, uint32_t size)
+void ThreadByteStream::send(const void* buffer, uint32_t size)
 {
   m_pipeOut.send(buffer, size);
 }

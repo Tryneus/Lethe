@@ -12,8 +12,8 @@ BINARY_DIR   :=../bin
 BINARY_FILE  :=$(BINARY_DIR)/libThreadCommTest
 
 OBJECT_FILES :=testMain.o \
-               EchoThread.o \
-               SenderThread.o
+               testByteStream.o \
+               testMessageStream.o
 
 INCLUDE_LIBS :=../bin/libThreadComm.a \
                ../../libCommon/bin/libCommon.a

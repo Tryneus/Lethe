@@ -5,7 +5,7 @@
 
 namespace lethe
 {
-  class WindowsProcessByteStream
+  class WindowsProcessByteStream : public ByteStream
   {
   public:
     WindowsProcessByteStream(uint32_t remoteProcessId);

@@ -2,15 +2,15 @@
 #define _LINUXPROCESSMESSAGESTREAM_H
 
 #include "Lethe.h"
+#include "ProcessMessageHeader.h"
+#include <cstdatomic>
 
 namespace lethe
 {
-  class ProcessMessageHeader;
-
-  class LinuxProcessMessageStream
+  class LinuxProcessMessageStream : public MessageStream
   {
   public:
-    LinuxProcessMessageStream(uint32_t remoteProcessId, uint32_t outgoingSize);
+    LinuxProcessMessageStream(ByteStream& stream, uint32_t outgoingSize, uint32_t timeout);
     ~LinuxProcessMessageStream();
 
     operator WaitObject&();
@@ -22,15 +22,29 @@ namespace lethe
     void release(void* buffer);
 
   private:
-    static const std::string getInName(uint32_t remoteProcessId);
-    static const std::string getOutName(uint32_t remoteProcessId);
+    static const std::string generateShmName();
+    static const std::string s_nameBase;
+    static std::atomic<uint32_t> s_nextId;
 
-    const std::string m_inName;
-    const std::string m_outName;
+    static const std::string generateUdsName();
+    static const std::string s_udsPath;
 
-    // TODO: possible to share semaphores instead?
-    Pipe m_pipeIn;
-    Pipe m_pipeOut;
+    static uint32_t getTimeout(uint32_t endTime);
+    static uint32_t checkSize(uint32_t size);
+
+    static const uint32_t s_minSize = 20 * sizeof(ProcessMessage) + sizeof(ProcessMessageHeader);
+    static const uint32_t s_maxSize = (1 << 25); // Limit: 32 MB
+
+    void doSetup(ByteStream& stream, uint32_t timeout);
+    void shutdown();
+
+    Handle getLocalUds(const std::string& name);
+    Handle getRemoteUds(const std::string& name);
+    void sendHandle(Handle uds, Handle data);
+    Handle recvHandle(Handle uds);
+
+    Semaphore* m_semaphoreIn;
+    Semaphore* m_semaphoreOut;
 
     SharedMemory* m_shmIn;
     SharedMemory* m_shmOut;

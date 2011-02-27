@@ -11,7 +11,13 @@ LIBRARY_DIR  :=../bin
 LIBRARY_FILE :=$(LIBRARY_DIR)/libProcessComm.a
 
 OBJECT_FILES :=ByteStream/LinuxProcessByteStream.o \
-               MessageStream/LinuxProcessMessageStream.o
+               MessageStream/LinuxProcessMessageStream.o \
+               MessageStream/ProcessMessageHeader.o \
+               MessageStream/ProcessMessageList.o \
+               MessageStream/ProcessMessageReceiveList.o \
+               MessageStream/ProcessMessageUnallocList.o \
+               MessageStream/ProcessMessage.o \
+               LinuxHandleTransfer.o
 
 all: $(LIBRARY_FILE)
 

@@ -5,7 +5,7 @@
 
 namespace lethe
 {
-  class LinuxProcessByteStream
+  class LinuxProcessByteStream : public ByteStream
   {
   public:
     LinuxProcessByteStream(uint32_t remoteProcessId);

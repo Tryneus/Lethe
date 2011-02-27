@@ -7,7 +7,7 @@ namespace lethe
 {
   class ProcessMessageHeader;
 
-  class WindowsProcessMessageStream
+  class WindowsProcessMessageStream : public MessageStream
   {
   public:
     WindowsProcessMessageStream(uint32_t remoteProcessId, uint32_t outgoingSize);

@@ -3,10 +3,14 @@
 #include "LetheFunctions.h"
 #include "LetheException.h"
 #include "eventfd.h"
+#include <sstream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 using namespace lethe;
 
-LinuxSemaphore::LinuxSemaphore(uint32_t maxCount GCC_UNUSED,
+LinuxSemaphore::LinuxSemaphore(uint32_t maxCount,
                                uint32_t initialCount) :
   WaitObject(eventfd(initialCount, (EFD_NONBLOCK | EFD_SEMAPHORE | EFD_WAITREAD))),
   m_maxCount(maxCount),
@@ -16,9 +20,30 @@ LinuxSemaphore::LinuxSemaphore(uint32_t maxCount GCC_UNUSED,
     throw std::bad_syscall("eventfd", lastError());
 }
 
+LinuxSemaphore::LinuxSemaphore(Handle handle) :
+  WaitObject(handle),
+  m_maxCount(0xFFFFFFFF),
+  m_count(0)
+{
+  if(getHandle() == INVALID_HANDLE_VALUE)
+    throw std::invalid_argument("LinuxSemaphore handle");
+
+  struct stat handleInfo;
+  if(fstat(handle, &handleInfo) != 0) // TODO: check if handle is for an eventfd
+  {
+    close(handle);
+    throw std::bad_syscall("fstat", lastError());
+  }
+}
+
 LinuxSemaphore::~LinuxSemaphore()
 {
   close(getHandle());
+}
+
+const std::string& LinuxSemaphore::name() const
+{
+  return m_name;
 }
 
 void LinuxSemaphore::lock(uint32_t timeout)

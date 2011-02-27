@@ -10,6 +10,9 @@
  */
 namespace lethe
 {
+  // Prototype for transferring handles between processes - defined in libProcessComm
+  class LinuxHandleTransfer;
+
   class LinuxTimer : public WaitObject
   {
   public:
@@ -23,6 +26,10 @@ namespace lethe
     // Private, undefined copy constructor and assignment operator so they can't be used
     LinuxTimer(const LinuxTimer&);
     LinuxTimer& operator = (const LinuxTimer&);
+
+    // Allow LinuxTimer to be constructed by a handle transfer from another process
+    friend class LinuxHandleTransfer;
+    LinuxTimer(Handle handle);
   };
 }
 

@@ -72,6 +72,11 @@ uint32_t lethe::getProcessId()
   return static_cast<uint32_t>(getpid());
 }
 
+uint32_t lethe::getThreadId()
+{
+  return static_cast<uint32_t>(pthread_self());
+}
+
 lethe::WaitResult lethe::WaitForObject(lethe::WaitObject& obj, uint32_t timeout)
 {
   uint32_t endTime = lethe::getTime() + timeout;

@@ -23,6 +23,7 @@ namespace lethe
     std::string getError();
 
   protected:
+    virtual void setup();
     virtual void iterate(Handle handle);
     virtual void abandoned(Handle handle);
 

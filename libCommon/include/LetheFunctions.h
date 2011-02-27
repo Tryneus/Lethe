@@ -35,7 +35,7 @@ namespace lethe
   std::string getTimeString();
 
   uint32_t getProcessId();
-  // TODO: uint32_t getThreadId();
+  uint32_t getThreadId();
 
   uint32_t seedRandom(uint32_t seed = 0);
 

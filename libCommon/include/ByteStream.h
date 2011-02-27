@@ -12,7 +12,7 @@ namespace lethe
     ByteStream();
     virtual ~ByteStream();
 
-    virtual void send(void*, uint32_t) = 0;
+    virtual void send(const void*, uint32_t) = 0;
     virtual uint32_t receive(void*, uint32_t) = 0;
 
     // A stream shall be usable as a wait object

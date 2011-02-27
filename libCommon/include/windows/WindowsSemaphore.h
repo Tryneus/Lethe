@@ -20,15 +20,23 @@ namespace lethe
   {
   public:
     WindowsSemaphore(uint32_t maxCount, uint32_t initialCount);
+    WindowsSemaphore(Handle handle);
     ~WindowsSemaphore();
 
     void lock(uint32_t timeout = INFINITE);
     void unlock(uint32_t count);
 
+    const std::string& name() const;
+
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used
     WindowsSemaphore(const WindowsSemaphore&);
     WindowsSemaphore& operator = (const WindowsSemaphore&);
+
+    static const std::string s_baseName;
+    static std::atomic<uint32_t> s_nextId;
+
+    std::string name;
   };
 }
 

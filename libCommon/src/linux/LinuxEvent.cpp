@@ -17,6 +17,20 @@ LinuxEvent::LinuxEvent(bool initialState, bool autoReset) :
     throw std::bad_syscall("eventfd", lastError());
 }
 
+LinuxEvent::LinuxEvent(Handle handle) :
+  WaitObject(handle)
+{
+  if(getHandle() == INVALID_HANDLE_VALUE)
+    throw std::invalid_argument("LinuxEvent handle");
+
+  struct stat handleInfo;
+  if(fstat(handle, &handleInfo) != 0) // TODO: check if handle is for an eventfd
+  {
+    close(handle);
+    throw std::bad_syscall("fstat", lastError());
+  }
+}
+
 LinuxEvent::~LinuxEvent()
 {
   close(getHandle());

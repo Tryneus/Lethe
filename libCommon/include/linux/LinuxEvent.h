@@ -15,6 +15,9 @@
  */
 namespace lethe
 {
+  // Prototype for transferring handles between processes - defined in libProcessComm
+  class LinuxHandleTransfer;
+
   class LinuxEvent : public WaitObject
   {
   public:
@@ -28,6 +31,10 @@ namespace lethe
     // Private, undefined copy constructor and assignment operator so they can't be used
     LinuxEvent(const LinuxEvent&);
     LinuxEvent& operator = (const LinuxEvent&);
+
+    // Allow LinuxEvent to be constructed by a handle transfer from another process
+    friend class LinuxHandleTransfer;
+    LinuxEvent(Handle handle);
   };
 }
 

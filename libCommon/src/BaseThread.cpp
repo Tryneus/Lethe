@@ -31,6 +31,7 @@ void BaseThread::threadMain()
   try
   {
     Handle handle;
+    setup();
 
     do
     {
@@ -95,6 +96,11 @@ void BaseThread::threadMain()
   m_exit = true;
   m_stoppedEvent.set();
   m_exitedEvent.set();
+}
+
+void BaseThread::setup()
+{
+  // Do nothing
 }
 
 // This function should never be called.  A user derived class should implement

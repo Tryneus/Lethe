@@ -91,6 +91,11 @@ uint32_t lethe::getProcessId()
   return static_cast<uint32_t>(GetCurrentProcessId());
 }
 
+uint32_t lethe::getThreadId()
+{
+  return static_cast<uint32_t>(GetCurrentThreadId());
+}
+
 uint32_t lethe::seedRandom(uint32_t seed)
 {
   if(seed == 0)

@@ -16,6 +16,9 @@
  */
 namespace lethe
 {
+  // Prototype for transferring handles between processes - defined in libProcessComm
+  class LinuxHandleTransfer;
+
   class LinuxSemaphore : public WaitObject
   {
   public:
@@ -25,13 +28,20 @@ namespace lethe
     void lock(uint32_t timeout = INFINITE);
     void unlock(uint32_t count);
 
+    const std::string& name() const;
+
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used
     LinuxSemaphore(const LinuxSemaphore&);
     LinuxSemaphore& operator = (const LinuxSemaphore&);
 
+    // Allow LinuxSemaphore to be constructed by a handle transfer from another process
+    friend class LinuxHandleTransfer;
+    LinuxSemaphore(Handle handle);
+
     const uint32_t m_maxCount;
     std::atomic<uint32_t> m_count;
+    std::string m_name;
 
     void postWaitCallback(WaitResult result);
   };

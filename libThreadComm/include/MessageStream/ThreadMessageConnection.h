@@ -18,8 +18,8 @@ namespace lethe
   private:
     static uint32_t checkSize(uint32_t size);
 
-    static const uint32_t s_minSize = 20 * sizeof(ThreadMessage);
-    static const uint32_t s_maxSize = (1 << 20);
+    static const uint32_t s_minSize = 20 * sizeof(ThreadMessage) + sizeof(ThreadMessageHeader);
+    static const uint32_t s_maxSize = (1 << 25); // Limit: 32 MB
 
     Semaphore m_semaphoreAtoB;
     Semaphore m_semaphoreBtoA;

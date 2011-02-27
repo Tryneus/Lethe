@@ -5,7 +5,7 @@
 
 namespace lethe
 {
-  class LinuxSocketMessageStream
+  class LinuxSocketMessageStream : public MessageStream
   {
   public:
     LinuxSocketMessageStream();

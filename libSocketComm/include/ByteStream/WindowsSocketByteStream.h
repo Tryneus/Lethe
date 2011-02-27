@@ -5,7 +5,7 @@
 
 namespace lethe
 {
-  class WindowsSocketByteStream
+  class WindowsSocketByteStream : public ByteStream
   {
   public:
     WindowsSocketByteStream();

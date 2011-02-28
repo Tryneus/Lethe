@@ -89,26 +89,13 @@ const std::string LinuxProcessMessageStream::generateShmName()
   return name.str();
 }
 
-const std::string LinuxProcessMessageStream::generateUdsName()
-{
-  std::stringstream name;
-  name << getProcessId() << "-" << getThreadId();
-  return name.str();
-}
-
 void LinuxProcessMessageStream::doSetup(ByteStream& stream,
                                         uint32_t endTime)
 {
-  std::stringstream setupData;
-  std::string localUdsName = generateUdsName();
-  std::string remoteUdsName;
   std::string receivedString;
   char receivedChar;
-  size_t tabIndex;
-  bool serverSide;
 
-  setupData << m_shmOut->name() << "\t" << localUdsName;
-  stream.send(setupData.str().c_str(), setupData.str().length() + 1);
+  stream.send(m_shmOut->name().c_str(), m_shmOut->name().length() + 1);
 
   while(true)
   {
@@ -123,21 +110,10 @@ void LinuxProcessMessageStream::doSetup(ByteStream& stream,
     receivedString.push_back(receivedChar);
   }
 
-  // Format should be <shared memory filename><tab><semaphore filename>
-  tabIndex = receivedString.find("\t");
+  // Format should be <shared memory filename>
+  m_shmIn = new SharedMemory(receivedString, 0);
 
-  if(tabIndex == std::string::npos)
-    throw std::runtime_error("message stream negotiation format incorrect");
-
-  m_shmIn = new SharedMemory(receivedString.substr(0, tabIndex), 0);
-
-  remoteUdsName = receivedString.substr(tabIndex + 1, std::string::npos);
-  serverSide = localUdsName < remoteUdsName;
-
-  LinuxHandleTransfer transfer(stream,
-                               (serverSide ? localUdsName : remoteUdsName),
-                               serverSide,
-                               getTimeout(endTime));
+  LinuxHandleTransfer transfer(stream, getTimeout(endTime));
 
   transfer.sendSemaphore(*m_semaphoreOut);
   m_semaphoreIn = transfer.recvSemaphore(getTimeout(endTime));

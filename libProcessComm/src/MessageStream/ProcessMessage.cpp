@@ -1,7 +1,6 @@
 #include "MessageStream/ProcessMessage.h"
 #include "MessageStream/ProcessMessageHeader.h"
 #include "Lethe.h"
-#include "Log.h"
 
 #define FIRST_MAGIC 0x849D07F3 // Guaranteed to be random, chosen by a fair dice roll
 #define SECOND_MAGIC ~FIRST_MAGIC

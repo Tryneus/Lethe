@@ -1,4 +1,5 @@
 #include "LinuxHandleTransfer.h"
+#include <sstream>
 #include <sys/socket.h>
 #include <sys/un.h>
 
@@ -8,16 +9,18 @@ const std::string LinuxHandleTransfer::s_udsPath("/tmp/lethe/");
 const std::string LinuxHandleTransfer::s_udsBaseName("lethe-uds-");
 
 LinuxHandleTransfer::LinuxHandleTransfer(ByteStream& stream,
-                                         const std::string& name,
-                                         bool serverSide,
                                          uint32_t timeout) :
-  m_name(s_udsPath + s_udsBaseName + name),
   m_socket(INVALID_HANDLE_VALUE)
 {
   Handle tempSocket;
+  bool serverSide;
   struct sockaddr_un address;
-  socklen_t addressLength = sizeof(address.sun_family) + m_name.length() + 1;
+  socklen_t addressLength;
   char buffer = '\0';
+
+  // Get the socket name and if this is going to be the server
+  synchronize(stream, m_name, serverSide, timeout); // TODO: update timeout
+  addressLength = sizeof(address.sun_family) + m_name.length() + 1;
 
   // Make sure the uds path exists
   if(mkdir(s_udsPath.c_str(), 0777) != 0 && errno != EEXIST) // TODO: security concerns
@@ -100,6 +103,46 @@ LinuxHandleTransfer::~LinuxHandleTransfer()
   unlink(m_name.c_str());
 }
 
+void LinuxHandleTransfer::synchronize(ByteStream& stream,
+                                      std::string& name,
+                                      bool& isServer,
+                                      uint32_t timeout)
+{
+  uint64_t localId = ((uint64_t)getProcessId() << 32) | (uint64_t)getThreadId();
+  uint64_t remoteId;
+
+  // Synchronize with the other side to decide who is the server
+  stream.send(&localId, sizeof(localId));
+
+  if(WaitForObject(stream, timeout) != WaitSuccess)
+    throw std::runtime_error("LinuxHandleTransfer could not synchronize with remote side");
+
+  if(stream.receive(&remoteId, sizeof(remoteId)) != sizeof(remoteId))
+    throw std::runtime_error("LinuxHandleTransfer did not receive correct info from remote side");
+
+  std::stringstream udsName;
+
+  if(localId < remoteId)
+  {
+    udsName << s_udsPath << s_udsBaseName << ((localId >> 32) & 0xFFFFFFFF) << "-" << (localId & 0xFFFFFFFF);
+    isServer = true;
+  }
+  else
+  {
+    udsName << s_udsPath << s_udsBaseName << ((remoteId >> 32) & 0xFFFFFFFF) << "-" << (remoteId & 0xFFFFFFFF);
+    isServer = false;
+  }
+
+  name.assign(udsName.str());
+}
+
+void LinuxHandleTransfer::sendPipe(const Pipe& pipe)
+{
+  // LinuxHandleTransfer has private access to Pipe, both handles are sent
+  sendInternal(pipe.m_pipeWrite, s_pipeType);
+  sendInternal(pipe.m_pipeRead, s_pipeType);
+}
+
 void LinuxHandleTransfer::sendTimer(const Timer& timer)
 {
   sendInternal(timer.getHandle(), s_timerType);
@@ -113,6 +156,13 @@ void LinuxHandleTransfer::sendEvent(const Event& event)
 void LinuxHandleTransfer::sendSemaphore(const Semaphore& semaphore)
 {
   sendInternal(semaphore.getHandle(), s_semaphoreType);
+}
+
+Pipe* LinuxHandleTransfer::recvPipe(uint32_t timeout)
+{
+  Handle pipeIn = recvInternal(s_pipeType, timeout);
+  Handle pipeOut = recvInternal(s_pipeType, timeout); // TODO: update timeout
+  return new Pipe(pipeIn, pipeOut);
 }
 
 Timer* LinuxHandleTransfer::recvTimer(uint32_t timeout)

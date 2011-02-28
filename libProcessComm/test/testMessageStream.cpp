@@ -2,7 +2,6 @@
 #include "ProcessComm.h"
 #include "ThreadComm.h"
 #include "catch.hpp"
-#include "Log.h"
 
 using namespace lethe;
 

@@ -10,18 +10,17 @@ namespace lethe
   {
   public:
     LinuxHandleTransfer(ByteStream& stream,      // Stream to synchronize with
-                        const std::string& name, // Name of Unix Domain Socket file
-                        bool serverSide,         // True if this object should act as the server, false otherwise
                         uint32_t timeout);       // Amount of time to allow
 
     ~LinuxHandleTransfer();
 
-    // Pipe excluded - use ProcessByteStream instead
     // Mutex excluded - locking thread enforcement cannot be guaranteed
+    void sendPipe(const Pipe& pipe);
     void sendTimer(const Timer& timer);
     void sendEvent(const Event& event);
     void sendSemaphore(const Semaphore& semaphore);
 
+    Pipe* recvPipe(uint32_t timeout);
     Timer* recvTimer(uint32_t timeout);
     Event* recvEvent(uint32_t timeout);
     Semaphore* recvSemaphore(uint32_t timeout); // warning - semaphore max cannot be enforced cross-process
@@ -31,12 +30,13 @@ namespace lethe
     LinuxHandleTransfer(const LinuxHandleTransfer&);
     LinuxHandleTransfer& operator = (const LinuxHandleTransfer&);
 
+    static void synchronize(ByteStream& stream, std::string& name, bool& isServer, uint32_t timeout);
     static const std::string s_udsPath;
     static const std::string s_udsBaseName;
     std::string m_name;
     Handle m_socket;
 
-    static const char s_anyType = 'A';
+    static const char s_pipeType = 'A';
     static const char s_timerType = 'T';
     static const char s_eventType = 'E';
     static const char s_semaphoreType = 'S';

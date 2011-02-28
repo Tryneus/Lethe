@@ -22,6 +22,10 @@ namespace lethe
     };
 
   private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    ProcessMessage(const ProcessMessage&);
+    ProcessMessage& operator = (const ProcessMessage&);
+
     ProcessMessage* getMessage(uint32_t offset);
     uint32_t getEnd();
 

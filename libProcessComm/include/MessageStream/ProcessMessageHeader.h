@@ -23,6 +23,10 @@ namespace lethe
     uint32_t getSize() const;
 
   private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    ProcessMessageHeader(const ProcessMessageHeader&);
+    ProcessMessageHeader& operator = (const ProcessMessageHeader&);
+
     static const uint32_t s_firstBufferOffset;
     static const uint32_t s_secondBufferOffset;
     static const uint32_t s_thirdBufferOffset;

@@ -3,7 +3,9 @@
 
 using namespace lethe;
 
-LinuxProcessByteStream::LinuxProcessByteStream(uint32_t remoteProcessId GCC_UNUSED)
+LinuxProcessByteStream::LinuxProcessByteStream(const std::string& pipeIn GCC_UNUSED,
+                                               const std::string& pipeOut GCC_UNUSED,
+                                               uint32_t timeout GCC_UNUSED)
 {
 
 }

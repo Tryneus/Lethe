@@ -16,6 +16,11 @@ namespace lethe
 
     void send(void* buffer, uint32_t size);
     uint32_t receive(void* buffer, uint32_t size);
+
+  private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    WindowsProcessByteStream(const WindowsProcessByteStream&);
+    WindowsProcessByteStream& operator = (const WindowsProcessByteStream&);
   };
 }
 

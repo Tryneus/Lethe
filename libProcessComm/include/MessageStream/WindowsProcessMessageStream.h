@@ -22,7 +22,12 @@ namespace lethe
     void release(void* buffer);
 
   private:
-    // TODO: figure out event notification
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    WindowsProcessMessageStream(const WindowsProcessMessageStream&);
+    WindowsProcessMessageStream& operator = (const WindowsProcessMessageStream&);
+
+    Semaphore* m_semaphoreIn;
+    Semaphore* m_semaphoreOut;
 
     SharedMemory* m_shmIn;
     SharedMemory* m_shmOut;

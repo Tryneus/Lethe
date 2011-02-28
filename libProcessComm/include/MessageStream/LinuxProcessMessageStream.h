@@ -22,6 +22,10 @@ namespace lethe
     void release(void* buffer);
 
   private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    LinuxProcessMessageStream(const LinuxProcessMessageStream&);
+    LinuxProcessMessageStream& operator = (const LinuxProcessMessageStream&);
+
     static const std::string generateShmName();
     static const std::string s_nameBase;
     static std::atomic<uint32_t> s_nextId;

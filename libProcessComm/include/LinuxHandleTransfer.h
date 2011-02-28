@@ -27,6 +27,10 @@ namespace lethe
     Semaphore* recvSemaphore(uint32_t timeout); // warning - semaphore max cannot be enforced cross-process
 
   private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    LinuxHandleTransfer(const LinuxHandleTransfer&);
+    LinuxHandleTransfer& operator = (const LinuxHandleTransfer&);
+
     static const std::string s_udsPath;
     static const std::string s_udsBaseName;
     std::string m_name;

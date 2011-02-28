@@ -20,6 +20,11 @@ namespace lethe
     uint32_t m_offset;
     uint32_t m_front;
     uint32_t m_back;
+
+  private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    ProcessMessageList(const ProcessMessageList&);
+    ProcessMessageList& operator = (const ProcessMessageList&);
   };
 }
 

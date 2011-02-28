@@ -11,6 +11,11 @@ namespace lethe
     ProcessMessageReceiveList(uint32_t offset, uint32_t firstMessage);
 
     ProcessMessage* receive(ProcessMessage*& extraMessage);
+
+  private:
+    // Private, undefined copy constructor and assignment operator so they can't be used
+    ProcessMessageReceiveList(const ProcessMessageReceiveList&);
+    ProcessMessageReceiveList& operator = (const ProcessMessageReceiveList&);
   };
 }
 

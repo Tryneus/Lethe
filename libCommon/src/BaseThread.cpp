@@ -6,7 +6,6 @@
 using namespace lethe;
 
 BaseThread::BaseThread(uint32_t timeout) :
-  WaitObject(INVALID_HANDLE_VALUE),
   m_running(false),
   m_exit(false),
   m_triggerEvent(false, true),
@@ -15,7 +14,6 @@ BaseThread::BaseThread(uint32_t timeout) :
   m_mutex(false),
   m_timeout(timeout)
 {
-  setWaitHandle(m_stoppedEvent.getHandle());
   m_waitSet.add(m_triggerEvent);
 }
 
@@ -28,22 +26,26 @@ BaseThread::~BaseThread()
 
 void BaseThread::threadMain()
 {
+  bool initialized = false;
+  Handle handle;
+
   try
   {
-    Handle handle;
-    setup();
 
-    do
+    while(!m_exit)
     {
       WaitForObject(m_triggerEvent, INFINITE);
+
+      if(!initialized)
+      {
+        setup();
+        initialized = true;
+      }
 
       if(m_exit)
         break;
 
-      if(!m_running)
-        continue;
-
-      do
+      while(m_running)
       {
         if(m_objectQueue.size() > 0)
           handleObjectQueue();
@@ -68,11 +70,10 @@ void BaseThread::threadMain()
         default:
           throw std::logic_error("thread internal wait failed");
         }
-      } while(m_running);
+      }
 
       m_stoppedEvent.set();
-
-    } while(!m_exit);
+    }
   }
   catch(std::exception& ex)
   {
@@ -146,6 +147,16 @@ std::string BaseThread::getError()
   m_mutex.unlock();
 
   return error;
+}
+
+BaseThread::operator WaitObject&()
+{
+  return m_stoppedEvent;
+}
+
+Handle BaseThread::getHandle() const
+{
+  return m_stoppedEvent.getHandle();
 }
 
 void BaseThread::addWaitObject(WaitObject& obj)

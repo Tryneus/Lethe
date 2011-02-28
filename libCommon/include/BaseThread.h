@@ -10,7 +10,7 @@
 
 namespace lethe
 {
-  class BaseThread : public WaitObject
+  class BaseThread
   {
   public:
     BaseThread(uint32_t timeout);
@@ -21,6 +21,9 @@ namespace lethe
 
     bool isStopping() const;
     std::string getError();
+
+    operator WaitObject&();
+    Handle getHandle() const;
 
   protected:
     virtual void setup();

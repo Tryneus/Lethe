@@ -2,6 +2,7 @@
 #include "ProcessComm.h"
 #include "ThreadComm.h"
 #include "catch.hpp"
+#include "Log.h"
 
 using namespace lethe;
 
@@ -27,7 +28,7 @@ public:
 
   void setup()
   {
-    m_messageStream = new ProcessMessageStream(m_byteStream, 2000, 4000);
+    m_messageStream = new ProcessMessageStream(m_byteStream, 2000, 1000);
   }
 
   void iterate(Handle handle GCC_UNUSED)
@@ -47,6 +48,10 @@ TEST_CASE("messageStream/structor", "Test construction and destruction of a Proc
 
     thread.start();
 
-    ProcessMessageStream messageStream(byteStream, 2000, 4000);
+    ProcessMessageStream messageStream(byteStream, 2000, 1000);
+
+    thread.stop();
+    REQUIRE(WaitForObject(thread, 1000) == WaitSuccess);
+    REQUIRE(thread.getError() == "");
   }
 }

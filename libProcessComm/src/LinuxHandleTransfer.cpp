@@ -25,66 +25,72 @@ LinuxHandleTransfer::LinuxHandleTransfer(ByteStream& stream,
 
   tempSocket = socket(PF_UNIX, SOCK_STREAM, 0);
 
+  if(fcntl(tempSocket, F_SETFL, O_NONBLOCK) != 0)
+    throw std::bad_syscall("fcntl", lastError());
+
   address.sun_family = AF_UNIX;
   m_name.copy(address.sun_path, std::string::npos, 0);
   address.sun_path[m_name.length()] = '\0';
 
-  if(serverSide)
+  try
   {
-    if(tempSocket == INVALID_HANDLE_VALUE)
-      throw std::bad_syscall("socket", lastError());
-
-    unlink(m_name.c_str());
-
-    try
+    if(serverSide)
     {
+      if(tempSocket == INVALID_HANDLE_VALUE)
+        throw std::bad_syscall("socket", lastError());
+
+      unlink(m_name.c_str());
+
       if(bind(tempSocket, (sockaddr*) &address, addressLength) != 0)
         throw std::bad_syscall("bind", lastError());
 
       if(listen(tempSocket, 1) != 0)
         throw std::bad_syscall("listen", lastError());
 
-      if(fcntl(tempSocket, F_SETFL, O_NONBLOCK) != 0)
-        throw std::bad_syscall("fcntl", lastError());
-
       stream.send(&buffer, 1); // Tell the other side the uds is ready
 
       pollfd event;
       event.fd = tempSocket;
       event.events = POLLIN;
+      event.revents = 0;
 
-      if(poll(&event, 1, timeout) != 1 || !(event.revents & POLLIN))
+      if(poll(&event, 1, timeout) == -1)
         throw std::bad_syscall("poll", lastError());
+
+      if(!(event.revents & POLLIN))
+      {
+        if(event.revents == 0)
+          throw std::runtime_error("timeout while waiting for remote connect");
+        else
+          throw std::runtime_error("error on socket while waiting for remote connect");
+      }
 
       m_socket = accept(tempSocket, (sockaddr*) &address, &addressLength);
 
       if(m_socket < 0)
         throw std::bad_syscall("accept", lastError());
-    }
-    catch(...)
-    {
-      close(tempSocket);
-      unlink(m_name.c_str());
-      throw;
-    }
 
-    close(tempSocket);
+      close(tempSocket);
+    }
+    else
+    {
+      if(WaitForObject(stream, timeout) != WaitSuccess)
+        throw std::runtime_error("timed out waiting for uds");
+
+      if(stream.receive(&buffer, 1) != 1 || buffer != '\0')
+        throw std::logic_error("incorrect data in stream");
+
+      if(connect(tempSocket, (sockaddr*) &address, addressLength) != 0)
+        throw std::bad_syscall("connect", lastError());
+
+      m_socket = tempSocket;
+    }
   }
-  else
+  catch(...)
   {
-    if(WaitForObject(stream, timeout) != WaitSuccess)
-      throw std::runtime_error("timed out waiting for uds");
-
-    if(stream.receive(&buffer, 1) != 1 || buffer != '\0')
-      throw std::logic_error("incorrect data in stream");
-
-    if(connect(tempSocket, (sockaddr*) &address, addressLength) != 0)
-    {
-      std::string errorString = lastError();
-      close(tempSocket);
-      throw std::bad_syscall("connect", errorString);
-    }
-    m_socket = tempSocket;
+    close(tempSocket);
+    unlink(m_name.c_str());
+    throw;
   }
 }
 
@@ -109,19 +115,19 @@ void LinuxHandleTransfer::sendSemaphore(const Semaphore& semaphore)
   sendInternal(semaphore.getHandle(), s_semaphoreType);
 }
 
-Timer* LinuxHandleTransfer::recvTimer()
+Timer* LinuxHandleTransfer::recvTimer(uint32_t timeout)
 {
-  return new Timer(recvInternal(s_timerType));
+  return new Timer(recvInternal(s_timerType, timeout));
 }
 
-Event* LinuxHandleTransfer::recvEvent()
+Event* LinuxHandleTransfer::recvEvent(uint32_t timeout)
 {
-  return new Event(recvInternal(s_eventType));
+  return new Event(recvInternal(s_eventType, timeout));
 }
 
-Semaphore* LinuxHandleTransfer::recvSemaphore()
+Semaphore* LinuxHandleTransfer::recvSemaphore(uint32_t timeout)
 {
-  return new Semaphore(recvInternal(s_semaphoreType));
+  return new Semaphore(recvInternal(s_semaphoreType, timeout));
 }
 
 void LinuxHandleTransfer::sendInternal(Handle handle, char handleType)
@@ -158,7 +164,7 @@ void LinuxHandleTransfer::sendInternal(Handle handle, char handleType)
     throw std::bad_syscall("sendmsg", lastError());
 }
 
-Handle LinuxHandleTransfer::recvInternal(char handleType)
+Handle LinuxHandleTransfer::recvInternal(char handleType, uint32_t timeout)
 {
   struct msghdr msg;
   struct iovec iov[1];
@@ -181,9 +187,18 @@ Handle LinuxHandleTransfer::recvInternal(char handleType)
   pollfd event;
   event.fd = m_socket;
   event.events = POLLIN;
+  event.revents = 0;
 
-  if(poll(&event, 1, 1000) != 1 || !(event.revents & POLLIN))
+  if(poll(&event, 1, timeout) == -1)
     throw std::bad_syscall("poll", lastError());
+    
+  if(!(event.revents & POLLIN))
+  {
+    if(event.revents == 0)
+      throw std::runtime_error("timed out waiting for handle");
+    else
+      throw std::runtime_error("error on socket while receiving handle");
+  }
 
   if(recvmsg(m_socket, &msg, 0) < 0)
     throw std::bad_syscall("recvmsg", lastError());

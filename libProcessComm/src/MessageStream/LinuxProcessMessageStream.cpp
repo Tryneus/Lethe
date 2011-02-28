@@ -140,7 +140,7 @@ void LinuxProcessMessageStream::doSetup(ByteStream& stream,
                                getTimeout(endTime));
 
   transfer.sendSemaphore(*m_semaphoreOut);
-  m_semaphoreIn = transfer.recvSemaphore();
+  m_semaphoreIn = transfer.recvSemaphore(getTimeout(endTime));
 }
 
 uint32_t LinuxProcessMessageStream::getTimeout(uint32_t endTime)

@@ -22,9 +22,9 @@ namespace lethe
     void sendEvent(const Event& event);
     void sendSemaphore(const Semaphore& semaphore);
 
-    Timer* recvTimer();
-    Event* recvEvent();
-    Semaphore* recvSemaphore(); // warning - semaphore max cannot be enforced cross-process
+    Timer* recvTimer(uint32_t timeout);
+    Event* recvEvent(uint32_t timeout);
+    Semaphore* recvSemaphore(uint32_t timeout); // warning - semaphore max cannot be enforced cross-process
 
   private:
     static const std::string s_udsPath;
@@ -38,7 +38,7 @@ namespace lethe
     static const char s_semaphoreType = 'S';
 
     void sendInternal(Handle handle, char handleType);
-    Handle recvInternal(char handleType);
+    Handle recvInternal(char handleType, uint32_t timeout);
   };
 }
 

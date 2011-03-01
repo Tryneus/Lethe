@@ -48,6 +48,32 @@ LinuxPipe::LinuxPipe() :
   }
 }
 
+LinuxPipe::LinuxPipe(Handle pipeRead, Handle pipeWrite) :
+  WaitObject(pipeRead),
+  m_pipeRead(pipeRead),
+  m_pipeWrite(pipeWrite),
+  m_asyncStart(0),
+  m_asyncEnd(0),
+  m_blockingWrite(false)
+{
+  // Make sure handles are non-blocking
+  if(fcntl(m_pipeRead, F_SETFL, O_NONBLOCK) != 0 ||
+     fcntl(m_pipeWrite, F_SETFL, O_NONBLOCK) != 0)
+  {
+    std::string errorString(lastError());
+    close(m_pipeRead);
+    close(m_pipeWrite);
+    throw std::bad_syscall("fcntl", errorString);
+  }
+
+  // Prepare async event structures
+  memset(m_asyncArray, 0, sizeof(m_asyncArray));
+  for(uint32_t i = 0; i < s_maxAsyncEvents; ++i)
+  {
+    m_asyncArray[i].aio_fildes = m_pipeWrite;
+  }
+}
+
 LinuxPipe::~LinuxPipe()
 {
   std::queue<aiocb*> unfinishedEvents;

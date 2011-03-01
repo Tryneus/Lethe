@@ -15,6 +15,9 @@
  */
 namespace lethe
 {
+  // Prototype for transferring handles between processes - defined in libProcessComm
+  class LinuxHandleTransfer;
+
   class LinuxPipe : public WaitObject
   {
   public:
@@ -28,6 +31,10 @@ namespace lethe
     // Private, undefined copy constructor and assignment operator so they can't be used
     LinuxPipe(const LinuxPipe&);
     LinuxPipe& operator = (const LinuxPipe&);
+
+    // Allow LinuxPipe to be constructed by a handle transfer from another process
+    friend class LinuxHandleTransfer;
+    LinuxPipe(Handle pipeRead, Handle pipeWrite);
 
     static const uint32_t s_maxAsyncEvents = 10;
 

@@ -1,4 +1,5 @@
 #include "Lethe.h"
+#include "LetheInternal.h"
 #include "ProcessComm.h"
 #include "ThreadComm.h"
 #include "catch.hpp"

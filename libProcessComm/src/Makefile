@@ -1,5 +1,6 @@
 INCLUDE_FLAGS:=-I../include \
-               -I../../libCommon/include
+               -I../../libCommon/include \
+               -I../../thirdParty/mct/include
 
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
 HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')

@@ -1,6 +1,9 @@
+#include "ProcessComm.h"
 #include "catch.hpp"
+
+using namespace lethe;
 
 TEST_CASE("byteStream/structor", "Test construction and destruction of ProcessByteStream")
 {
-  // TODO: implement byteStream/structor test
+  ProcessByteStream byteStream(999999, 1000);
 }

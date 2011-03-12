@@ -50,6 +50,7 @@ namespace lethe
     LinuxWaitSet& operator = (const LinuxWaitSet&);
 
     void resizeEvents();
+    void findBadHandles();
     void addEvents(const std::list<Handle>& events);
     WaitResult pollEvents(uint32_t timeout, uint32_t endTime);
     WaitResult getEvent(Handle& handle);

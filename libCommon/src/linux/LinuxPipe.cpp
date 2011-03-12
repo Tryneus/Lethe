@@ -11,34 +11,96 @@
 
 using namespace lethe;
 
+const std::string LinuxPipe::s_fifoPath("/tmp/lethe/");
+const std::string LinuxPipe::s_fifoBaseName("lethe-fifo-");
+
 LinuxPipe::LinuxPipe() :
-  WaitObject(INVALID_HANDLE_VALUE),
+  m_waitObject(NULL),
   m_pipeRead(INVALID_HANDLE_VALUE),
   m_pipeWrite(INVALID_HANDLE_VALUE),
   m_asyncStart(0),
   m_asyncEnd(0),
-  m_blockingWrite(false)
+  m_blockingWrite(false),
+  m_inCreated(false),
+  m_outCreated(false)
 {
   int pipes[2];
 
-  if(pipe(pipes) != 0 ||
-     pipes[0] == INVALID_HANDLE_VALUE ||
-     pipes[1] == INVALID_HANDLE_VALUE)
-    throw std::bad_syscall("pipe", lastError());
-
-  m_pipeRead = pipes[0];
-  m_pipeWrite = pipes[1];
-
-  if(fcntl(m_pipeRead, F_SETFL, O_NONBLOCK) != 0 ||
-     fcntl(m_pipeWrite, F_SETFL, O_NONBLOCK) != 0)
+  try
   {
-    std::string errorString(lastError());
-    close(m_pipeRead);
-    close(m_pipeWrite);
-    throw std::bad_syscall("fcntl", errorString);
+    if(pipe(pipes) != 0 ||
+       pipes[0] == INVALID_HANDLE_VALUE ||
+       pipes[1] == INVALID_HANDLE_VALUE)
+      throw std::bad_syscall("pipe", lastError());
+
+    m_pipeRead = pipes[0];
+    m_pipeWrite = pipes[1];
+
+    if(fcntl(m_pipeRead, F_SETFL, O_NONBLOCK) != 0 ||
+       fcntl(m_pipeWrite, F_SETFL, O_NONBLOCK) != 0)
+      throw std::bad_syscall("fcntl", lastError());
+
+    m_waitObject = new WaitObject(m_pipeRead);
+  }
+  catch(...)
+  {
+    cleanup();
+    throw;
   }
 
-  setWaitHandle(m_pipeRead);
+  // Prepare async event structures
+  memset(m_asyncArray, 0, sizeof(m_asyncArray));
+  for(uint32_t i = 0; i < s_maxAsyncEvents; ++i)
+  {
+    m_asyncArray[i].aio_fildes = m_pipeWrite;
+  }
+}
+
+LinuxPipe::LinuxPipe(const std::string& pipeIn, bool createIn, const std::string& pipeOut, bool createOut) :
+  m_waitObject(NULL),
+  m_pipeRead(INVALID_HANDLE_VALUE),
+  m_pipeWrite(INVALID_HANDLE_VALUE),
+  m_asyncStart(0),
+  m_asyncEnd(0),
+  m_blockingWrite(false),
+  m_fifoReadName(pipeIn.empty() ? "" : s_fifoPath + s_fifoBaseName + pipeIn),
+  m_fifoWriteName(pipeOut.empty() ? "" : s_fifoPath + s_fifoBaseName + pipeOut),
+  m_inCreated(createIn),
+  m_outCreated(createOut)
+{
+  // Make sure the fifo path exists
+  if(mkdir(s_fifoPath.c_str(), 0777) != 0 && errno != EEXIST)
+    throw std::bad_syscall("mkdir", lastError());
+
+  try
+  {
+    if(!m_fifoReadName.empty())
+    {
+      if(createIn && mkfifo(m_fifoReadName.c_str(), 0777) != 0 && errno != EEXIST) // TODO: permissions?
+        throw std::bad_syscall("mkfifo", lastError());
+
+      m_pipeRead = open(m_fifoReadName.c_str(), O_RDWR | O_NONBLOCK);
+      if(m_pipeRead == INVALID_HANDLE_VALUE)
+        throw std::bad_syscall("open", lastError() + ", " + m_fifoReadName);
+    }
+
+    if(!m_fifoWriteName.empty())
+    {
+      if(createOut && mkfifo(m_fifoWriteName.c_str(), 0777) != 0 && errno != EEXIST)
+        throw std::bad_syscall("mkfifo", lastError());
+
+      m_pipeWrite = open(m_fifoWriteName.c_str(), O_RDWR | O_NONBLOCK);
+      if(m_pipeWrite == INVALID_HANDLE_VALUE)
+        throw std::bad_syscall("open", lastError() + ", " + m_fifoWriteName);
+    }
+
+    m_waitObject = new WaitObject(m_pipeRead);
+  }
+  catch(...)
+  {
+    cleanup();
+    throw;
+  }
 
   // Prepare async event structures
   memset(m_asyncArray, 0, sizeof(m_asyncArray));
@@ -49,21 +111,27 @@ LinuxPipe::LinuxPipe() :
 }
 
 LinuxPipe::LinuxPipe(Handle pipeRead, Handle pipeWrite) :
-  WaitObject(pipeRead),
+  m_waitObject(NULL),
   m_pipeRead(pipeRead),
   m_pipeWrite(pipeWrite),
   m_asyncStart(0),
   m_asyncEnd(0),
-  m_blockingWrite(false)
+  m_blockingWrite(false),
+  m_inCreated(false),
+  m_outCreated(false)
 {
-  // Make sure handles are non-blocking
-  if(fcntl(m_pipeRead, F_SETFL, O_NONBLOCK) != 0 ||
-     fcntl(m_pipeWrite, F_SETFL, O_NONBLOCK) != 0)
+  try
   {
-    std::string errorString(lastError());
-    close(m_pipeRead);
-    close(m_pipeWrite);
-    throw std::bad_syscall("fcntl", errorString);
+    if(fcntl(m_pipeRead, F_SETFL, O_NONBLOCK) != 0 ||
+       fcntl(m_pipeWrite, F_SETFL, O_NONBLOCK) != 0)
+      throw std::bad_syscall("fcntl", lastError());
+
+    m_waitObject = new WaitObject(m_pipeRead);
+  }
+  catch(...)
+  {
+    cleanup();
+    throw;
   }
 
   // Prepare async event structures
@@ -72,6 +140,7 @@ LinuxPipe::LinuxPipe(Handle pipeRead, Handle pipeWrite) :
   {
     m_asyncArray[i].aio_fildes = m_pipeWrite;
   }
+
 }
 
 LinuxPipe::~LinuxPipe()
@@ -87,8 +156,7 @@ LinuxPipe::~LinuxPipe()
       delete [] reinterpret_cast<volatile uint8_t*>(m_asyncArray[i].aio_buf);
   }
 
-  close(m_pipeWrite);
-  close(m_pipeRead);
+  cleanup();
 
   while(!unfinishedEvents.empty())
   {
@@ -105,6 +173,24 @@ LinuxPipe::~LinuxPipe()
     aio_return(unfinishedEvents.front());
     unfinishedEvents.pop();
   }
+}
+
+void LinuxPipe::cleanup()
+{
+  if(m_pipeRead != INVALID_HANDLE_VALUE)
+    close(m_pipeRead);
+
+  if(m_pipeWrite != INVALID_HANDLE_VALUE)
+    close(m_pipeWrite);
+
+  if(!m_fifoReadName.empty() && m_inCreated)
+    unlink(m_fifoReadName.c_str());
+
+  if(!m_fifoWriteName.empty() && m_outCreated)
+    unlink(m_fifoWriteName.c_str());
+
+  delete m_waitObject;
+  m_waitObject = NULL;
 }
 
 void LinuxPipe::getAsyncResults()
@@ -185,4 +271,14 @@ uint32_t LinuxPipe::receive(void* buffer, uint32_t bufferSize)
     throw std::bad_syscall("read from pipe", lastError());
 
   return bytesRead;
+}
+
+LinuxPipe::operator WaitObject&()
+{
+  return *m_waitObject;
+}
+
+Handle LinuxPipe::getHandle() const
+{
+  return m_waitObject->getHandle();
 }

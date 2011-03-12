@@ -13,7 +13,7 @@ std::ostream& operator << (std::ostream& out, const lethe::Handle& handle)
   return out << static_cast<uint32_t>(handle);
 }
 
-std::string lethe::lastError()
+std::string lethe::getErrorString(uint32_t errorCode)
 {
   TCHAR* buffer(NULL);
 
@@ -21,7 +21,7 @@ std::string lethe::lastError()
                 FORMAT_MESSAGE_FROM_SYSTEM |
                 FORMAT_MESSAGE_MAX_WIDTH_MASK,
                 NULL,
-                GetLastError(),
+                errorCode,
                 0,
                 (LPTSTR)&buffer,
                 0,
@@ -32,6 +32,11 @@ std::string lethe::lastError()
   LocalFree(buffer);
 
   return retval;
+}
+
+std::string lethe::lastError()
+{
+  return lethe::getErrorString(GetLastError());
 }
 
 uint64_t lethe::getTime()
@@ -108,25 +113,38 @@ uint32_t lethe::seedRandom(uint32_t seed)
 
 lethe::WaitResult lethe::WaitForObject(lethe::WaitObject& obj, uint32_t timeout)
 {
-  if(obj.preWaitCallback())
-    return lethe::WaitSuccess;
+  lethe::WaitResult result = WaitSuccess;
 
+  if(!obj.preWaitCallback())
+  {
+    try
+    {
+      result = lethe::WaitForObject(obj.getHandle(), timeout);
+    }
+    catch(...)
+    {
+      obj.postWaitCallback(lethe::WaitError);
+    }
+  }
+
+  obj.postWaitCallback(result);
+  return result;
+}
+
+lethe::WaitResult lethe::WaitForObject(lethe::Handle handle, uint32_t timeout)
+{
   switch(WaitForSingleObject(obj.getHandle(), timeout))
   {
   case WAIT_OBJECT_0:
-    obj.postWaitCallback(lethe::WaitSuccess);
     return lethe::WaitSuccess;
 
   case WAIT_ABANDONED_0:
-    obj.postWaitCallback(lethe::WaitAbandoned);
     return lethe::WaitAbandoned;
 
   case WAIT_TIMEOUT:
-    obj.postWaitCallback(lethe::WaitTimeout);
     return lethe::WaitTimeout;
 
   default:
-    obj.postWaitCallback(lethe::WaitError);
     throw std::bad_syscall("WaitForSingleObject", lethe::lastError());
   }
 }

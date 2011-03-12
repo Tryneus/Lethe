@@ -42,8 +42,10 @@ namespace lethe
   class WaitObject;
 
   WaitResult WaitForObject(WaitObject& obj, uint32_t timeout = INFINITE);
+  WaitResult WaitForObject(Handle handle, uint32_t timeout = INFINITE);
 
   std::string lastError();
+  std::string getErrorString(uint32_t errorCode);
 }
 
 #endif

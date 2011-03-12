@@ -6,6 +6,9 @@ obj-m := eventfd.o
 
 all: eventfd.ko
 
+install: eventfd.ko
+	insmod eventfd.ko
+
 eventfd.ko: eventfd.c eventfd-internal.h
 	make -C $(KERNEL_SRC) M=`pwd` modules
 

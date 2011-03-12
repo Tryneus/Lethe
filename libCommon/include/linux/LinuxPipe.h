@@ -2,6 +2,7 @@
 #define _LINUXPIPE_H
 
 #include "WaitObject.h"
+#include "ByteStream.h"
 #include "LetheTypes.h"
 #include <unistd.h>
 #include <aio.h>
@@ -18,14 +19,19 @@ namespace lethe
   // Prototype for transferring handles between processes - defined in libProcessComm
   class LinuxHandleTransfer;
 
-  class LinuxPipe : public WaitObject
+  class LinuxPipe : public ByteStream
   {
   public:
     LinuxPipe();
+    LinuxPipe(const std::string& pipeIn, bool createIn, const std::string& pipeOut, bool createOut); // Constructor for a named pipe
     ~LinuxPipe();
 
     void send(const void* buffer, uint32_t bufferSize);
     uint32_t receive(void* buffer, uint32_t bufferSize);
+
+    // It's a little sloppy to be both a waitobject and a bytestream
+    operator WaitObject&();
+    Handle getHandle() const;
 
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used
@@ -36,17 +42,27 @@ namespace lethe
     friend class LinuxHandleTransfer;
     LinuxPipe(Handle pipeRead, Handle pipeWrite);
 
+    static const std::string s_fifoPath;
+    static const std::string s_fifoBaseName;
     static const uint32_t s_maxAsyncEvents = 10;
 
+    void cleanup();
     void asyncWrite(const void* buffer, uint32_t bufferSize);
     void getAsyncResults();
 
+    WaitObject* m_waitObject;
     Handle m_pipeRead;
     Handle m_pipeWrite;
     uint32_t m_asyncStart;
     uint32_t m_asyncEnd;
     struct aiocb m_asyncArray[s_maxAsyncEvents];
     bool m_blockingWrite;
+
+    // Variables used in the case of a named pipe (FIFO)
+    const std::string m_fifoReadName;
+    const std::string m_fifoWriteName;
+    const bool m_inCreated;
+    const bool m_outCreated;
   };
 }
 

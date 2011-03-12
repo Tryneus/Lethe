@@ -1,6 +1,8 @@
 #include "Lethe.h"
 #include "LetheException.h"
+#include "LetheInternal.h"
 #include "catch.hpp"
+#include "Log.h"
 
 using namespace lethe;
 
@@ -302,8 +304,8 @@ TEST_CASE("waitSet/waitAny2", "Test behavior of waitAny in different conditions"
   event1.reset();
   event3.reset();
   timer.clear();
+  thread.start();
   waitSet.remove(mutex);
-  waitSet.remove(thread);
   pipe.receive(buffer, 5);
 
   REQUIRE(waitSet.waitAny(20, waitHandle) == WaitTimeout);
@@ -318,85 +320,91 @@ TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
   std::set<Handle> unfinished;
   std::set<Handle> unfinished2;
 
-  {
-    // Have an object of every type in different states
-    Mutex mutex1(false);
-    Mutex mutex2(true);
-    Event event1(false, false);
-    Event event2(false, true);
-    Event event3(true, false);
-    Event event4(true, true);
-    WaitSetDummyThread thread1;
-    WaitSetDummyThread thread2;
-    Timer timer1;
-    Timer timer2;
-    Timer timer3;
-    Pipe pipe1;
-    Pipe pipe2;
-    Semaphore sem1(10, 0);
-    Semaphore sem2(10, 5);
-    Semaphore sem3(10, 10);
+  // Have an object of every type in different states
+  Mutex mutex1(false);
+  Mutex mutex2(true);
+  Event event1(false, false);
+  Event event2(false, true);
+  Event event3(true, false);
+  Event event4(true, true);
+  WaitSetDummyThread thread1;
+  WaitSetDummyThread thread2;
+  Timer timer1;
+  Timer timer2;
+  Timer timer3;
+  Pipe pipe1;
+  Pipe pipe2;
+  Semaphore sem1(10, 0);
+  Semaphore sem2(10, 5);
+  Semaphore sem3(10, 10);
 
-    // Create some different states (if not done at construction)
-    thread2.start();
-    timer2.start(1);
-    timer3.start(10000);
-    pipe2.send("text", 5);
+  // Create some different states (if not done at construction)
+  thread2.start();
+  timer2.start(1);
+  timer3.start(10000);
+  pipe2.send("text", 5);
 
-    // Add WaitObject handles to the sets
-    unfinished.insert(mutex1.getHandle());
-    unfinished.insert(mutex2.getHandle());
-    unfinished.insert(event1.getHandle());
-    unfinished.insert(event2.getHandle());
-    unfinished.insert(event3.getHandle());
-    unfinished.insert(event4.getHandle());
-    unfinished.insert(thread1.getHandle());
-    unfinished.insert(thread2.getHandle());
-    unfinished.insert(timer1.getHandle());
-    unfinished.insert(timer2.getHandle());
-    unfinished.insert(timer3.getHandle());
-    unfinished.insert(pipe1.getHandle());
-    unfinished.insert(pipe2.getHandle());
-    unfinished.insert(sem1.getHandle());
-    unfinished.insert(sem2.getHandle());
-    unfinished.insert(sem3.getHandle());
+  // Add WaitObject handles to the sets
+  unfinished.insert(mutex1.getHandle());
+  unfinished.insert(mutex2.getHandle());
+  unfinished.insert(event1.getHandle());
+  unfinished.insert(event2.getHandle());
+  unfinished.insert(event3.getHandle());
+  unfinished.insert(event4.getHandle());
+  unfinished.insert(thread1.getHandle());
+  unfinished.insert(thread2.getHandle());
+  unfinished.insert(timer1.getHandle());
+  unfinished.insert(timer2.getHandle());
+  unfinished.insert(timer3.getHandle());
+  unfinished.insert(pipe1.getHandle());
+  unfinished.insert(pipe2.getHandle());
+  unfinished.insert(sem1.getHandle());
+  unfinished.insert(sem2.getHandle());
+  unfinished.insert(sem3.getHandle());
 
-    unfinished2 = unfinished;
+  unfinished2 = unfinished;
 
-    waitSet.add(mutex1);
-    waitSet.add(mutex2);
-    waitSet.add(event1);
-    waitSet.add(event2);
-    waitSet.add(event3);
-    waitSet.add(event4);
-    waitSet.add(thread1);
-    waitSet.add(thread2);
-    waitSet.add(timer1);
-    waitSet.add(timer2);
-    waitSet.add(timer3);
-    waitSet.add(pipe1);
-    waitSet.add(pipe2);
-    waitSet.add(sem1);
-    waitSet.add(sem2);
-    waitSet.add(sem3);
+  waitSet.add(mutex1);
+  waitSet.add(mutex2);
+  waitSet.add(event1);
+  waitSet.add(event2);
+  waitSet.add(event3);
+  waitSet.add(event4);
+  waitSet.add(thread1);
+  waitSet.add(thread2);
+  waitSet.add(timer1);
+  waitSet.add(timer2);
+  waitSet.add(timer3);
+  waitSet.add(pipe1);
+  waitSet.add(pipe2);
+  waitSet.add(sem1);
+  waitSet.add(sem2);
+  waitSet.add(sem3);
 
-    waitSet2.add(mutex1);
-    waitSet2.add(mutex2);
-    waitSet2.add(event1);
-    waitSet2.add(event2);
-    waitSet2.add(event3);
-    waitSet2.add(event4);
-    waitSet2.add(thread1);
-    waitSet2.add(thread2);
-    waitSet2.add(timer1);
-    waitSet2.add(timer2);
-    waitSet2.add(timer3);
-    waitSet2.add(pipe1);
-    waitSet2.add(pipe2);
-    waitSet2.add(sem1);
-    waitSet2.add(sem2);
-    waitSet2.add(sem3);
-  }
+  waitSet2.add(mutex1);
+  waitSet2.add(mutex2);
+  waitSet2.add(event1);
+  waitSet2.add(event2);
+  waitSet2.add(event3);
+  waitSet2.add(event4);
+  waitSet2.add(thread1);
+  waitSet2.add(thread2);
+  waitSet2.add(timer1);
+  waitSet2.add(timer2);
+  waitSet2.add(timer3);
+  waitSet2.add(pipe1);
+  waitSet2.add(pipe2);
+  waitSet2.add(sem1);
+  waitSet2.add(sem2);
+  waitSet2.add(sem3);
+
+  // Can't destroy objects because of callbacks, instead close handles manually
+  for(std::set<Handle>::iterator i = unfinished.begin(); i != unfinished.end(); ++i)
+#if defined(__linux__)
+    close(*i);
+#elif defined(__WIN32__)
+    CloseHandle(*i);
+#endif
 
   Handle waitHandle;
 
@@ -408,8 +416,8 @@ TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
   }
 
   // Make sure that all abandoned events are still received (without duplicates),
-  //  even if the wait object is not removed.
-  // This test will prove if fair load balancing is done in the wait set
+  //  even if the wait object is not removed.  This will prove if fair load
+  //  balancing is done in the wait set on abandoned handles
   while(unfinished2.size() > 0)
   {
     REQUIRE(waitSet2.waitAny(0, waitHandle) == WaitAbandoned);

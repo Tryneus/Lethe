@@ -1,5 +1,6 @@
 #include "Lethe.h"
 #include "LetheException.h"
+#include "LetheInternal.h"
 #include "catch.hpp"
 #include "testCommon.h"
 #include <stdio.h>

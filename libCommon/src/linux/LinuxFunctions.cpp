@@ -18,12 +18,15 @@ void lethe::Sleep(uint32_t timeout)
   usleep(timeout * 1000);
 }
 
+std::string lethe::getErrorString(uint32_t errorCode)
+{
+  char buffer[200];
+  return std::string(strerror_r(errorCode, buffer, 200));
+}
+
 std::string lethe::lastError()
 {
-  int errorCode(errno);
-  char buffer[200];
-
-  return std::string(strerror_r(errorCode, buffer, 200));
+  return lethe::getErrorString(errno);
 }
 
 uint32_t lethe::seedRandom(uint32_t seed)
@@ -79,40 +82,68 @@ uint32_t lethe::getThreadId()
 
 lethe::WaitResult lethe::WaitForObject(lethe::WaitObject& obj, uint32_t timeout)
 {
+  lethe::WaitResult result = lethe::WaitSuccess;
+
+  if(!obj.preWaitCallback())
+  {
+    try
+    {
+      result = lethe::WaitForObject(obj.getHandle(), timeout);
+    }
+    catch(...)
+    {
+      obj.postWaitCallback(lethe::WaitError);
+      throw;
+    }
+  }
+
+  obj.postWaitCallback(result);
+  return result;
+}
+
+lethe::WaitResult lethe::WaitForObject(lethe::Handle handle, uint32_t timeout)
+{
   uint32_t endTime = lethe::getTime() + timeout;
   lethe::WaitResult result = lethe::WaitSuccess;
   struct pollfd pollData;
-
-  if(obj.preWaitCallback())
-    return lethe::WaitSuccess;
+  int pollResult;
 
   while(true)
   {
-    pollData.fd = obj.getHandle();
+    pollData.fd = handle;
     pollData.events = POLLIN | POLLERR | POLLHUP;
 
-    switch(poll(&pollData, 1, timeout))
+    pollResult = poll(&pollData, 1, timeout);
+
+    if(pollResult == 1)
     {
-    case 1:
       if(pollData.revents & (POLLERR | POLLNVAL | POLLHUP))
         result = lethe::WaitAbandoned;
-      obj.postWaitCallback(result);
-      return result;
-
-    case 0:
-      obj.postWaitCallback(WaitTimeout);
-      return lethe::WaitTimeout;
-
-    default:
-      if(errno == EINTR)
+      break;
+    }
+    else if(pollResult == 0)
+    {
+      result = lethe::WaitTimeout;
+      break;
+    }
+    else if(errno == EINTR)
+    {
+      if(timeout != INFINITE)
       {
         uint32_t currentTime = lethe::getTime();
         timeout = (endTime <= currentTime ? 0 : endTime - currentTime);
-        continue;
       }
-      obj.postWaitCallback(WaitError);
-      throw std::bad_syscall("poll", lethe::lastError());
+      continue;
     }
+    else if(errno == EBADF)
+    {
+      result = lethe::WaitAbandoned;
+      break;
+    }
+    else
+      throw std::bad_syscall("poll", lethe::lastError());
   }
+
+  return result;
 }
 

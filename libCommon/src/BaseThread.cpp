@@ -1,7 +1,9 @@
 #include "BaseThread.h"
 #include "LetheFunctions.h"
 #include "LetheException.h"
+#include "LetheInternal.h"
 #include <sstream>
+#include "Log.h"
 
 using namespace lethe;
 
@@ -20,8 +22,19 @@ BaseThread::BaseThread(uint32_t timeout) :
 BaseThread::~BaseThread()
 {
   m_exit = true;
-  stop();
-  WaitForObject(m_exitedEvent, INFINITE);
+
+  try
+  {
+    stop();
+    WaitForObject(m_exitedEvent, INFINITE);
+  }
+  catch(std::bad_syscall& ex)
+  {
+    // If the stop fails because the event is not valid for some reason, try more drastic measures
+    // TODO: more drastic measures
+    // Linux: pthread_cancel, pthread_kill?
+    // Windows:
+  }
 }
 
 void BaseThread::threadMain()
@@ -31,7 +44,6 @@ void BaseThread::threadMain()
 
   try
   {
-
     while(!m_exit)
     {
       WaitForObject(m_triggerEvent, INFINITE);
@@ -77,13 +89,20 @@ void BaseThread::threadMain()
   }
   catch(std::exception& ex)
   {
-    m_mutex.lock();
-    m_error.assign(ex.what());
+    try
+    {
+      m_mutex.lock();
+      m_error.assign(ex.what());
 
-    if(m_error.empty()) // Don't allow an empty error string
-      m_error.assign("empty exception text");
+      if(m_error.empty()) // Don't allow an empty error string
+        m_error.assign("empty exception text");
 
-    m_mutex.unlock();
+      m_mutex.unlock();
+    }
+    catch(std::runtime_error& ex)
+    {
+      // Problem with the mutex, possibly destroyed, abandon the operation
+    }
   }
   catch(...)
   {
@@ -95,8 +114,16 @@ void BaseThread::threadMain()
   // Make sure all the notifications are set
   m_running = false;
   m_exit = true;
-  m_stoppedEvent.set();
-  m_exitedEvent.set();
+
+  try
+  {
+    m_exitedEvent.set();
+    m_stoppedEvent.set();
+  }
+  catch(std::bad_syscall& ex)
+  {
+    // Thread may already be destroyed, abandon operation
+  }
 }
 
 void BaseThread::setup()

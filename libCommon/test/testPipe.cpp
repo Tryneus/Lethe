@@ -1,8 +1,11 @@
 #include "Lethe.h"
 #include "LetheException.h"
+#include "LetheInternal.h"
 #include "catch.hpp"
 
 using namespace lethe;
+
+// TODO: add named pipes to tests
 
 TEST_CASE("pipe/structor", "Test construction/destruction")
 {
@@ -29,6 +32,30 @@ TEST_CASE("pipe/structor", "Test construction/destruction")
   // No checks, as long as we don't crash, it's fine
 }
 
+TEST_CASE("pipe/namedStructor", "Test named pipe construction/destructor")
+{
+  uint8_t buffer[100] = { "gHagbjXjDGSVhbRXKBzQ5B6Keuq8FO6uT6RBrYblSWjQCxxS30Tt39z5OR67pfLb3ZV7QG5IZJFDZ7iKNHKXhSqp7uu6PeTRkXM" };
+
+  for(uint32_t i = 0; i < 100; ++i)
+  {
+    Pipe pipe("temp1", true, "temp2", true);
+
+    for(uint32_t j(0); j < i; ++j)
+      pipe.send(buffer, 100);
+  }
+
+  for(uint32_t i = 0; i < 100; ++i)
+  {
+    Pipe pipe1("temp3", true, "temp4", true);
+    Pipe pipe2("temp4", true, "temp3", true);
+
+    for(uint32_t j(0); j < i; ++j)
+      pipe1.send(buffer, 100);
+
+    for(uint32_t j(0); j < i; ++j)
+      pipe2.send(buffer, 100);
+  }
+}
 
 // Child thread to receive on the pipe
 class PipeTestThread : public Thread

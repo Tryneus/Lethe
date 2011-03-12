@@ -33,17 +33,10 @@
 
   // Some defines to copy identifiers used in WIN32
   #define INVALID_HANDLE_VALUE -1
-  #define INFINITE -1
+  #define INFINITE static_cast<uint32_t>(-1)
 
 #else
   #error "Platform not detected"
-#endif
-
-// Compiler-specific stuff : TODO: don't expose this to users?
-#if defined(__GNUG__)
-  #define GCC_UNUSED __attribute__((unused))
-#else
-  #define GCC_UNUSED
 #endif
 
 namespace lethe

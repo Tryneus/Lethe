@@ -8,8 +8,8 @@ using namespace lethe;
 
 LinuxMutex::LinuxMutex(bool locked) :
   WaitObject(eventfd((locked ? 0 : 1), (EFD_NONBLOCK | EFD_SEMAPHORE | EFD_WAITREAD))),
-  m_ownerThread(locked ? pthread_self() : -1),
-  m_count(locked)
+  m_ownerThread(locked ? pthread_self() : INVALID_THREAD_ID),
+  m_lockCount(locked)
 {
   if(getHandle() == INVALID_HANDLE_VALUE)
     throw std::bad_syscall("eventfd", lastError());
@@ -22,20 +22,17 @@ LinuxMutex::~LinuxMutex()
 
 void LinuxMutex::lock(uint32_t timeout)
 {
-  if(m_ownerThread != pthread_self())
-  {
-    if(WaitForObject(*this, timeout) != WaitSuccess)
-      throw std::runtime_error("failed to wait for mutex");
-  }
+  if(WaitForObject(*this, timeout) != WaitSuccess) // postWaitCallback will set owner
+    throw std::runtime_error("failed to wait for mutex");
 }
 
 void LinuxMutex::unlock()
 {
   if(m_ownerThread == pthread_self())
   {
-    if(--m_count == 0)
+    if(--m_lockCount == 0)
     {
-      m_ownerThread = -1;
+      m_ownerThread = INVALID_THREAD_ID;
 
       uint64_t buffer(1);
       if(write(getHandle(), &buffer, sizeof(buffer)) != sizeof(buffer))
@@ -50,7 +47,7 @@ bool LinuxMutex::preWaitCallback()
 {
   if(m_ownerThread == pthread_self())
   {
-    ++m_count;
+    ++m_lockCount;
     return true;
   }
 
@@ -59,9 +56,16 @@ bool LinuxMutex::preWaitCallback()
 
 void LinuxMutex::postWaitCallback(WaitResult result)
 {
-  if(result == WaitSuccess && m_ownerThread != pthread_self())
+  if(result == WaitSuccess)
   {
-    m_ownerThread = pthread_self();
-    ++m_count;
+    pthread_t self = pthread_self();
+
+    if(m_ownerThread == INVALID_THREAD_ID)
+    {
+      m_ownerThread = self;
+      ++m_lockCount;
+    }
+    else if(m_ownerThread != self)
+      throw std::runtime_error("inconsistent mutex data"); // thread/structor test encountered this, as does functions/wait
   }
 }

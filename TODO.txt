@@ -1,9 +1,6 @@
 Features:
   libCommon:
     Investigate replacing ostream-style Log interface with fastformat::write
-  libProcessComm:
-    ByteStream
-    MessageStream
   libSocketComm:
     ByteStream
     MessageStream

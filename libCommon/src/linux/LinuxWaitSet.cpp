@@ -144,27 +144,60 @@ WaitResult LinuxWaitSet::pollEvents(uint32_t timeout, uint32_t endTime)
 
   m_eventOffset = 0;
 
-  do
+  while(true)
   {
     int32_t eventCount = poll(m_waitArray, m_waitObjects->size(), timeout);
 
-    if(eventCount == 0)
+    if(eventCount < 0)
     {
       if(errno == EINTR)
       {
-        uint32_t currentTime = getTime();
-        timeout = (endTime <= currentTime ? 0 : endTime - currentTime);
+        if(timeout != INFINITE)
+        {
+          uint32_t currentTime = getTime();
+          timeout = (endTime <= currentTime ? 0 : endTime - currentTime);
+        }
         continue;
       }
-      result = WaitTimeout;
+      else if(errno == EBADF)
+      {
+        findBadHandles();
+        result = WaitSuccess;
+      }
+      else
+        result = WaitError;
     }
-    else if(eventCount < 0)
-      result = WaitError;
+    else if(eventCount == 0)
+      result = WaitTimeout;
     else
       result = WaitSuccess;
-  } while(false);
+
+    break;
+  }
 
   return result;
+}
+
+// TODO: get this working, it isn't
+void LinuxWaitSet::findBadHandles()
+{
+  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i = m_waitObjects->begin();
+      i != m_waitObjects->end(); ++i)
+  {
+    if(fcntl(i->first, F_GETFL) == -1 && errno == EBADF)
+    {
+      for(uint32_t j = 0; j < m_waitObjects->size(); ++j)
+      {
+        if(m_waitArray[j].fd == i->first)
+        {
+          m_waitArray[j].revents |= POLLERR;
+          if(j < m_eventOffset)
+            m_eventOffset = j;
+          break;
+        }
+      }
+    }
+  }
 }
 
 void LinuxWaitSet::addEvents(const std::list<Handle>& events)
@@ -174,6 +207,8 @@ void LinuxWaitSet::addEvents(const std::list<Handle>& events)
       if(m_waitArray[j].fd == *i)
       {
         m_waitArray[j].revents |= POLLIN;
+        if(j < m_eventOffset)
+          m_eventOffset = j;
         break;
       }
 }
@@ -187,8 +222,9 @@ WaitResult LinuxWaitSet::getEvent(Handle& handle)
   {
     if(m_waitArray[m_eventOffset].revents & (POLLERR | POLLHUP | POLLNVAL))
     {
+      // m_waitArray[m_eventOffset].revents &= ~(POLLERR | POLLHUP | POLLNVAL); // Mask out the flags we used
+      m_waitArray[m_eventOffset].revents = 0; // Mask out all events, error conditions prevent success
       result = WaitAbandoned;
-      m_waitArray[m_eventOffset].revents &= ~(POLLERR | POLLHUP | POLLNVAL); // Mask out the flags we used
       break;
     }
     else if(m_waitArray[m_eventOffset].revents & POLLIN)

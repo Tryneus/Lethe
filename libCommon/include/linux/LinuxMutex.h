@@ -30,8 +30,10 @@ namespace lethe
     LinuxMutex(const LinuxMutex&);
     LinuxMutex& operator = (const LinuxMutex&);
 
+    static const pthread_t INVALID_THREAD_ID = -1;
+
     pthread_t m_ownerThread;
-    uint32_t m_count;
+    uint32_t m_lockCount;
   };
 }
 

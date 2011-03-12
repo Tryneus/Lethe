@@ -1,4 +1,5 @@
 #include "WaitObject.h"
+#include "LetheInternal.h"
 
 using namespace lethe;
 

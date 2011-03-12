@@ -15,26 +15,34 @@
  */
 namespace lethe
 {
-  class WindowsPipe : public WaitObject
+  class WindowsPipe
   {
   public:
     WindowsPipe();
+    WindowsPipe(const std::string& pipeIn, bool createIn, const std::string& pipeOut, bool createOut); // Named pipe constructor
     ~WindowsPipe();
 
     void send(const void* buffer, uint32_t bufferSize);
     uint32_t receive(void* buffer, uint32_t bufferSize);
+
+    operator WaitObject&();
+    Handle getHandle() const;
 
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used
     WindowsPipe(const WindowsPipe&);
     WindowsPipe& operator = (const WindowsPipe&);
 
-    static std::string getPipeName();
+    static std::string generatePipeName();
+    static Handle createPipe(const std::string& name);
+    static Handle openPipe(const std::string& name);
 
+    static const std::string s_basePipeName;
     static const uint32_t s_maxAsyncEvents  = 10;
     static DWORD s_procId;
     static uint32_t s_uniqueId;
 
+    void cleanup();
     void asyncWrite(const void* buffer, uint32_t bufferSize);
     void getAsyncResults();
 
@@ -42,6 +50,7 @@ namespace lethe
 
     const std::string m_pipeName;
 
+    WaitObject m_waitObject;
     WindowsMutex m_mutex;
     WindowsEvent m_dataEvent;
     uint32_t m_dataCount;

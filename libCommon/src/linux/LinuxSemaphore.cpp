@@ -26,7 +26,7 @@ LinuxSemaphore::LinuxSemaphore(Handle handle) :
   m_count(0)
 {
   if(getHandle() == INVALID_HANDLE_VALUE)
-    throw std::invalid_argument("LinuxSemaphore handle");
+    throw std::invalid_argument("handle");
 
   struct stat handleInfo;
   if(fstat(handle, &handleInfo) != 0) // TODO: check if handle is for an eventfd

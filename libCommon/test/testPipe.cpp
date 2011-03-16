@@ -136,7 +136,7 @@ void PipeTestThread::iterate(Handle handle)
 
 void PipeTestThread::abandoned(Handle handle GCC_UNUSED)
 {
-  throw std::logic_error("Abandoned handle in pipe test thread");
+  throw std::logic_error("abandoned handle in pipe test thread");
 }
 
 TEST_CASE("pipe/data", "Test sending/receiving on a pipe")

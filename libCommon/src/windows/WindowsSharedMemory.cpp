@@ -49,7 +49,7 @@ WindowsSharedMemory::WindowsSharedMemory(const std::string& name, uint32_t size)
   }
   else if(size != 0 && m_size != size)
   {
-    throw std::runtime_error("Unexpected shared memory size")
+    throw std::runtime_error("unexpected shared memory size")
   }
 
   // Map the shared memory file into process memory

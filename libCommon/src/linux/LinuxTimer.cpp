@@ -19,7 +19,7 @@ LinuxTimer::LinuxTimer(Handle handle) :
   WaitObject(handle)
 {
   if(getHandle() == INVALID_HANDLE_VALUE)
-    throw std::invalid_argument("LinuxTimer handle");
+    throw std::invalid_argument("handle");
 
   struct stat handleInfo;
   if(fstat(handle, &handleInfo) != 0) // TODO: check if handle is for a timerfd

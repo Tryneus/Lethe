@@ -5,9 +5,6 @@
 
 using namespace lethe;
 
-////////////////////////////////////
-// Log implementation
-////////////////////////////////////
 Log::Log() :
   m_mutex(true),
   m_logLevel(Debug),
@@ -112,7 +109,7 @@ Log::FileLogHandler::FileLogHandler(const std::string& filename) :
   m_out(m_filename.c_str(), std::ios_base::app)
 {
   if(!m_out.good())
-    throw std::runtime_error("Failed to open log file '" + m_filename + "'");
+    throw std::runtime_error("failed to open log file '" + m_filename + "'");
 }
 
 Log::FileLogHandler::~FileLogHandler()
@@ -123,7 +120,7 @@ Log::FileLogHandler::~FileLogHandler()
 void Log::FileLogHandler::write(const std::string& statement)
 {
   if(!m_out.good())
-    throw std::runtime_error("Log file '" + m_filename + "' not good");
+    throw std::runtime_error("log file '" + m_filename + "' not good");
 
   m_out << statement << std::endl;
 }

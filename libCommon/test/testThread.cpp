@@ -16,7 +16,7 @@ public:
 
 protected:
   void iterate(Handle handle GCC_UNUSED) { /* Do nothing */ };
-  void abandoned(Handle handle GCC_UNUSED) { throw std::logic_error("TestThreadDummyThread received abandoned event"); };
+  void abandoned(Handle handle GCC_UNUSED) { throw std::logic_error("abandoned event in TestThreadDummyThread"); };
 };
 
 // StopThread stops itself after the given timeout
@@ -28,7 +28,7 @@ public:
 
 protected:
   void iterate(Handle handle GCC_UNUSED) { stop(); };
-  void abandoned(Handle handle GCC_UNUSED) { throw std::logic_error("StopThread received abandoned event"); };
+  void abandoned(Handle handle GCC_UNUSED) { throw std::logic_error("abandoned event in StopThread"); };
 };
 
 // WaitThread waits until the given object triggers, then stops
@@ -40,7 +40,7 @@ public:
 
 protected:
   void iterate(Handle handle GCC_UNUSED) { stop(); };
-  void abandoned(Handle handle GCC_UNUSED) { throw std::logic_error("WaitThread received abandoned event"); };
+  void abandoned(Handle handle GCC_UNUSED) { throw std::logic_error("abandoned event in WaitThread"); };
 };
 
 TEST_CASE("thread/structor", "Test construction/destruction")
@@ -221,7 +221,7 @@ protected:
       setWaitTimeout(300);
 
     if(handle != m_trigger.getHandle())
-      throw std::runtime_error("Shutting down thread");
+      throw std::runtime_error("shutting down thread");
   }
 };
 
@@ -267,5 +267,5 @@ TEST_CASE("thread/stop", "Test stopping threads")
   thread.start(); // Thread should iterate once, then again 300ms later and kill itself
   REQUIRE(WaitForObject(thread, 500) == WaitSuccess);
   REQUIRE(thread.isStopping());
-  REQUIRE(thread.getError() == "Shutting down thread");
+  REQUIRE(thread.getError() == "shutting down thread");
 }

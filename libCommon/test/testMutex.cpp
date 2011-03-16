@@ -62,7 +62,7 @@ protected:
     if(WaitForObject(m_event, 2000) != WaitSuccess)
     {
       m_iterating = false;
-      throw std::logic_error("Thread did not receive secondary event");
+      throw std::logic_error("thread did not receive secondary event");
     }
 
     stop();

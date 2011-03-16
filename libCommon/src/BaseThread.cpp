@@ -138,7 +138,7 @@ void BaseThread::setup()
 //  but before the base destructor has completed.
 void BaseThread::iterate(Handle handle GCC_UNUSED)
 {
-  throw std::runtime_error("BaseThread iterate called");
+  throw std::runtime_error("iterate called in BaseThread");
 }
 
 void BaseThread::start()

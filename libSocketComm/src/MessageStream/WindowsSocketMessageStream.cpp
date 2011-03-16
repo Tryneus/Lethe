@@ -1,4 +1,5 @@
 #include "Lethe.h"
+#include "LetheInternal.h"
 #include "MessageStream/WindowsSocketMessageStream.h"
 
 using namespace lethe;

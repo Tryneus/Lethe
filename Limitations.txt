@@ -12,4 +12,4 @@ Known limitations or discrepancies between platforms:
 
 3. No method in Linux to wait for all file descriptors in a set before returning
  - No plan on implementing this at the moment, seems too easy to deadlock in Linux
- - Because of this, waitAll is not implemented in windows, either
+ - Because of this, waitAll is not implemented for windows, either

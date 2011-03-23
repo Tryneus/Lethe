@@ -10,6 +10,9 @@
 
 namespace lethe
 {
+  // Class prototype for friending
+  class CommRegistry;
+
   class BaseThread
   {
   public:
@@ -29,6 +32,8 @@ namespace lethe
     virtual void setup();
     virtual void iterate(Handle handle);
     virtual void abandoned(Handle handle);
+
+    friend class CommRegistry; // Workaround to allow access to addWaitObject, TODO: find a better solution
 
     void addWaitObject(WaitObject& obj);
     void removeWaitObject(WaitObject& obj);

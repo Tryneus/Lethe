@@ -117,12 +117,20 @@ void BaseThread::threadMain()
 
   try
   {
-    m_exitedEvent.set();
     m_stoppedEvent.set();
   }
   catch(std::bad_syscall& ex)
   {
-    // Thread may already be destroyed, abandon operation
+    // Thread may already be destroyed, ignore
+  }
+
+  try
+  {
+    m_exitedEvent.set();
+  }
+  catch(std::bad_syscall& ex)
+  {
+    // Thread may already be destroyed, ignore
   }
 }
 

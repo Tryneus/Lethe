@@ -228,7 +228,7 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
   // Sleep a little to make sure the notifications have pushed through
   Sleep(10);
 
-  while(unfinished.size() > 0)
+  while(!unfinished.empty())
   {
     REQUIRE(waitSet.waitAny(20, waitHandle) == WaitSuccess);
     REQUIRE(unfinished.erase(waitHandle) == 1);
@@ -294,7 +294,7 @@ TEST_CASE("waitSet/waitAny2", "Test behavior of waitAny in different conditions"
   // Sleep a bit to make sure the timer finishes
   Sleep(5);
 
-  while(unfinished.size() > 0)
+  while(!unfinished.empty())
   {
     REQUIRE(waitSet.waitAny(0, waitHandle) == WaitSuccess);
     REQUIRE(unfinished.erase(waitHandle) == 1);
@@ -408,7 +408,7 @@ TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
 
   Handle waitHandle;
 
-  while(unfinished.size() > 0)
+  while(!unfinished.empty())
   {
     REQUIRE(waitSet.waitAny(0, waitHandle) == WaitAbandoned);
     REQUIRE(unfinished.erase(waitHandle) == 1);
@@ -418,7 +418,7 @@ TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
   // Make sure that all abandoned events are still received (without duplicates),
   //  even if the wait object is not removed.  This will prove if fair load
   //  balancing is done in the wait set on abandoned handles
-  while(unfinished2.size() > 0)
+  while(!unfinished2.empty())
   {
     REQUIRE(waitSet2.waitAny(0, waitHandle) == WaitAbandoned);
     REQUIRE(unfinished2.erase(waitHandle) == 1);

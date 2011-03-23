@@ -1,4 +1,5 @@
 INCLUDE_FLAGS:=-I../include \
+               -I../../thirdParty/mct/include \
                -I../../libCommon/include \
                -I../../libThreadComm/include \
                -I../../libProcessComm/include \
@@ -7,13 +8,14 @@ INCLUDE_FLAGS:=-I../include \
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
 HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')
 
-COMPILE_FLAGS:=-c -Wall -Wextra -Werror -O3 -g $(INCLUDE_FLAGS)
+COMPILE_FLAGS:=-std=c++0x -c -Wall -Wextra -Werror -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS :=-rcv
 
 LIBRARY_DIR  :=../bin
 LIBRARY_FILE :=$(LIBRARY_DIR)/libThreadUtil.a
 
-OBJECT_FILES :=
+OBJECT_FILES := CommRegistry.o \
+                ThreadRegistry.o
 
 all: $(LIBRARY_FILE)
 

@@ -11,6 +11,7 @@ namespace lethe
   {
   public:
     LinuxProcessMessageStream(ByteStream& stream, uint32_t outgoingSize, uint32_t timeout);
+    LinuxProcessMessageStream(uint32_t processId, uint32_t outgoingSize, uint32_t timeout);
     ~LinuxProcessMessageStream();
 
     operator WaitObject&();

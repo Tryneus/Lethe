@@ -9,8 +9,8 @@ namespace lethe
   class LinuxHandleTransfer
   {
   public:
-    LinuxHandleTransfer(ByteStream& stream,      // Stream to synchronize with
-                        uint32_t timeout);       // Amount of time to allow
+    LinuxHandleTransfer(ByteStream& stream, // Stream to synchronize with
+                        uint32_t timeout);  // Amount of time to allow
 
     ~LinuxHandleTransfer();
 
@@ -36,10 +36,10 @@ namespace lethe
     std::string m_name;
     Handle m_socket;
 
-    static const char s_pipeType = 'A';
+    static const char s_semaphoreType = 'S';
     static const char s_timerType = 'T';
     static const char s_eventType = 'E';
-    static const char s_semaphoreType = 'S';
+    static const char s_pipeType = 'P';
 
     void sendInternal(Handle handle, char handleType);
     Handle recvInternal(char handleType, uint32_t timeout);

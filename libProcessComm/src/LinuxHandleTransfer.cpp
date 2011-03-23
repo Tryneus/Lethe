@@ -160,8 +160,13 @@ void LinuxHandleTransfer::sendSemaphore(const Semaphore& semaphore)
 
 Pipe* LinuxHandleTransfer::recvPipe(uint32_t timeout)
 {
+  uint32_t endTime = getTime() + timeout;
   Handle pipeIn = recvInternal(s_pipeType, timeout);
-  Handle pipeOut = recvInternal(s_pipeType, timeout); // TODO: update timeout
+
+  uint32_t currentTime = getTime();
+  timeout = ((currentTime < endTime) ? endTime - currentTime : 0);
+  Handle pipeOut = recvInternal(s_pipeType, timeout);
+
   return new Pipe(pipeIn, pipeOut);
 }
 

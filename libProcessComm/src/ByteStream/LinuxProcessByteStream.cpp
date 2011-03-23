@@ -15,7 +15,7 @@ LinuxProcessByteStream::LinuxProcessByteStream(uint32_t remoteProcessId,
   m_pipeIn(NULL),
   m_pipeOut(NULL)
 {
-  // Don't allow a ProcessByteStream to be create towards the same process
+  // Don't allow a ProcessByteStream to be create towards own process
   // TODO: implement a workaround for this?
   if(remoteProcessId == getProcessId())
     throw std::logic_error("cannot create a ProcessByteStream within a single process");
@@ -64,7 +64,7 @@ Mutex* LinuxProcessByteStream::getProcessMutex(uint32_t processId)
   {
     Mutex* newMutex = new Mutex();
     std::pair<mct::closed_hash_map<uint32_t, Mutex*>::iterator, bool> i =
-      s_processInfo->insert(std::make_pair<uint32_t, Mutex*>(processId, newMutex));
+      s_processInfo->insert(std::make_pair(processId, newMutex));
 
     if(!i.second)
     {

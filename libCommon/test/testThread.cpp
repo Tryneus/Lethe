@@ -138,7 +138,7 @@ TEST_CASE("thread/run", "Test running threads")
 
     REQUIRE(thread.getError() == "");
     REQUIRE(thread.getPrimaryIterations() == 75);
-    REQUIRE(thread.getSecondaryIterations() == 110);
+    REQUIRE(thread.getSecondaryIterations() == 110); // TODO: this failed once with 111 == 110
   }
 }
 

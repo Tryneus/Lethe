@@ -25,3 +25,5 @@ Fixes (see limitations):
   eventfd linux kernel patch - probably not going to happen, investigate fixing for epoll_ctl(ADD)
   timerfd linux kernel patch
   Windows WaitForMultiple is limited to 64 handles, add limit to WaitSets
+  make sure INFINITE timeout handling is correct, especially with endTime stuff
+  check data structure inserts, make sure failure is handled correctly

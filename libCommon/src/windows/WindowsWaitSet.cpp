@@ -27,7 +27,7 @@ bool WindowsWaitSet::add(WaitObject& obj)
      !GetHandleInformation(obj.getHandle(), &handleInfo))
     throw std::invalid_argument("invalid handle");
 
-  if(!m_waitObjects->insert(std::make_pair<Handle, WaitObject*>(obj.getHandle(), &obj)).second)
+  if(!m_waitObjects->insert(std::make_pair(obj.getHandle(), &obj)).second)
     return false;
 
   resizeEvents();

@@ -35,7 +35,7 @@ bool LinuxWaitSet::add(WaitObject& obj)
   if(fcntl(obj.getHandle(), F_GETFL) == -1 && errno == EBADF)
     throw std::bad_syscall("fcntl", lastError());
 
-  if(!m_waitObjects->insert(std::make_pair<Handle, WaitObject*>(obj.getHandle(), &obj)).second)
+  if(!m_waitObjects->insert(std::make_pair(obj.getHandle(), &obj)).second)
     return false;
 
   pollfd* oldArray = m_waitArray;

@@ -1,6 +1,7 @@
 #include "linux/LinuxWaitSet.h"
 #include "LetheFunctions.h"
 #include "LetheException.h"
+#include "LetheInternal.h"
 #include "mct/hash-map.hpp"
 #include <string.h>
 #include <errno.h>
@@ -40,6 +41,7 @@ bool LinuxWaitSet::add(WaitObject& obj)
 
   pollfd* oldArray = m_waitArray;
   m_waitArray = new pollfd[m_waitObjects->size()];
+  m_preWaitEvents.reserve(m_waitObjects->size());
 
   // Copy over the old array
   uint32_t i = 0;
@@ -68,6 +70,7 @@ bool LinuxWaitSet::remove(Handle handle)
 
   pollfd* oldArray = m_waitArray;
   m_waitArray = new pollfd[m_waitObjects->size()];
+  m_preWaitEvents.reserve(m_waitObjects->size());
 
   // Copy over the old array, skipping over the removed handle
   uint32_t j = 0;
@@ -91,7 +94,7 @@ size_t LinuxWaitSet::getSize() const
 
 WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
 {
-  uint32_t endTime = getTime() + timeout;
+  uint32_t endTime = getEndTime(timeout);
 
   if(m_waitObjects->size() == 0)
   {
@@ -103,17 +106,16 @@ WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
 
   if(result == WaitTimeout)
   {
-    std::list<Handle> preWaitEvents;
+    m_preWaitEvents.clear();
 
-    for(mct::closed_hash_map<Handle, WaitObject*>::iterator i = m_waitObjects->begin();
-        i != m_waitObjects->end(); ++i)
+    for(auto i = m_waitObjects->begin(); i != m_waitObjects->cend(); ++i)
       if(i->second->preWaitCallback())
-        preWaitEvents.push_back(i->second->getHandle());
+        m_preWaitEvents.push_back(i->second->getHandle());
 
-    if(preWaitEvents.size() != 0)
+    if(!m_preWaitEvents.empty())
     {
       result = pollEvents(0, endTime);
-      addEvents(preWaitEvents);
+      addEvents(m_preWaitEvents);
     }
     else
       result = pollEvents(timeout, endTime);
@@ -152,11 +154,7 @@ WaitResult LinuxWaitSet::pollEvents(uint32_t timeout, uint32_t endTime)
     {
       if(errno == EINTR)
       {
-        if(timeout != INFINITE)
-        {
-          uint32_t currentTime = getTime();
-          timeout = (endTime <= currentTime ? 0 : endTime - currentTime);
-        }
+        timeout = getTimeout(endTime);
         continue;
       }
       else if(errno == EBADF)
@@ -181,8 +179,7 @@ WaitResult LinuxWaitSet::pollEvents(uint32_t timeout, uint32_t endTime)
 // TODO: get this working, it isn't
 void LinuxWaitSet::findBadHandles()
 {
-  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i = m_waitObjects->begin();
-      i != m_waitObjects->end(); ++i)
+  for(auto i = m_waitObjects->cbegin(); i != m_waitObjects->cend(); ++i)
   {
     if(fcntl(i->first, F_GETFL) == -1 && errno == EBADF)
     {
@@ -200,9 +197,9 @@ void LinuxWaitSet::findBadHandles()
   }
 }
 
-void LinuxWaitSet::addEvents(const std::list<Handle>& events)
+void LinuxWaitSet::addEvents(const std::vector<Handle>& events)
 {
-  for(std::list<Handle>::const_iterator i = events.begin(); i != events.end(); ++i)
+  for(auto i = events.cbegin(); i != events.cend(); ++i)
     for(uint32_t j = 0; j < m_waitObjects->size(); ++j)
       if(m_waitArray[j].fd == *i)
       {

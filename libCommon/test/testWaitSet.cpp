@@ -399,7 +399,7 @@ TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
   waitSet2.add(sem3);
 
   // Can't destroy objects because of callbacks, instead close handles manually
-  for(std::set<Handle>::iterator i = unfinished.begin(); i != unfinished.end(); ++i)
+  for(auto i = unfinished.cbegin(); i != unfinished.cend(); ++i)
 #if defined(__linux__)
     close(*i);
 #elif defined(__WIN32__)

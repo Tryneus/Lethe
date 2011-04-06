@@ -51,7 +51,7 @@ namespace lethe
 
     void resizeEvents();
     void findBadHandles();
-    void addEvents(const std::list<Handle>& events);
+    void addEvents(const std::vector<Handle>& events);
     WaitResult pollEvents(uint32_t timeout, uint32_t endTime);
     WaitResult getEvent(Handle& handle);
 
@@ -61,6 +61,8 @@ namespace lethe
                          std::equal_to<Handle>,
                          std::allocator<std::pair<const Handle, WaitObject*> >,
                          false>* m_waitObjects;
+
+    std::vector<Handle> m_preWaitEvents;
 
     pollfd* m_waitArray;
     uint32_t m_eventOffset;

@@ -12,6 +12,7 @@ LIBRARY_FILE :=$(LIBRARY_DIR)/libCommon.a
 
 OBJECT_FILES :=Log.o \
                LetheException.o \
+               LetheInternal.o \
                BaseThread.o \
                WaitObject.o \
                ByteStream.o \

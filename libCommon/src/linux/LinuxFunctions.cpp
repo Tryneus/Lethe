@@ -1,6 +1,7 @@
 #include "LetheFunctions.h"
 #include "LetheBasic.h"
 #include "LetheException.h"
+#include "LetheInternal.h"
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -15,7 +16,14 @@
 
 void lethe::Sleep(uint32_t timeout)
 {
-  usleep(timeout * 1000);
+  struct timespec remaining;
+  
+  remaining.tv_sec = timeout / 1000;
+  remaining.tv_nsec = (timeout % 1000) * 1000000;
+
+  // Loop in case of EINTR - nanosleep should update remainder
+  // TODO: make sure there isn't a time leak here - update using the end time instead?
+  while(nanosleep(&remaining, &remaining) == -1 && errno == EINTR);
 }
 
 std::string lethe::getErrorString(uint32_t errorCode)
@@ -103,7 +111,7 @@ lethe::WaitResult lethe::WaitForObject(lethe::WaitObject& obj, uint32_t timeout)
 
 lethe::WaitResult lethe::WaitForObject(lethe::Handle handle, uint32_t timeout)
 {
-  uint32_t endTime = lethe::getTime() + timeout;
+  uint32_t endTime = lethe::getEndTime(timeout);
   lethe::WaitResult result = lethe::WaitSuccess;
   struct pollfd pollData;
   int pollResult;
@@ -128,14 +136,10 @@ lethe::WaitResult lethe::WaitForObject(lethe::Handle handle, uint32_t timeout)
     }
     else if(errno == EINTR)
     {
-      if(timeout != INFINITE)
-      {
-        uint32_t currentTime = lethe::getTime();
-        timeout = (endTime <= currentTime ? 0 : endTime - currentTime);
-      }
+      timeout = lethe::getTimeout(endTime);
       continue;
     }
-    else if(errno == EBADF)
+    else if(errno == EBADF) // TODO: is this the right errno? maybe others too?
     {
       result = lethe::WaitAbandoned;
       break;

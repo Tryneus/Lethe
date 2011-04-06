@@ -60,8 +60,7 @@ WaitResult WindowsWaitSet::waitAny(uint32_t timeout, Handle& handle)
   WaitResult result;
   uint32_t i;
 
-  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i(m_waitObjects->begin());
-      i != m_waitObjects->end(); ++i)
+  for(auto i = m_waitObjects->begin(); i != m_waitObjects->cend(); ++i)
   {
     if(i->second->preWaitCallback())
     {
@@ -106,8 +105,7 @@ WaitResult WindowsWaitSet::waitAny(uint32_t timeout, Handle& handle)
 
 void WindowsWaitSet::callPostWait(WaitResult result, Handle handle)
 {
-  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i(m_waitObjects->begin());
-      i != m_waitObjects->end(); ++i)
+  for(auto i = m_waitObjects->begin(); i != m_waitObjects->cend(); ++i)
   {
     if(i->first == handle)
       i->second->postWaitCallback(result);
@@ -131,16 +129,14 @@ void WindowsWaitSet::resizeEvents()
   m_handleArray = new Handle[m_waitObjects->size() * 2];
 
   uint32_t j(0);
-  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i(m_waitObjects->begin());
-      i != m_waitObjects->end(); ++i)
+  for(auto i = m_waitObjects->cbegin(); i != m_waitObjects->cend(); ++i)
+  {
+    m_handleArray[j + m_waitObjects->size()] = i->first;
     m_handleArray[j++] = i->first;
-
-  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i(m_waitObjects->begin());
-      i != m_waitObjects->end(); ++i)
-    m_handleArray[j++] = i->first;
+  }
 
   // Avoid resetting the unfairness protection, try to find where the new offset should be
-  for(uint32_t i(0); i < m_waitObjects->size(); ++i)
+  for(uint32_t i = 0; i < m_waitObjects->size(); ++i)
   {
     if(m_handleArray[i] == favoredHandle)
       m_offset = i;

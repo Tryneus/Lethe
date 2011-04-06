@@ -7,9 +7,6 @@
 #include "SocketComm.h"
 #include "StaticSingleton.h"
 
-// TODO: implement socket listeners
-class SocketListener;
-
 // Prototype of the hash map, so users don't need the include
 namespace mct
 {
@@ -22,13 +19,13 @@ namespace lethe
   class CommRegistry : StaticSingleton<CommRegistry>
   {
   public:
-    ByteStream& createByteStream(Thread& thread, uint32_t timeout);
-    ByteStream& createByteStream(uint32_t processId, uint32_t timeout);
-    ByteStream* createByteStream(const std::string& hostname, uint32_t timeout);
+    std::pair<ByteStream*, ByteStream*> createThreadByteStream();
+    ByteStream* createProcessByteStream(uint32_t processId, uint32_t timeout);
+    ByteStream* createSocketByteStream(const std::string& hostname, uint32_t timeout);
 
-    MessageStream& createMessageStream(Thread& thread, uint32_t timeout);
-    MessageStream& createMessageStream(uint32_t processId, uint32_t timeout);
-    MessageStream* createMessageStream(const std::string& hostname, uint32_t timeout);
+    std::pair<MessageStream*, MessageStream*> createThreadMessageStream();
+    MessageStream* createProcessMessageStream(uint32_t processId, uint32_t timeout);
+    MessageStream* createSocketMessageStream(const std::string& hostname, uint32_t timeout);
 
     void destroyStream(ByteStream& stream);
     void destroyStream(MessageStream& stream);
@@ -57,8 +54,8 @@ namespace lethe
     void setMessageStreamSize(uint32_t size);
     uint32_t getMessageStreamSize() const;
 
-    void addSocketListener(uint32_t localIp, uint16_t port);
-    void addSocketListener(const std::string& host, uint16_t port);
+    void addSocketByteStreamListener(const std::string& host, uint16_t port);
+    void addSocketMessageStreamListener(const std::string& host, uint16_t port);
 
     // synchronous accept functions
     void* accept(StreamType& type, uint32_t timeout); // Accepts a single stream or blocks until timeout expires, the new stream is returned
@@ -73,11 +70,10 @@ namespace lethe
     static const std::string s_pipeNameBase;
     static std::string getPipeName(uint32_t processId);
 
-    static uint32_t getTimeout(uint32_t endTime);
     void destroyInternal(Handle handle);
     void destroyThreadByteConnection(void* conn);
     void destroyThreadMessageConnection(void* conn);
-    void* acceptWait(StreamType& type, uint32_t timeout);
+    void* acceptWait(StreamType& type, uint32_t timeout, uint32_t endTime);
     void* receiveProcessStream(StreamType& type, uint32_t timeout);
 
     Mutex m_mutex;
@@ -129,15 +125,26 @@ namespace lethe
     Pipe m_pipeIn;
     WaitSet m_waitSet;
 
-    mct::closed_hash_map<std::string,
-                         SocketListener*,
-                         std::tr1::hash<std::string>,
-                         std::equal_to<std::string>,
-                         std::allocator<std::pair<const std::string, SocketListener*> >,
-                         false>* m_socketListeners;
+    mct::closed_hash_map<Handle,
+                         SocketByteStreamListener*,
+                         std::tr1::hash<Handle>,
+                         std::equal_to<Handle>,
+                         std::allocator<std::pair<const Handle, SocketByteStreamListener*> >,
+                         false>* m_byteListeners;
 
+    mct::closed_hash_map<Handle,
+                         SocketMessageStreamListener*,
+                         std::tr1::hash<Handle>,
+                         std::equal_to<Handle>,
+                         std::allocator<std::pair<const Handle, SocketMessageStreamListener*> >,
+                         false>* m_messageListeners;
+
+    static const uint32_t s_defaultSocketListenerQueueLength;
+    uint32_t m_defaultSocketListenerQueueLength;
     static const uint32_t s_defaultMessageStreamSize;
     uint32_t m_defaultMessageStreamSize;
+
+    static const uint32_t s_mutexTimeout;
   };
 }
 

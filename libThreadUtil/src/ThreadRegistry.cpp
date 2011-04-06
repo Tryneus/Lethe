@@ -7,9 +7,17 @@ bool ThreadRegistry::remove(const std::string& name)
 {
   m_mutex.lock();
 
-  mct::closed_hash_map<std::string, Thread*>::iterator i = m_threads->find(name);
+  for(auto j = m_threadArray.begin(); j != m_threadArray.cend(); ++j)
+  {
+    if(j->first == name)
+    {
+      m_threadArray.erase(j);
+      break;
+    }
+  }
 
-  if(i == m_threads->end())
+  auto i = m_threads->find(name);
+  if(i == m_threads->cend())
     return false;
 
   Thread* thread = i->second;
@@ -25,9 +33,9 @@ Thread* ThreadRegistry::get(const std::string& name)
 {
   m_mutex.lock();
 
-  mct::closed_hash_map<std::string, Thread*>::iterator i = m_threads->find(name);
+  auto i = m_threads->find(name);
 
-  if(i == m_threads->end())
+  if(i == m_threads->cend())
     return NULL;
 
   m_mutex.unlock();
@@ -35,19 +43,9 @@ Thread* ThreadRegistry::get(const std::string& name)
   return i->second;
 }
 
-std::vector<std::pair<std::string, Thread*> > ThreadRegistry::getList()
+const std::vector<std::pair<std::string, Thread*> >& ThreadRegistry::getArray()
 {
-  std::vector<std::pair<std::string, Thread*> > threads;
-
-  m_mutex.lock();
-
-  threads.reserve(m_threads->size());
-  for(mct::closed_hash_map<std::string, Thread*>::iterator i = m_threads->begin(); i != m_threads->end(); ++i)
-    threads.push_back(*i);
-
-  m_mutex.unlock();
-
-  return threads;
+  return m_threadArray;
 }
 
 ThreadRegistry::ThreadRegistry()
@@ -60,7 +58,7 @@ ThreadRegistry::~ThreadRegistry()
   m_mutex.lock();
 
   // Stop all registered threads
-  for(mct::closed_hash_map<std::string, Thread*>::iterator i = m_threads->begin(); i != m_threads->end(); ++i)
+  for(auto i = m_threads->begin(); i != m_threads->cend(); ++i)
     i->second->stop();
 
   // Delete all registered threads (each call will not return until stop has completed)
@@ -78,6 +76,8 @@ bool ThreadRegistry::threadExists(const std::string& name) const
 void ThreadRegistry::addInternal(const std::string& name, Thread* thread)
 {
   if(!m_threads->insert(std::make_pair(name, thread)).second)
-    throw std::logic_error("failed to insert new thread '" + name + "'");
+    throw std::logic_error("failed to insert new thread '" + name + "' into map");
+
+  m_threadArray.push_back(std::make_pair(name, thread));
 }
 

@@ -25,7 +25,7 @@ namespace lethe
 
     bool threadExists(const std::string& name) const;
 
-    std::vector<std::pair<std::string, Thread*> > getList();
+    const std::vector<std::pair<std::string, Thread*> >& getArray();
 
   private:
     friend class Singleton<ThreadRegistry>;
@@ -41,6 +41,8 @@ namespace lethe
                          std::equal_to<std::string>,
                          std::allocator<std::pair<const std::string, Thread*> >,
                          false>* m_threads;
+
+    std::vector<std::pair<std::string, Thread*> > m_threadArray;
 
     Mutex m_mutex;
   };

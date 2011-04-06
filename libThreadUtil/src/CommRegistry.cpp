@@ -7,6 +7,8 @@ using namespace lethe;
 
 const std::string CommRegistry::s_pipeNameBase = "lethe-commregistry-";
 const uint32_t CommRegistry::s_defaultMessageStreamSize = 128 * 1024;
+const uint32_t CommRegistry::s_defaultSocketListenerQueueLength = 10;
+const uint32_t CommRegistry::s_mutexTimeout = 1000;
 
 CommRegistry::CommRegistry() :
   m_streams(new mct::closed_hash_map<Handle, ConnectionInfo*>()),
@@ -21,7 +23,7 @@ CommRegistry::CommRegistry() :
 
 CommRegistry::~CommRegistry()
 {
-  m_mutex.lock();
+  m_mutex.lock(s_mutexTimeout);
 
   // Clean up any remaining streams
   while(!m_streams->empty())
@@ -29,8 +31,6 @@ CommRegistry::~CommRegistry()
     Handle handle = m_streams->begin()->first;
     destroyInternal(handle);
   }
-
-  m_mutex.unlock(); // TODO: other threads may be waiting to perform an operation on a dead object
 }
 
 std::string CommRegistry::getPipeName(uint32_t processId)
@@ -57,29 +57,30 @@ CommRegistry::CommThread::CommThread(CommRegistry& parent) :
   // Do nothing
 }
 
-void CommRegistry::addSocketListener(uint32_t localIp, uint16_t port)
+void CommRegistry::addSocketByteStreamListener(const std::string& host, uint16_t port)
 {
-  std::stringstream host;
-
-  // TODO: use system calls for this, so it supports ipv6 addresses
-  host << ((localIp >> 24) & 0xFF) << "."
-       << ((localIp >> 16) & 0xFF) << "."
-       << ((localIp >> 8) & 0xFF)  << "."
-       << (localIp & 0xFF);
-
-  addSocketListener(host.str(), port);
+  SocketByteStreamListener* listener = new SocketByteStreamListener(host, port, s_defaultSocketListenerQueueLength);
+  m_mutex.lock(s_mutexTimeout);
+  m_waitSet.add(*listener);
+  if(!m_byteListeners->insert(std::make_pair(listener->getHandle(), listener)).second)
+  {
+    m_mutex.unlock();
+    throw std::logic_error("failed to add listener to map");
+  }
+  m_mutex.unlock();
 }
 
-void CommRegistry::addSocketListener(const std::string& host, uint16_t port)
+void CommRegistry::addSocketMessageStreamListener(const std::string& host, uint16_t port)
 {
-  host.length();
-  port = 0;
-  // TODO: implement socket listeners, then this
-  // SocketListener* listener = new SocketListener(host, port);
-  // m_mutex.lock();
-  // m_waitSet.add(*listener);
-  // m_socketListeners.insert(listener);
-  // m_mutex.unlock();
+  SocketMessageStreamListener* listener = new SocketMessageStreamListener(host, port, s_defaultSocketListenerQueueLength);
+  m_mutex.lock(s_mutexTimeout);
+  m_waitSet.add(*listener);
+  if(!m_messageListeners->insert(std::make_pair(listener->getHandle(), listener)).second)
+  {
+    m_mutex.unlock();
+    throw std::logic_error("failed to add listener to map");
+  }
+  m_mutex.unlock();
 }
 
 CommRegistry::CommThread::~CommThread()
@@ -99,20 +100,32 @@ void CommRegistry::CommThread::iterate(Handle handle)
   }
 }
 
-ByteStream& CommRegistry::createByteStream(Thread& thread, uint32_t timeout GCC_UNUSED)
+std::pair<ByteStream*, ByteStream*> CommRegistry::createThreadByteStream()
 {
   ThreadByteConnection* conn = new ThreadByteConnection();
 
   ConnectionInfo* infoA = new ConnectionInfo(StreamType::ThreadByte, conn->getStreamA().getHandle(), &conn->getStreamA(), conn);
   ConnectionInfo* infoB = new ConnectionInfo(StreamType::ThreadByte, conn->getStreamB().getHandle(), &conn->getStreamB(), conn);
-  m_streams->insert(std::make_pair(conn->getStreamA().getHandle(), infoA));
-  m_streams->insert(std::make_pair(conn->getStreamB().getHandle(), infoB));
+  if(!m_streams->insert(std::make_pair(conn->getStreamA().getHandle(), infoA)).second)
+  {
+    delete infoA;
+    delete infoB;
+    delete conn;
+    throw std::logic_error("failed to insert first stream into map");
+  }
+  if(!m_streams->insert(std::make_pair(conn->getStreamB().getHandle(), infoB)).second)
+  {
+    m_streams->erase(conn->getStreamA().getHandle());
+    delete infoA;
+    delete infoB;
+    delete conn;
+    throw std::logic_error("failed to insert second stream into map");
+  }
 
-  thread.addWaitObject(conn->getStreamB());
-  return conn->getStreamA();
+  return std::make_pair(&conn->getStreamA(), &conn->getStreamB());
 }
 
-ByteStream& CommRegistry::createByteStream(uint32_t processId, uint32_t timeout)
+ByteStream* CommRegistry::createProcessByteStream(uint32_t processId, uint32_t timeout)
 {
   // Open a one-way pipe for the remote process' CommRegistry and write a new stream indication
   Pipe tempPipe("", false, getPipeName(processId), false);
@@ -124,31 +137,48 @@ ByteStream& CommRegistry::createByteStream(uint32_t processId, uint32_t timeout)
   ProcessByteStream* stream = new ProcessByteStream(processId, timeout);
   ConnectionInfo* connInfo = new ConnectionInfo(StreamType::ProcessMessage, stream->getHandle(), stream, NULL);
   
-  m_streams->insert(std::make_pair(stream->getHandle(), connInfo));
+  if(!m_streams->insert(std::make_pair(stream->getHandle(), connInfo)).second)
+  {
+    delete stream;
+    delete connInfo;
+    throw std::logic_error("failed to insert stream into map");
+  }
 
-  return *stream;
+  return stream;
 }
 
-ByteStream* CommRegistry::createByteStream(const std::string& hostname GCC_UNUSED, uint32_t timeout GCC_UNUSED)
+ByteStream* CommRegistry::createSocketByteStream(const std::string& hostname GCC_UNUSED, uint32_t timeout GCC_UNUSED)
 {
   // TODO: implement
   return NULL;
 }
 
-MessageStream& CommRegistry::createMessageStream(Thread& thread, uint32_t timeout GCC_UNUSED)
+std::pair<MessageStream*, MessageStream*> CommRegistry::createThreadMessageStream()
 {
   ThreadMessageConnection* conn = new ThreadMessageConnection(m_defaultMessageStreamSize, m_defaultMessageStreamSize);
 
   ConnectionInfo* infoA = new ConnectionInfo(StreamType::ThreadMessage, conn->getStreamA().getHandle(), &conn->getStreamA(), conn);
   ConnectionInfo* infoB = new ConnectionInfo(StreamType::ThreadMessage, conn->getStreamB().getHandle(), &conn->getStreamB(), conn);
-  m_streams->insert(std::make_pair(conn->getStreamA().getHandle(), infoA));
-  m_streams->insert(std::make_pair(conn->getStreamB().getHandle(), infoB));
+  if(!m_streams->insert(std::make_pair(conn->getStreamA().getHandle(), infoA)).second)
+  {
+    delete infoA;
+    delete infoB;
+    delete conn;
+    throw std::logic_error("failed to insert stream into map");
+  }
+  if(!m_streams->insert(std::make_pair(conn->getStreamB().getHandle(), infoB)).second)
+  {
+    m_streams->erase(conn->getStreamA().getHandle());
+    delete infoA;
+    delete infoB;
+    delete conn;
+    throw std::logic_error("failed to insert stream into map");
+  }
 
-  thread.addWaitObject(conn->getStreamB());
-  return conn->getStreamA();
+  return std::make_pair(&conn->getStreamA(), &conn->getStreamB());
 }
 
-MessageStream& CommRegistry::createMessageStream(uint32_t processId, uint32_t timeout)
+MessageStream* CommRegistry::createProcessMessageStream(uint32_t processId, uint32_t timeout)
 {
   // Open a one-way pipe for the remote process' CommRegistry and write a new stream indication
   Pipe tempPipe("", false, getPipeName(processId), false);
@@ -160,12 +190,17 @@ MessageStream& CommRegistry::createMessageStream(uint32_t processId, uint32_t ti
   ProcessMessageStream* stream = new ProcessMessageStream(processId, m_defaultMessageStreamSize, timeout);
   ConnectionInfo* connInfo = new ConnectionInfo(StreamType::ProcessMessage, stream->getHandle(), stream, NULL);
   
-  m_streams->insert(std::make_pair(stream->getHandle(), connInfo));
+  if(!m_streams->insert(std::make_pair(stream->getHandle(), connInfo)).second)
+  {
+    delete stream;
+    delete connInfo;
+    throw std::logic_error("failed to insert stream into map");
+  }
 
-  return *stream;
+  return stream;
 }
 
-MessageStream* CommRegistry::createMessageStream(const std::string& hostname GCC_UNUSED, uint32_t timeout GCC_UNUSED)
+MessageStream* CommRegistry::createSocketMessageStream(const std::string& hostname GCC_UNUSED, uint32_t timeout GCC_UNUSED)
 {
   // TODO: implement
   return NULL;
@@ -183,9 +218,9 @@ void CommRegistry::destroyStream(MessageStream& stream)
 
 void CommRegistry::destroyInternal(Handle handle)
 {
-  mct::closed_hash_map<Handle, ConnectionInfo*>::iterator i = m_streams->find(handle);
+  auto i = m_streams->find(handle);
   
-  if(i != m_streams->end())
+  if(i != m_streams->cend())
   {
     switch(i->second->m_type)
     {
@@ -216,19 +251,20 @@ void CommRegistry::destroyInternal(Handle handle)
   }
 }
 
+// TODO: two nearly identical implementations - can't templatize because avoiding exposing mct to users
 void CommRegistry::destroyThreadByteConnection(void* conn)
 {
   ThreadByteConnection* connection = reinterpret_cast<ThreadByteConnection*>(conn);
 
-  mct::closed_hash_map<Handle, ConnectionInfo*>::iterator a = m_streams->find(connection->getStreamA().getHandle());
-  mct::closed_hash_map<Handle, ConnectionInfo*>::iterator b = m_streams->find(connection->getStreamB().getHandle());
+  auto a = m_streams->find(connection->getStreamA().getHandle());
+  auto b = m_streams->find(connection->getStreamB().getHandle());
 
   if(connection == NULL)
     throw std::logic_error("null connection in thread stream info");
 
   try
   {
-    if(a == m_streams->end() || b == m_streams->end())
+    if(a == m_streams->cend() || b == m_streams->cend())
       throw std::logic_error("could not find both sides of thread stream");
 
     delete connection;
@@ -253,15 +289,15 @@ void CommRegistry::destroyThreadMessageConnection(void* conn)
 {
   ThreadMessageConnection* connection = reinterpret_cast<ThreadMessageConnection*>(conn);
 
-  mct::closed_hash_map<Handle, ConnectionInfo*>::iterator a = m_streams->find(connection->getStreamA().getHandle());
-  mct::closed_hash_map<Handle, ConnectionInfo*>::iterator b = m_streams->find(connection->getStreamB().getHandle());
+  auto a = m_streams->find(connection->getStreamA().getHandle());
+  auto b = m_streams->find(connection->getStreamB().getHandle());
 
   if(connection == NULL)
     throw std::logic_error("null connection in thread stream info");
 
   try
   {
-    if(a == m_streams->end() || b == m_streams->end())
+    if(a == m_streams->cend() || b == m_streams->cend())
       throw std::logic_error("could not find both sides of thread stream");
 
     delete connection;
@@ -286,7 +322,7 @@ void CommRegistry::setMode(bool asynchronous,
                            CommRegistry::CallbackFunction* callbackFunction,
                            Thread* callbackThread)
 {
-  m_mutex.lock();
+  m_mutex.lock(s_mutexTimeout);
 
   m_callbackFunction = callbackFunction;
   m_callbackThread = callbackThread;
@@ -314,79 +350,61 @@ void CommRegistry::setMode(bool asynchronous,
 
 void* CommRegistry::accept(StreamType& type, uint32_t timeout)
 {
-  void* newStream = NULL;
+  uint32_t endTime = getEndTime(timeout);
 
-  m_mutex.lock();
+  if(m_internalThread != NULL)
+    throw std::logic_error("cannot use synchronous accept while in asynchronous mode");
 
-  try
-  {
-    if(m_internalThread != NULL)
-      throw std::logic_error("cannot use synchronous accept while in asynchronous mode");
-
-    newStream = acceptWait(type, timeout);
-  }
-  catch(...)
-  {
-    m_mutex.unlock();
-    throw;
-  }
-
-  return newStream;
+  return acceptWait(type, timeout, endTime);
 }
 
 uint32_t CommRegistry::accept(uint32_t count, uint32_t timeout)
 {
-  uint32_t numStreams = 0;
-  uint32_t endTime = getTime() + timeout;
   StreamType type;
+  uint32_t numStreams = 0;
+  uint32_t endTime = getEndTime(timeout);
 
-  m_mutex.lock(timeout);
+  if(m_internalThread != NULL)
+    throw std::logic_error("cannot use synchronous accept while in asynchronous mode");
 
-  try
-  {
-    if(m_internalThread != NULL)
-      throw std::logic_error("cannot use synchronous accept while in asynchronous mode");
-
-    if(m_callbackFunction == NULL && m_callbackThread == NULL)
-      throw std::logic_error("cannot use multiple accept without a callback function or thread for new connections");
-
-    timeout = getTimeout(endTime);
+  if(m_callbackFunction == NULL && m_callbackThread == NULL)
+    throw std::logic_error("cannot use multiple accept without a callback function or thread for new connections");
 
     // Accept new connections on m_pipeIn
-    do
-    {
-      acceptWait(type, timeout);
-      ++numStreams;
-      timeout = getTimeout(endTime);
-    } while(timeout != 0 && numStreams < count);
-  }
-  catch(...)
+  do
   {
-    m_mutex.unlock();
-    throw;
-  }
+    acceptWait(type, timeout, endTime);
+    ++numStreams;
+    timeout = getTimeout(endTime);
+  } while(timeout != 0 && numStreams < count);
 
-  m_mutex.unlock();
   return numStreams;
 }
 
-void* CommRegistry::acceptWait(StreamType& type, uint32_t timeout)
+void* CommRegistry::acceptWait(StreamType& type, uint32_t timeout, uint32_t endTime)
 {
   void* newStream = NULL;
   Handle handle;
 
+  m_mutex.lock(s_mutexTimeout);
+
   switch(m_waitSet.waitAny(timeout, handle)) // TODO: handle waitAbandoned?
   {
   case WaitSuccess: break;
-  case WaitTimeout: return NULL;
+  case WaitTimeout:
+    m_mutex.unlock();
+    return NULL;
   default:
+    m_mutex.unlock();
     throw std::runtime_error("error when waiting on CommRegistry waitSet");
   }
+
+  m_mutex.unlock();
 
   // Create inter-process connection
   if(handle == m_pipeIn.getHandle())
   {
-    newStream = receiveProcessStream(type, timeout);
+    newStream = receiveProcessStream(type, getTimeout(endTime));
   }
   else
   {
@@ -428,7 +446,14 @@ void* CommRegistry::acceptWait(StreamType& type, uint32_t timeout)
   ConnectionInfo* info = new ConnectionInfo(type, handle, newStream, NULL);
 
   // Add the stream to the mapping structures
-  m_streams->insert(std::make_pair(handle, info));
+  m_mutex.lock(s_mutexTimeout);
+  if(!m_streams->insert(std::make_pair(handle, info)).second)
+  {
+    m_mutex.unlock();
+    delete info;
+    throw std::logic_error("failed to insert stream into map");
+  }
+  m_mutex.unlock();
 
   if(m_callbackThread != NULL)
   {
@@ -459,12 +484,6 @@ void* CommRegistry::receiveProcessStream(StreamType& type, uint32_t timeout)
 
   type = info.m_type;
   return newStream;
-}
-
-uint32_t CommRegistry::getTimeout(uint32_t endTime)
-{
-  uint32_t currentTime = getTime();
-  return ((currentTime > endTime) ? 0 : (endTime - currentTime));
 }
 
 CommRegistry::ConnectionInfo::ConnectionInfo(StreamType type,

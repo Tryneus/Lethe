@@ -1,4 +1,5 @@
 #include "Lethe.h"
+#include "LetheInternal.h"
 #include "ByteStream/LinuxProcessByteStream.h"
 #include "LinuxHandleTransfer.h"
 #include "mct/hash-map.hpp"
@@ -21,12 +22,12 @@ LinuxProcessByteStream::LinuxProcessByteStream(uint32_t remoteProcessId,
     throw std::logic_error("cannot create a ProcessByteStream within a single process");
 
   char done = '\0';
-  uint32_t endTime = getTime() + timeout;
+  uint32_t endTime = getEndTime(timeout);
   std::stringstream fifoInName;
   std::stringstream fifoOutName;
   Mutex* processMutex = getProcessMutex(remoteProcessId);
 
-  processMutex->lock(); // TODO: use and update timeout
+  processMutex->lock(timeout);
 
   fifoInName << getProcessId() << "-to-" << remoteProcessId;
   fifoOutName << remoteProcessId << "-to-" << getProcessId();
@@ -57,14 +58,13 @@ Mutex* LinuxProcessByteStream::getProcessMutex(uint32_t processId)
   if(s_processInfo == NULL)
     s_processInfo = new mct::closed_hash_map<uint32_t, Mutex*>();
 
-  mct::closed_hash_map<uint32_t, Mutex*>::iterator info = s_processInfo->find(processId);
+  auto info = s_processInfo->find(processId);
 
   // Process hasn't been used yet, create a mutex for it
-  if(info == s_processInfo->end())
+  if(info == s_processInfo->cend())
   {
     Mutex* newMutex = new Mutex();
-    std::pair<mct::closed_hash_map<uint32_t, Mutex*>::iterator, bool> i =
-      s_processInfo->insert(std::make_pair(processId, newMutex));
+    auto i = s_processInfo->insert(std::make_pair(processId, newMutex));
 
     if(!i.second)
     {
@@ -84,9 +84,9 @@ void LinuxProcessByteStream::removeProcessMutex(uint32_t processId)
 {
   s_mutex.lock();
 
-  mct::closed_hash_map<uint32_t, Mutex*>::iterator info = s_processInfo->find(processId);
+  auto info = s_processInfo->find(processId);
 
-  if(info != s_processInfo->end())
+  if(info != s_processInfo->cend())
   {
     try
     {
@@ -108,7 +108,7 @@ LinuxProcessByteStream::LinuxProcessByteStream(ByteStream& stream,
   m_pipeIn(NULL),
   m_pipeOut(NULL)
 {
-  doSetup(stream, timeout + getTime());
+  doSetup(stream, getEndTime(timeout));
 }
 
 void LinuxProcessByteStream::doSetup(ByteStream& stream,
@@ -126,12 +126,6 @@ LinuxProcessByteStream::~LinuxProcessByteStream()
 {
   delete m_pipeOut;
   delete m_pipeIn;
-}
-
-uint32_t LinuxProcessByteStream::getTimeout(uint32_t endTime)
-{
-  uint32_t currentTime = getTime();
-  return (currentTime < endTime ? endTime - currentTime : 0);
 }
 
 LinuxProcessByteStream::operator WaitObject&()

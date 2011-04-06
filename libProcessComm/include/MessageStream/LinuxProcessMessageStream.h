@@ -34,7 +34,6 @@ namespace lethe
     static const std::string generateUdsName();
     static const std::string s_udsPath;
 
-    static uint32_t getTimeout(uint32_t endTime);
     static uint32_t checkSize(uint32_t size);
 
     static const uint32_t s_minSize = 20 * sizeof(ProcessMessage) + sizeof(ProcessMessageHeader);

@@ -1,4 +1,5 @@
 #include "Lethe.h"
+#include "LetheInternal.h"
 #include "MessageStream/LinuxProcessMessageStream.h"
 #include "LinuxHandleTransfer.h"
 #include <sstream>
@@ -18,7 +19,7 @@ LinuxProcessMessageStream::LinuxProcessMessageStream(ByteStream& stream,
   m_headerIn(NULL),
   m_headerOut(NULL)
 {
-  uint32_t endTime = getTime() + timeout;
+  uint32_t endTime = getEndTime(timeout);
   char done = '\0';
 
   outgoingSize = checkSize(outgoingSize);
@@ -117,16 +118,6 @@ void LinuxProcessMessageStream::doSetup(ByteStream& stream,
 
   transfer.sendSemaphore(*m_semaphoreOut);
   m_semaphoreIn = transfer.recvSemaphore(getTimeout(endTime));
-}
-
-uint32_t LinuxProcessMessageStream::getTimeout(uint32_t endTime)
-{
-  uint32_t currentTime = getTime();
-
-  if(currentTime > endTime)
-    return 0;
-
-  return endTime - currentTime;
 }
 
 LinuxProcessMessageStream::operator WaitObject&()

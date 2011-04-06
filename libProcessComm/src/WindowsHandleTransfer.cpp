@@ -1,3 +1,5 @@
+#include "Lethe.h"
+#include "LetheInternal.h"
 #include "WindowsHandleTransfer.h"
 #include <sstream>
 
@@ -7,7 +9,7 @@ WindowsHandleTransfer::WindowsHandleTransfer(ByteStream& stream,
                                              uint32_t timeout) :
   m_stream(stream)
 {
-  // Synchronize with other side
+  // TODO: Synchronize with other side?
 }
 
 WindowsHandleTransfer::~WindowsHandleTransfer()
@@ -39,12 +41,10 @@ void WindowsHandleTransfer::sendSemaphore(const Semaphore& semaphore)
 
 Pipe* WindowsHandleTransfer::recvPipe(uint32_t timeout)
 {
-  uint32_t endTime = getTime() + timeout;
+  uint32_t endTime = getEndTime(timeout);
   std::string pipeInName = recvInternal(s_pipeType, timeout);
 
-  uint32_t currentTime = getTime();
-  timeout = ((currentTime < endTime) ? endTime - currentTime : 0);
-  std::string pipeOutName = recvInternal(s_pipeType, timeout);
+  std::string pipeOutName = recvInternal(s_pipeType, getTimeout(endTime));
 
   return new Pipe(pipeInName, pipeOutName);
 }

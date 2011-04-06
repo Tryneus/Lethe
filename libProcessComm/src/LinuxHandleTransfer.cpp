@@ -1,3 +1,4 @@
+#include "LetheInternal.h"
 #include "LinuxHandleTransfer.h"
 #include <sstream>
 #include <sys/socket.h>
@@ -12,6 +13,7 @@ LinuxHandleTransfer::LinuxHandleTransfer(ByteStream& stream,
                                          uint32_t timeout) :
   m_socket(INVALID_HANDLE_VALUE)
 {
+  uint32_t endTime = getEndTime(timeout);
   Handle tempSocket;
   bool serverSide;
   struct sockaddr_un address;
@@ -19,8 +21,11 @@ LinuxHandleTransfer::LinuxHandleTransfer(ByteStream& stream,
   char buffer = '\0';
 
   // Get the socket name and if this is going to be the server
-  synchronize(stream, m_name, serverSide, timeout); // TODO: update timeout
+  synchronize(stream, m_name, serverSide, timeout);
   addressLength = sizeof(address.sun_family) + m_name.length() + 1;
+
+  // Update timeout (time should have passed from synchronize())
+  timeout = getTimeout(endTime);
 
   // Make sure the uds path exists
   if(mkdir(s_udsPath.c_str(), 0777) != 0 && errno != EEXIST) // TODO: security concerns
@@ -160,11 +165,10 @@ void LinuxHandleTransfer::sendSemaphore(const Semaphore& semaphore)
 
 Pipe* LinuxHandleTransfer::recvPipe(uint32_t timeout)
 {
-  uint32_t endTime = getTime() + timeout;
+  uint32_t endTime = getEndTime(timeout);
   Handle pipeIn = recvInternal(s_pipeType, timeout);
 
-  uint32_t currentTime = getTime();
-  timeout = ((currentTime < endTime) ? endTime - currentTime : 0);
+  timeout = getTimeout(endTime);
   Handle pipeOut = recvInternal(s_pipeType, timeout);
 
   return new Pipe(pipeIn, pipeOut);

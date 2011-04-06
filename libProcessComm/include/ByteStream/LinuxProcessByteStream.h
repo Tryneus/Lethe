@@ -43,7 +43,6 @@ namespace lethe
                                 std::allocator<std::pair<const uint32_t, Mutex*> >,
                                 false>* s_processInfo;
 
-    static uint32_t getTimeout(uint32_t endTime);
     void doSetup(ByteStream& stream, uint32_t endTime);
 
     Pipe* m_pipeIn;

@@ -1,23 +1,23 @@
 Features:
-  libCommon:
+  Common:
     Investigate replacing ostream-style Log interface with fastformat::write
-  libSocketComm:
+  SocketComm:
     ByteStream
     MessageStream
-  libThreadUtil:
+  ThreadUtil:
     CommRegistry: socket streams
 
 Tests:
-  libCommon:
+  Common:
     finish mutex tests
-  libThreadComm:
+  ThreadComm:
     ByteStream test
     More comprehensive tests
-  libProcessComm:
+  ProcessComm:
     all tests
-  libSocketComm:
+  SocketComm:
     all tests
-  libThreadUtil:
+  ThreadUtil:
     all tests
 
 Fixes (see limitations):

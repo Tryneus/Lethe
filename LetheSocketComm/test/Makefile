@@ -1,6 +1,6 @@
 INCLUDE_FLAGS:=-I../include \
                -I../../thirdParty/catch \
-               -I../../libCommon/include
+               -I../../LetheCommon/include
 
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
 HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')
@@ -9,14 +9,12 @@ COMPILE_FLAGS:=-c -std=c++0x -Wall -Wextra -Wno-sign-compare -O3 -g $(INCLUDE_FL
 LINKER_FLAGS :=-L/usr/lib/gcc/i486-linux-gnu/4.3.2/ -lrt -lstdc++
 
 BINARY_DIR   :=../bin
-BINARY_FILE  :=$(BINARY_DIR)/libThreadCommTest
+BINARY_FILE  :=$(BINARY_DIR)/LetheSocketCommTest
 
-OBJECT_FILES :=testMain.o \
-               testByteStream.o \
-               testMessageStream.o
+OBJECT_FILES :=testMain.o
 
-INCLUDE_LIBS :=../bin/libThreadComm.a \
-               ../../libCommon/bin/libCommon.a
+INCLUDE_LIBS :=../bin/LetheSocketComm.a \
+               ../../LetheCommon/bin/LetheCommon.a
 
 all: $(BINARY_FILE)
 

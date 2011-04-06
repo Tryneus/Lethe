@@ -8,12 +8,12 @@
 *.ko
 
 # Linux kernel module build results
-/libCommon/module/*.ko.cmd
-/libCommon/module/*.o.cmd
-/libCommon/module/*.mod.c
-/libCommon/module/.tmp_versions/
-/libCommon/module/Module.symvers
-/libCommon/module/modules.order
+/LetheCommon/module/*.ko.cmd
+/LetheCommon/module/*.o.cmd
+/LetheCommon/module/*.mod.c
+/LetheCommon/module/.tmp_versions/
+/LetheCommon/module/Module.symvers
+/LetheCommon/module/modules.order
 
 # Ignore temporary files
 *.log

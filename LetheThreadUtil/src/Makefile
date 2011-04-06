@@ -1,9 +1,9 @@
 INCLUDE_FLAGS:=-I../include \
                -I../../thirdParty/mct/include \
-               -I../../libCommon/include \
-               -I../../libThreadComm/include \
-               -I../../libProcessComm/include \
-               -I../../libSocketComm/include
+               -I../../LetheCommon/include \
+               -I../../LetheThreadComm/include \
+               -I../../LetheProcessComm/include \
+               -I../../LetheSocketComm/include
 
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
 HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')
@@ -12,7 +12,7 @@ COMPILE_FLAGS:=-std=c++0x -c -Wall -Wextra -Werror -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS :=-rcv
 
 LIBRARY_DIR  :=../bin
-LIBRARY_FILE :=$(LIBRARY_DIR)/libThreadUtil.a
+LIBRARY_FILE :=$(LIBRARY_DIR)/LetheThreadUtil.a
 
 OBJECT_FILES := CommRegistry.o \
                 ThreadRegistry.o

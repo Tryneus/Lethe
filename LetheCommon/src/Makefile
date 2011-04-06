@@ -8,7 +8,7 @@ COMPILE_FLAGS:=-c -std=c++0x -Wall -Wextra -Werror -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS :=-rcv
 
 LIBRARY_DIR  :=../bin
-LIBRARY_FILE :=$(LIBRARY_DIR)/libCommon.a
+LIBRARY_FILE :=$(LIBRARY_DIR)/LetheCommon.a
 
 OBJECT_FILES :=Log.o \
                LetheException.o \

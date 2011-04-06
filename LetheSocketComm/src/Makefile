@@ -1,5 +1,5 @@
 INCLUDE_FLAGS:=-I../include \
-               -I../../libCommon/include
+               -I../../LetheCommon/include
 
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
 HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')
@@ -8,10 +8,11 @@ COMPILE_FLAGS:=-c -std=c++0x -Wall -Wextra -Werror -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS :=-rcv
 
 LIBRARY_DIR  :=../bin
-LIBRARY_FILE :=$(LIBRARY_DIR)/libSocketComm.a
+LIBRARY_FILE :=$(LIBRARY_DIR)/LetheSocketComm.a
 
 OBJECT_FILES :=ByteStream/LinuxSocketByteStream.o \
-               MessageStream/LinuxSocketMessageStream.o
+               MessageStream/LinuxSocketMessageStream.o \
+               LinuxSocketListener.o
 
 all: $(LIBRARY_FILE)
 

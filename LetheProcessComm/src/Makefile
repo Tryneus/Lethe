@@ -1,5 +1,5 @@
 INCLUDE_FLAGS:=-I../include \
-               -I../../libCommon/include \
+               -I../../LetheCommon/include \
                -I../../thirdParty/mct/include
 
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
@@ -9,7 +9,7 @@ COMPILE_FLAGS:=-c -std=c++0x -Wall -Wextra -Werror -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS :=-rcv
 
 LIBRARY_DIR  :=../bin
-LIBRARY_FILE :=$(LIBRARY_DIR)/libProcessComm.a
+LIBRARY_FILE :=$(LIBRARY_DIR)/LetheProcessComm.a
 
 OBJECT_FILES :=ByteStream/LinuxProcessByteStream.o \
                MessageStream/LinuxProcessMessageStream.o \

@@ -198,6 +198,8 @@ void WindowsPipe::send(const void* buffer, uint32_t bufferSize)
     DWORD nonBlocking = PIPE_NOWAIT;
     if(!SetNamedPipeHandleState(m_pipeWrite, &nonBlocking, NULL, NULL))
       throw std::bad_syscall("SetNamedPipeHandleState", lastError());
+
+    m_isBlocking = false;
   }
 
   DWORD bytesWritten;
@@ -213,6 +215,8 @@ void WindowsPipe::send(const void* buffer, uint32_t bufferSize)
     DWORD blocking = PIPE_WAIT;
     if(!SetNamedPipeHandleState(m_pipeWrite, &blocking, NULL, NULL))
       throw std::bad_syscall("SetNamedPipeHandleState", lastError());
+
+    m_isBlocking = true;
 
     asyncWrite(((uint8_t*)buffer) + bytesWritten, bufferSize - bytesWritten);
   }

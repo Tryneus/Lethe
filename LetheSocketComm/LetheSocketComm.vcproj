@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libSocketComm"
+	Name="LetheSocketComm"
 	ProjectGUID="{612469FA-7E4E-46D9-9B39-9E95192D4FD8}"
-	RootNamespace="libSocketComm"
+	RootNamespace="LetheSocketComm"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>

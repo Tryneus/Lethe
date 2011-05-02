@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libCommonTest"
+	Name="LetheCommonTest"
 	ProjectGUID="{9A61EDD0-01D1-4701-9F53-DC266AAC51A4}"
-	RootNamespace="libCommonTest"
+	RootNamespace="LetheCommonTest"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="bin/libCommon.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
@@ -135,7 +135,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="bin/libCommon.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
@@ -208,7 +208,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="bin/libCommon.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -282,7 +282,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="bin/libCommon.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

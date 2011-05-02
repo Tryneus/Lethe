@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libCommon"
+	Name="LetheCommon"
 	ProjectGUID="{C58DF22D-5605-402A-849D-EECC4EC713BA}"
-	RootNamespace="libCommon"
+	RootNamespace="LetheCommon"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libProcessComm"
+	Name="LetheProcessComm"
 	ProjectGUID="{D2A5BC3E-F1A8-453D-8991-BA1BBA67F243}"
-	RootNamespace="libProcessComm"
+	RootNamespace="LetheProcessComm"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>

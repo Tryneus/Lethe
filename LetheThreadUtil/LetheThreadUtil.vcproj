@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libThreadUtil"
+	Name="LetheThreadUtil"
 	ProjectGUID="{AE54056E-549E-404C-B08E-3293ACB8EA8F}"
-	RootNamespace="libThreadUtil"
+	RootNamespace="LetheThreadUtil"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>

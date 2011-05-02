@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libSocketCommTest"
+	Name="LetheSocketCommTest"
 	ProjectGUID="{437A40EF-64C4-4207-BB43-DE624584EB56}"
-	RootNamespace="libSocketCommTest"
+	RootNamespace="LetheSocketCommTest"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;../libCommon/include;../thirdParty/catch"
+				AdditionalIncludeDirectories="include;../LetheCommon/include;../thirdParty/catch"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libSocketComm.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="../LetheCommon/bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib bin/$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
@@ -116,7 +116,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;../libCommon/include;../thirdParty/catch"
+				AdditionalIncludeDirectories="include;../LetheCommon/include;../thirdParty/catch"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -135,7 +135,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libSocketComm.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="../LetheCommon/bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib bin/$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
@@ -190,7 +190,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;../libCommon/include;../thirdParty/catch"
+				AdditionalIncludeDirectories="include;../LetheCommon/include;../thirdParty/catch"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
@@ -208,7 +208,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libSocketComm.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="../LetheCommon/bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib bin/$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -264,7 +264,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;../libCommon/include;../thirdParty/catch"
+				AdditionalIncludeDirectories="include;../LetheCommon/include;../thirdParty/catch"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
@@ -282,7 +282,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libSocketComm.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="../LetheCommon/bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib bin/$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

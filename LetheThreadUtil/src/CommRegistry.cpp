@@ -136,7 +136,7 @@ ByteStream* CommRegistry::createProcessByteStream(uint32_t processId, uint32_t t
   // Now that the remote side has been notified, try to open the stream
   ProcessByteStream* stream = new ProcessByteStream(processId, timeout);
   ConnectionInfo* connInfo = new ConnectionInfo(StreamType::ProcessMessage, stream->getHandle(), stream, NULL);
-  
+
   if(!m_streams->insert(std::make_pair(stream->getHandle(), connInfo)).second)
   {
     delete stream;
@@ -189,7 +189,7 @@ MessageStream* CommRegistry::createProcessMessageStream(uint32_t processId, uint
   // Now that the remote side has been notified, try to open the stream
   ProcessMessageStream* stream = new ProcessMessageStream(processId, m_defaultMessageStreamSize, timeout);
   ConnectionInfo* connInfo = new ConnectionInfo(StreamType::ProcessMessage, stream->getHandle(), stream, NULL);
-  
+
   if(!m_streams->insert(std::make_pair(stream->getHandle(), connInfo)).second)
   {
     delete stream;
@@ -219,7 +219,7 @@ void CommRegistry::destroyStream(MessageStream& stream)
 void CommRegistry::destroyInternal(Handle handle)
 {
   auto i = m_streams->find(handle);
-  
+
   if(i != m_streams->cend())
   {
     switch(i->second->m_type)

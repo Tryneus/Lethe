@@ -39,7 +39,7 @@ Thread* ThreadRegistry::get(const std::string& name)
     return NULL;
 
   m_mutex.unlock();
-  
+
   return i->second;
 }
 

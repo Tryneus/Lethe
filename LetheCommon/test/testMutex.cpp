@@ -2,6 +2,7 @@
 #include "LetheException.h"
 #include "catch.hpp"
 #include "testCommon.h"
+#include "Log.h"
 
 /**
  *
@@ -97,7 +98,7 @@ bool MutexTestThread::isIterating()
 //  Event, or WaitSet.
 TEST_CASE("mutex/autolock", "Test auto-lock and unlock with multiple waiting threads")
 {
-  const uint32_t threadCount(20);
+  const uint32_t threadCount(100);
   MutexTestThread* threadArray[threadCount];
   WaitSet activeThreads;
   Mutex mutex(true);
@@ -119,7 +120,7 @@ TEST_CASE("mutex/autolock", "Test auto-lock and unlock with multiple waiting thr
     Handle exitedThread;
 
     // Wait some time to make sure no threads exit prematurely
-    REQUIRE(activeThreads.waitAny(100, exitedThread) == WaitTimeout);
+    REQUIRE(activeThreads.waitAny(30, exitedThread) == WaitTimeout);
 
     // Loop through the threads, make sure exactly one is in iterate
     for(uint32_t i(0); i < threadCount; ++i)

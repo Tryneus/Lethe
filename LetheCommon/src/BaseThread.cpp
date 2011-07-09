@@ -3,7 +3,6 @@
 #include "LetheException.h"
 #include "LetheInternal.h"
 #include <sstream>
-#include "Log.h"
 
 using namespace lethe;
 
@@ -57,34 +56,38 @@ void BaseThread::threadMain()
       if(m_exit)
         break;
 
-      while(m_running)
+      if(m_running) // protection against stopping before actually starting
       {
-        if(m_objectQueue.size() > 0)
-          handleObjectQueue();
-
-        switch(m_waitSet.waitAny(m_timeout, handle))
+        do
         {
-        case WaitSuccess:
-          if(handle == m_triggerEvent.getHandle())
+          if(m_objectQueue.size() > 0)
+            handleObjectQueue();
+
+          switch(m_waitSet.waitAny(m_timeout, handle))
+          {
+          case WaitSuccess:
+            if(handle == m_triggerEvent.getHandle())
+              break;
+
+          case WaitTimeout: // Fallthrough intentional
+            iterate(handle);
             break;
 
-        case WaitTimeout:
-          iterate(handle);
-          break;
+          case WaitAbandoned:
+            if(handle == m_triggerEvent.getHandle())
+              throw std::logic_error("thread trigger event abandoned");
 
-        case WaitAbandoned:
-          if(handle == m_triggerEvent.getHandle())
-            throw std::logic_error("thread trigger event abandoned");
+            abandoned(handle);
+            break;
 
-          abandoned(handle);
-          break;
+          default:
+            throw std::logic_error("thread internal wait failed");
+          }
+        } while(m_running);
 
-        default:
-          throw std::logic_error("thread internal wait failed");
-        }
+        m_stoppedEvent.set();
       }
 
-      m_stoppedEvent.set();
     }
   }
   catch(std::exception& ex)

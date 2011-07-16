@@ -10,17 +10,17 @@ prepare:
 	cd thirdParty; make prepare
 
 # install is used to install the kernel module needed for mutex/semaphore/event auto-reset on linux
-install: all
+install: prepare
 	cd LetheCommon; make install
 
-runTest: all
+runTest: prepare
 	cd LetheCommon; make runTest
 	cd LetheThreadComm; make runTest
 	cd LetheProcessComm; make runTest
 	cd LetheSocketComm; make runTest
 	cd LetheThreadUtil; make runTest
 
-valTest: all
+valTest: prepare
 	cd LetheCommon; make valTest
 	cd LetheThreadComm; make valTest
 	cd LetheProcessComm; make valTest

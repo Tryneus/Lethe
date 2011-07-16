@@ -1,6 +1,5 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
+﻿Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LetheCommon", "LetheCommon\LetheCommon.vcproj", "{C58DF22D-5605-402A-849D-EECC4EC713BA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LetheCommonTest", "LetheCommon\LetheCommonTest.vcproj", "{9A61EDD0-01D1-4701-9F53-DC266AAC51A4}"

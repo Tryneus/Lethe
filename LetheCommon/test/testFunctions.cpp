@@ -147,7 +147,7 @@ TEST_CASE("functions/wait", "Test waiting for single WaitObjects")
   REQUIRE(WaitForObject(pipe, 20) == WaitTimeout);
 
   // Thread
-  // TODO: add thread test  
+  // TODO: add thread test
 
   // Timer
   Timer timer;

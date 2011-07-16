@@ -94,7 +94,7 @@ void WindowsHandleTransfer::sendInternal(const std::string& name, char type)
 const std::string WindowsHandleTransfer::recvInternal(char type, uint32_t timeout)
 {
   uint32_t bufferSize;
-  
+
   if(WaitForObject(m_stream, timeout) != WaitSuccess)
     throw std::runtime_error("did not receive handle data from remote process");
 

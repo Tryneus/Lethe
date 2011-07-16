@@ -99,7 +99,7 @@ void LinuxProcessByteStream::removeProcessMutex(uint32_t processId)
       // Mutex is being used by another thread, leave it alone
     }
   }
-  
+
   s_mutex.unlock();
 }
 

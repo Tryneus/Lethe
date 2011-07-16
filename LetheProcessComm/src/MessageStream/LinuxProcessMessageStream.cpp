@@ -27,7 +27,7 @@ LinuxProcessMessageStream::LinuxProcessMessageStream(ByteStream& stream,
   try
   {
     // Open local->remote files
-    m_shmOut = new SharedMemory(generateShmName(), outgoingSize);
+    m_shmOut = new SharedMemory(outgoingSize, generateShmName());
     m_semaphoreOut = new Semaphore(0xFFFFFFFF, 0);
 
     // Get remote->local files
@@ -112,7 +112,7 @@ void LinuxProcessMessageStream::doSetup(ByteStream& stream,
   }
 
   // Format should be <shared memory filename>
-  m_shmIn = new SharedMemory(receivedString, 0);
+  m_shmIn = new SharedMemory(0, receivedString);
 
   LinuxHandleTransfer transfer(stream, getTimeout(endTime));
 

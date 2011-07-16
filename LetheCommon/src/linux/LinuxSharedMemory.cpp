@@ -13,7 +13,7 @@ using namespace lethe;
 const std::string LinuxSharedMemory::s_nameBase("/");
 const mode_t LinuxSharedMemory::s_filePermissions(0666);
 
-LinuxSharedMemory::LinuxSharedMemory(const std::string& name, uint32_t size) :
+LinuxSharedMemory::LinuxSharedMemory(uint32_t size, const std::string& name) :
   m_fullName(s_nameBase + name),
   m_name(name),
   m_data(NULL),
@@ -36,7 +36,7 @@ LinuxSharedMemory::LinuxSharedMemory(const std::string& name, uint32_t size) :
       shm_unlink(m_fullName.c_str());
       throw std::bad_syscall("fstat", errorString);
     }
-    
+
     m_size = fileInfo.st_size;
   }
   else // Set the size

@@ -219,7 +219,6 @@ WaitResult LinuxWaitSet::getEvent(Handle& handle)
   {
     if(m_waitArray[m_eventOffset].revents & (POLLERR | POLLHUP | POLLNVAL))
     {
-      // m_waitArray[m_eventOffset].revents &= ~(POLLERR | POLLHUP | POLLNVAL); // Mask out the flags we used
       m_waitArray[m_eventOffset].revents = 0; // Mask out all events, error conditions prevent success
       result = WaitAbandoned;
       break;

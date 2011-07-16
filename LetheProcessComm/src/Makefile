@@ -3,7 +3,7 @@ INCLUDE_FLAGS:=-I../include \
                -I../../thirdParty/mct/include
 
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
-HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')
+HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*' 2>&-)
 
 COMPILE_FLAGS:=-c -std=c++0x -Wall -Wextra -Werror -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS :=-rcv

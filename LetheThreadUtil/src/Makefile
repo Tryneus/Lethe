@@ -6,7 +6,7 @@ INCLUDE_FLAGS:=-I../include \
                -I../../LetheSocketComm/include
 
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
-HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')
+HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*' 2>&-)
 
 COMPILE_FLAGS:=-std=c++0x -c -Wall -Wextra -Werror -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS :=-rcv

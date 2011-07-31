@@ -25,6 +25,7 @@ namespace lethe
     bool isStopping() const;
     std::string getError();
 
+    // Act like a WaitObject without actually being one - passthrough to m_stoppedEvent
     operator WaitObject&();
     Handle getHandle() const;
 

@@ -98,7 +98,7 @@ WaitResult LinuxWaitSet::waitAny(uint32_t timeout, Handle& handle)
 
   if(m_waitObjects->size() == 0)
   {
-    Sleep(timeout);
+    sleep_ms(timeout);
     return WaitTimeout;
   }
 

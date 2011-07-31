@@ -165,7 +165,7 @@ LinuxPipe::~LinuxPipe()
     // TODO: polling sucks, maybe rewrite to use kernel-based aio with eventfd rather than libc-based aio
     while(status == EINPROGRESS || status == EAGAIN)
     {
-      Sleep(5);
+      sleep_ms(5);
       status = aio_error(unfinishedEvents.front());
     }
 

@@ -50,6 +50,7 @@ namespace lethe
     WindowsWaitSet& operator = (const WindowsWaitSet&);
 
     void resizeEvents();
+    void callPostWait(WaitResult result, Handle handle);
 
     mct::closed_hash_map<Handle,
                          WaitObject*,

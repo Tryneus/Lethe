@@ -41,8 +41,6 @@ bool WindowsWaitSet::remove(WaitObject& obj)
 
 bool WindowsWaitSet::remove(Handle handle)
 {
-  DWORD handleInfo;
-
   if(!m_waitObjects->erase(handle))
     return false;
 
@@ -58,9 +56,8 @@ size_t WindowsWaitSet::getSize() const
 WaitResult WindowsWaitSet::waitAny(uint32_t timeout, Handle& handle)
 {
   WaitResult result;
-  uint32_t i;
 
-  for(auto i = m_waitObjects->begin(); i != m_waitObjects->cend(); ++i)
+  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i = m_waitObjects->begin(); i != m_waitObjects->cend(); ++i)
   {
     if(i->second->preWaitCallback())
     {
@@ -68,8 +65,8 @@ WaitResult WindowsWaitSet::waitAny(uint32_t timeout, Handle& handle)
 
       i->second->postWaitCallback(WaitSuccess);
 
-      for(; i != m_waitObject->begin(); --i)
-        i->postWaitCallback(WaitTimeout);
+      for(; i != m_waitObjects->begin(); --i)
+        i->second->postWaitCallback(WaitTimeout);
 
       return WaitSuccess;
     }
@@ -105,7 +102,7 @@ WaitResult WindowsWaitSet::waitAny(uint32_t timeout, Handle& handle)
 
 void WindowsWaitSet::callPostWait(WaitResult result, Handle handle)
 {
-  for(auto i = m_waitObjects->begin(); i != m_waitObjects->cend(); ++i)
+  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i = m_waitObjects->begin(); i != m_waitObjects->cend(); ++i)
   {
     if(i->first == handle)
       i->second->postWaitCallback(result);
@@ -129,7 +126,7 @@ void WindowsWaitSet::resizeEvents()
   m_handleArray = new Handle[m_waitObjects->size() * 2];
 
   uint32_t j(0);
-  for(auto i = m_waitObjects->cbegin(); i != m_waitObjects->cend(); ++i)
+  for(mct::closed_hash_map<Handle, WaitObject*>::const_iterator i = m_waitObjects->cbegin(); i != m_waitObjects->cend(); ++i)
   {
     m_handleArray[j + m_waitObjects->size()] = i->first;
     m_handleArray[j++] = i->first;

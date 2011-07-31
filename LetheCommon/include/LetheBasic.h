@@ -17,20 +17,30 @@
   namespace lethe
   {
     class WindowsWaitSet;
-    class WindowsEvent;
-    class WindowsMutex;
-    class WindowsSemaphore;
-    class WindowsPipe;
-    class WindowsTimer;
-    class WindowsSharedMemory;
-
     typedef WindowsWaitSet WaitSet;
+
+    class WindowsEvent;
     typedef WindowsEvent Event;
+
+    class WindowsMutex;
     typedef WindowsMutex Mutex;
+
+    class WindowsSemaphore;
     typedef WindowsSemaphore Semaphore;
+
+    class WindowsPipe;
     typedef WindowsPipe Pipe;
+
+    class WindowsTimer;
     typedef WindowsTimer Timer;
+
+    class WindowsSharedMemory;
     typedef WindowsSharedMemory SharedMemory;
+
+    class WindowsAtomic32;
+    typedef WindowsAtomic32 Atomic32;
+    class WindowsAtomic64;
+    typedef WindowsAtomic64 Atomic64;
   }
 
   #include "windows/WindowsWaitSet.h"
@@ -40,26 +50,45 @@
   #include "windows/WindowsPipe.h"
   #include "windows/WindowsTimer.h"
   #include "windows/WindowsSharedMemory.h"
+  #include "windows/WindowsAtomic.h"
+
+  namespace lethe
+  {
+    typedef WindowsAtomic Atomic;
+  }
 
 #elif defined(__linux__)
 
   namespace lethe
   {
     class LinuxWaitSet;
-    class LinuxEvent;
-    class LinuxMutex;
-    class LinuxSemaphore;
-    class LinuxPipe;
-    class LinuxTimer;
-    class LinuxSharedMemory;
-
     typedef LinuxWaitSet WaitSet;
+
+    class LinuxEvent;
     typedef LinuxEvent Event;
+
+    class LinuxMutex;
     typedef LinuxMutex Mutex;
+
+    class LinuxSemaphore;
     typedef LinuxSemaphore Semaphore;
+
+    class LinuxPipe;
     typedef LinuxPipe Pipe;
+
+    class LinuxTimer;
     typedef LinuxTimer Timer;
+
+    class LinuxSharedMemory;
     typedef LinuxSharedMemory SharedMemory;
+
+    class LinuxAtomic32;
+    class LinuxAtomic64;
+
+    class LinuxAtomic32;
+    typedef LinuxAtomic32 Atomic32;
+    class LinuxAtomic64;
+    typedef LinuxAtomic64 Atomic64;
   }
 
   #include "linux/LinuxWaitSet.h"
@@ -69,6 +98,12 @@
   #include "linux/LinuxPipe.h"
   #include "linux/LinuxTimer.h"
   #include "linux/LinuxSharedMemory.h"
+  #include "linux/LinuxAtomic.h"
+
+  namespace lethe
+  {
+    typedef LinuxAtomic Atomic;
+  }
 
 #else
   #error "Platform not detected"

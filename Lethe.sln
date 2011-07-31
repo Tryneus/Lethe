@@ -1,6 +1,10 @@
-﻿Microsoft Visual Studio Solution File, Format Version 10.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LetheCommon", "LetheCommon\LetheCommon.vcproj", "{C58DF22D-5605-402A-849D-EECC4EC713BA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5720FF05-8734-41C0-9EC5-DB9753C48C41} = {5720FF05-8734-41C0-9EC5-DB9753C48C41}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LetheCommonTest", "LetheCommon\LetheCommonTest.vcproj", "{9A61EDD0-01D1-4701-9F53-DC266AAC51A4}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -35,13 +39,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LetheSocketComm", "LetheSocketComm\LetheSocketComm.vcproj", "{612469FA-7E4E-46D9-9B39-9E95192D4FD8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C58DF22D-5605-402A-849D-EECC4EC713BA} = {C58DF22D-5605-402A-849D-EECC4EC713BA}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LetheSocketCommTest", "LetheSocketComm\LetheSocketCommTest.vcproj", "{437A40EF-64C4-4207-BB43-DE624584EB56}"
-	ProjectSection(ProjectDependencies) = postProject
-		{5720FF05-8734-41C0-9EC5-DB9753C48C41} = {5720FF05-8734-41C0-9EC5-DB9753C48C41}
-		{C58DF22D-5605-402A-849D-EECC4EC713BA} = {C58DF22D-5605-402A-849D-EECC4EC713BA}
-		{612469FA-7E4E-46D9-9B39-9E95192D4FD8} = {612469FA-7E4E-46D9-9B39-9E95192D4FD8}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LetheThreadUtil", "LetheThreadUtil\LetheThreadUtil.vcproj", "{AE54056E-549E-404C-B08E-3293ACB8EA8F}"
@@ -116,10 +113,6 @@ Global
 		{612469FA-7E4E-46D9-9B39-9E95192D4FD8}.Debug|x64.ActiveCfg = Debug|x64
 		{612469FA-7E4E-46D9-9B39-9E95192D4FD8}.Release|Win32.ActiveCfg = Release|Win32
 		{612469FA-7E4E-46D9-9B39-9E95192D4FD8}.Release|x64.ActiveCfg = Release|x64
-		{437A40EF-64C4-4207-BB43-DE624584EB56}.Debug|Win32.ActiveCfg = Debug|Win32
-		{437A40EF-64C4-4207-BB43-DE624584EB56}.Debug|x64.ActiveCfg = Debug|x64
-		{437A40EF-64C4-4207-BB43-DE624584EB56}.Release|Win32.ActiveCfg = Release|Win32
-		{437A40EF-64C4-4207-BB43-DE624584EB56}.Release|x64.ActiveCfg = Release|x64
 		{AE54056E-549E-404C-B08E-3293ACB8EA8F}.Debug|Win32.ActiveCfg = Debug|Win32
 		{AE54056E-549E-404C-B08E-3293ACB8EA8F}.Debug|x64.ActiveCfg = Debug|x64
 		{AE54056E-549E-404C-B08E-3293ACB8EA8F}.Release|Win32.ActiveCfg = Release|Win32

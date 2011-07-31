@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;../thirdParty/mct/include"
+				AdditionalIncludeDirectories="include;../thirdParty"
 				PreprocessorDefinitions="NOMINMAX"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -107,7 +107,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;../thirdParty/mct/include"
+				AdditionalIncludeDirectories="include;../thirdParty"
 				PreprocessorDefinitions="NOMINMAX"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -172,7 +172,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;../thirdParty/mct/include"
+				AdditionalIncludeDirectories="include;../thirdParty"
 				PreprocessorDefinitions="NOMINMAX"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -237,7 +237,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;../thirdParty/mct/include"
+				AdditionalIncludeDirectories="include;../thirdParty"
 				PreprocessorDefinitions="NOMINMAX"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -288,11 +288,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\ByteStream.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\LetheException.cpp"
 				>
 			</File>
 			<File
+				RelativePath=".\src\LetheInternal.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Log.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\MessageStream.cpp"
 				>
 			</File>
 			<File
@@ -303,35 +315,43 @@
 				Name="Windows"
 				>
 				<File
-					RelativePath=".\src\WindowsEvent.cpp"
+					RelativePath=".\src\windows\WindowsAtomic.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsFunctions.cpp"
+					RelativePath=".\src\windows\WindowsEvent.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsMutex.cpp"
+					RelativePath=".\src\windows\WindowsFunctions.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsPipe.cpp"
+					RelativePath=".\src\windows\WindowsMutex.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsSemaphore.cpp"
+					RelativePath=".\src\windows\WindowsPipe.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsThread.cpp"
+					RelativePath=".\src\windows\WindowsSemaphore.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsTimer.cpp"
+					RelativePath=".\src\windows\WindowsSharedMemory.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsWaitSet.cpp"
+					RelativePath=".\src\windows\WindowsThread.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\windows\WindowsTimer.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\windows\WindowsWaitSet.cpp"
 					>
 				</File>
 			</Filter>
@@ -341,6 +361,14 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\include\BaseThread.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ByteStream.h"
+				>
+			</File>
 			<File
 				RelativePath=".\include\Lethe.h"
 				>
@@ -354,7 +382,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\LetheException.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\LetheFunctions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\LetheInternal.h"
 				>
 			</File>
 			<File
@@ -362,15 +398,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\include\BaseThread.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\LetheException.h"
-				>
-			</File>
-			<File
 				RelativePath=".\include\Log.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\MessageStream.h"
 				>
 			</File>
 			<File
@@ -393,6 +425,10 @@
 				Name="Windows"
 				>
 				<File
+					RelativePath=".\include\windows\WindowsAtomic.h"
+					>
+				</File>
+				<File
 					RelativePath=".\include\windows\WindowsEvent.h"
 					>
 				</File>
@@ -409,6 +445,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\include\windows\WindowsSharedMemory.h"
+					>
+				</File>
+				<File
 					RelativePath=".\include\windows\WindowsThread.h"
 					>
 				</File>
@@ -421,12 +461,6 @@
 					>
 				</File>
 			</Filter>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
 		</Filter>
 	</Files>
 	<Globals>

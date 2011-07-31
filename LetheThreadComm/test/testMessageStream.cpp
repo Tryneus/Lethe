@@ -2,7 +2,7 @@
 #include "LetheException.h"
 #include "ThreadComm.h"
 #include "Log.h"
-#include "catch.hpp"
+#include "catch/catch.hpp"
 
 class SenderThread : public lethe::Thread
 {
@@ -222,7 +222,7 @@ TEST_CASE("messageStream/stress", "Test echoing messages between threads at high
     sender->start();
 
     // Let the threads run for some seconds, then stop them
-    lethe::Sleep(testSeconds * 1000);
+    lethe::sleep_ms(testSeconds * 1000);
 
     sender->stop();
     echo->stop();

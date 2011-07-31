@@ -3,15 +3,39 @@
 #include "LetheFunctions.h"
 #include "LetheException.h"
 #include <Windows.h>
+#include <sstream>
 
 using namespace lethe;
 
 const int64_t WindowsTimer::s_resetTimeout(INT64_MIN);
+const std::string WindowsTimer::s_timerBaseName("Global\\lethe-timer-");
+WindowsAtomic WindowsTimer::s_uniqueId(0);
 
-WindowsTimer::WindowsTimer() :
-  WaitObject(CreateWaitableTimer(NULL, true, NULL))
+WindowsTimer::WindowsTimer(uint32_t timeout) :
+  WaitObject(NULL)
 {
-  if(getHandle() == INVALID_HANDLE_VALUE)
+  std::stringstream str;
+  str << s_timerBaseName << getProcessId() << "-" << s_uniqueId.increment();
+  m_name.assign(str.str());
+
+  setWaitHandle(CreateWaitableTimer(NULL, true, m_name.c_str()));
+
+  if(getHandle() == NULL)
+    throw std::bad_syscall("CreateWaitableTimer", lastError());
+
+  if(timeout != INFINITE)
+    start(timeout);
+}
+
+WindowsTimer::WindowsTimer(const std::string& name) :
+  WaitObject(NULL),
+  m_name(name)
+{
+  setWaitHandle(OpenWaitableTimer(TIMER_MODIFY_STATE |
+                                  TIMER_QUERY_STATE |
+                                  SYNCHRONIZE, false, m_name.c_str()));
+
+  if(getHandle() == NULL)
     throw std::bad_syscall("CreateWaitableTimer", lastError());
 }
 

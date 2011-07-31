@@ -122,7 +122,6 @@ uint32_t WindowsSharedMemory::getShmSize(void* addr)
   if(resultSize == 0)
     throw std::bad_syscall("VirtualQuery", lastError());
 
-  // TODO: figure out if this should work
   if(info.Type != MEM_MAPPED)
     throw std::runtime_error("invalid shared memory region type");
 

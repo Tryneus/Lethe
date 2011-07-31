@@ -1,7 +1,7 @@
 #include "Lethe.h"
 #include "LetheException.h"
 #include "Log.h"
-#include "catch.hpp"
+#include "catch/catch.hpp"
 #include <sstream>
 #include <fstream>
 

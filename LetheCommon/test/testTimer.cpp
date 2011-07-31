@@ -1,7 +1,7 @@
 #include "Lethe.h"
 #include "LetheException.h"
-#include "catch.hpp"
 #include "testCommon.h"
+#include "catch/catch.hpp"
 
 using namespace lethe;
 
@@ -14,7 +14,7 @@ TEST_CASE("timer/structor", "Test construction/destruction")
   for(uint32_t i(0); i < numTimers; ++i)
   {
     // Use 'i' to determine the parameters
-    timerArray[i] = new Timer();
+    timerArray[i] = new Timer(INFINITE);
   }
 
   // Put the timers into some different states
@@ -41,7 +41,7 @@ TEST_CASE("timer/structor", "Test construction/destruction")
 
 TEST_CASE("timer/wait", "Test waiting for timers")
 {
-  Timer timer;
+  Timer timer(INFINITE);
   uint64_t startTime;
   uint64_t endTime;
 
@@ -49,7 +49,8 @@ TEST_CASE("timer/wait", "Test waiting for timers")
   timer.start(1000);
   REQUIRE(WaitForObject(timer, 1050) == WaitSuccess);
   endTime = getTime();
-  REQUIRE(endTime - startTime >= 1000 && endTime - startTime < 1050);
+  REQUIRE(endTime - startTime >= 1000);
+  REQUIRE(endTime - startTime < 1050);
   REQUIRE(WaitForObject(timer, 0) == WaitSuccess);
   timer.clear();
   REQUIRE(WaitForObject(timer, 0) == WaitTimeout);
@@ -58,7 +59,8 @@ TEST_CASE("timer/wait", "Test waiting for timers")
   timer.start(1);
   REQUIRE(WaitForObject(timer, 50) == WaitSuccess);
   endTime = getTime();
-  REQUIRE(endTime - startTime >= 1 && endTime - startTime < 50);
+  REQUIRE(endTime - startTime >= 1);
+  REQUIRE(endTime - startTime < 50);
   REQUIRE(WaitForObject(timer, 0) == WaitSuccess);
   timer.clear();
   REQUIRE(WaitForObject(timer, 0) == WaitTimeout);

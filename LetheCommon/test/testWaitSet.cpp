@@ -1,8 +1,8 @@
 #include "Lethe.h"
 #include "LetheException.h"
 #include "LetheInternal.h"
-#include "catch.hpp"
 #include "Log.h"
+#include "catch/catch.hpp"
 
 using namespace lethe;
 
@@ -39,7 +39,7 @@ TEST_CASE("waitSet/add", "Test adding WaitObjects")
   WaitSet waitSet;
   Mutex mutex(false);
   Event event(false, false);
-  Timer timer;
+  Timer timer(INFINITE);
   Semaphore semaphore(1, 1);
   WaitSetDummyThread thread;
   Pipe pipe;
@@ -93,7 +93,7 @@ TEST_CASE("waitSet/remove", "Test removing WaitObjects")
   WaitSet waitSet;
   Mutex mutex(false);
   Event event(false, false);
-  Timer timer;
+  Timer timer(INFINITE);
   Semaphore semaphore(1, 1);
   WaitSetDummyThread thread;
   Pipe pipe;
@@ -164,7 +164,7 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
 
   // Create wait objects initially unsignalled
   Event event(false, true);
-  Timer timer;
+  Timer timer(INFINITE);
   Semaphore semaphore(10, 0);
   WaitSetDummyThread thread;
   Pipe pipe;
@@ -226,7 +226,7 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
   unfinished.insert(pipe.getHandle());
 
   // Sleep a little to make sure the notifications have pushed through
-  Sleep(10);
+  sleep_ms(10);
 
   while(!unfinished.empty())
   {
@@ -247,7 +247,7 @@ TEST_CASE("waitSet/waitAny2", "Test behavior of waitAny in different conditions"
 {
   WaitSet waitSet;
   WaitSetDummyThread thread;
-  Timer timer;
+  Timer timer(INFINITE);
   Mutex mutex(false); // Unlocked
   Event event1(false, false); // Not yet set, manual reset
   Event event2(false, true); // Not yet set, autoreset
@@ -292,7 +292,7 @@ TEST_CASE("waitSet/waitAny2", "Test behavior of waitAny in different conditions"
   unfinished.insert(pipe.getHandle());
 
   // Sleep a bit to make sure the timer finishes
-  Sleep(5);
+  sleep_ms(5);
 
   while(!unfinished.empty())
   {
@@ -329,9 +329,9 @@ TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
   Event event4(true, true);
   WaitSetDummyThread thread1;
   WaitSetDummyThread thread2;
-  Timer timer1;
-  Timer timer2;
-  Timer timer3;
+  Timer timer1(INFINITE);
+  Timer timer2(INFINITE);
+  Timer timer3(INFINITE);
   Pipe pipe1;
   Pipe pipe2;
   Semaphore sem1(10, 0);
@@ -398,13 +398,11 @@ TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
   waitSet2.add(sem2);
   waitSet2.add(sem3);
 
-  // Can't destroy objects because of callbacks, instead close handles manually
-  for(auto i = unfinished.cbegin(); i != unfinished.cend(); ++i)
 #if defined(__linux__)
+  // Can't destroy objects because of callbacks, instead close handles manually
+  for(std::set<Handle>::const_iterator i = unfinished.begin(); i != unfinished.end(); ++i)
+
     close(*i);
-#elif defined(__WIN32__)
-    CloseHandle(*i);
-#endif
 
   Handle waitHandle;
 
@@ -423,5 +421,10 @@ TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
     REQUIRE(waitSet2.waitAny(0, waitHandle) == WaitAbandoned);
     REQUIRE(unfinished2.erase(waitHandle) == 1);
   }
+#elif defined(__WIN32__) || defined(_WIN32)
+  // TODO: figure out how to force abandoned wait result in windows
+#endif
 }
+
+
 

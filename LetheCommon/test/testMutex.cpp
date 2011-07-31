@@ -1,7 +1,7 @@
 #include "Lethe.h"
 #include "LetheException.h"
-#include "catch.hpp"
 #include "testCommon.h"
+#include "catch/catch.hpp"
 
 /**
  *

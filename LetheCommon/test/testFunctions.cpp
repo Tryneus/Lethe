@@ -1,7 +1,7 @@
 #include "Lethe.h"
 #include "LetheException.h"
 #include "LetheInternal.h"
-#include "catch.hpp"
+#include "catch/catch.hpp"
 
 using namespace lethe;
 
@@ -11,19 +11,19 @@ TEST_CASE("functions/sleep", "Test the sleep function")
   uint64_t startTime;
 
   startTime = getTime();
-  Sleep(0);
+  sleep_ms(0);
   REQUIRE(getTime() - startTime <= 35);
 
   startTime = getTime();
-  Sleep(1);
+  sleep_ms(1);
   REQUIRE(getTime() - startTime <= 36);
 
   startTime = getTime();
-  Sleep(100);
+  sleep_ms(100);
   REQUIRE(getTime() - startTime <= 135);
 
   startTime = getTime();
-  Sleep(1000);
+  sleep_ms(1000);
   REQUIRE(getTime() - startTime <= 1035);
 }
 
@@ -150,7 +150,7 @@ TEST_CASE("functions/wait", "Test waiting for single WaitObjects")
   // TODO: add thread test  
 
   // Timer
-  Timer timer;
+  Timer timer(INFINITE);
   REQUIRE(WaitForObject(timer, 20) == WaitTimeout);
   REQUIRE(WaitForObject(timer, 20) == WaitTimeout);
   timer.start(1);

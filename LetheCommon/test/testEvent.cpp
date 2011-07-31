@@ -1,6 +1,6 @@
 #include "Lethe.h"
 #include "LetheException.h"
-#include "catch.hpp"
+#include "catch/catch.hpp"
 #include "testCommon.h"
 
 using namespace lethe;

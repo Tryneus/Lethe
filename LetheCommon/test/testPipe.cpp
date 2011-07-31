@@ -1,7 +1,7 @@
 #include "Lethe.h"
 #include "LetheException.h"
 #include "LetheInternal.h"
-#include "catch.hpp"
+#include "catch/catch.hpp"
 
 using namespace lethe;
 
@@ -179,7 +179,8 @@ TEST_CASE("pipe/largedata", "Test sending data buffers too large to fit in the p
   int32_t* dataBuffer = new int32_t[bufferCount];
   Pipe pipe;
   Event event(false, true);
-  PipeTestThread thread(bufferSize * 100, pipe, event); // Reserve way more space than needed
+  PipeTestThread thread(bufferSize * 20, pipe, event); // Reserve way more space than needed
+  uint32_t sends;
 
   // Initialize buffer
   for(uint32_t i = 0; i < bufferCount; ++i)
@@ -188,35 +189,36 @@ TEST_CASE("pipe/largedata", "Test sending data buffers too large to fit in the p
   // This assumes that the pipe buffer is 64k - hardcoded in linux kernel after 2.6.11
   REQUIRE_NOTHROW(pipe.send(dataBuffer, bufferSize)); // First write should complete normally
 
-  // Next 10 should result in asynchronous sends
-  REQUIRE_NOTHROW(pipe.send(dataBuffer, bufferSize));
-  REQUIRE_NOTHROW(pipe.send(dataBuffer, bufferSize));
-  REQUIRE_NOTHROW(pipe.send(dataBuffer, bufferSize));
-  REQUIRE_NOTHROW(pipe.send(dataBuffer, bufferSize));
-  REQUIRE_NOTHROW(pipe.send(dataBuffer, bufferSize));
-  REQUIRE_NOTHROW(pipe.send(dataBuffer, bufferSize));
-  REQUIRE_NOTHROW(pipe.send(dataBuffer, bufferSize));
-  REQUIRE_NOTHROW(pipe.send(dataBuffer, bufferSize));
-  REQUIRE_NOTHROW(pipe.send(dataBuffer, bufferSize));
+  // The next sends should result in asynchronous sends, after a few more, we should get a bad_alloc
+  try
+  {
+    for(sends = 1; sends <= 11; ++sends)
+    {
+      pipe.send(dataBuffer, bufferSize);
+    }
 
-  // After 10 async sends, an out of memory exception should happen
-  REQUIRE_THROWS_AS(pipe.send(dataBuffer, bufferSize), std::bad_alloc);
+    FAIL("Asynchronous sends on the pipe did not result in a bad_alloc");
+  }
+  catch(std::bad_alloc&)
+  {
+    REQUIRE(sends > (uint32_t)1);
+  }
 
   thread.start();
 
   // Keep waiting until the other side is done receiving
-  while(WaitForObject(event, 100) == WaitSuccess);
+  while(WaitForObject(event, 1000) == WaitSuccess);
 
   // Verify the received data
   thread.lock();
 
   const char* remoteBuffer;
-  REQUIRE(thread.getData(remoteBuffer) == 10 * bufferSize);
+  REQUIRE(thread.getData(remoteBuffer) == sends * bufferSize);
   const int32_t* remoteBufferInt = reinterpret_cast<const int32_t*>(remoteBuffer);
 
   bool success = true;
-  for(uint32_t i = 0; i < bufferSize * 10; ++i)
-    success &= (dataBuffer[i % bufferCount] == remoteBufferInt[i % bufferCount]);
+  for(uint32_t i = 0; i < bufferCount * sends; ++i)
+    success &= (dataBuffer[i % bufferCount] == remoteBufferInt[i]);
 
   REQUIRE(success);
   thread.unlock();
@@ -225,14 +227,4 @@ TEST_CASE("pipe/largedata", "Test sending data buffers too large to fit in the p
   REQUIRE(WaitForObject(thread, 100) == WaitSuccess);
   REQUIRE(thread.getError() == "");
   delete [] dataBuffer;
-}
-
-TEST_CASE("pipe/exception", "Test pipe error conditions")
-{
-  // Not many exceptions that can be triggered reliably
-  // Try to read from a pipe with no data
-  Pipe pipe;
-  uint8_t buffer[1];
-
-  REQUIRE_THROWS_AS(pipe.receive(buffer, 1), std::bad_syscall);
 }

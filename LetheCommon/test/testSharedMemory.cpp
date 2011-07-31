@@ -1,7 +1,7 @@
 #include "Lethe.h"
 #include "LetheException.h"
-#include "catch.hpp"
 #include "testCommon.h"
+#include "catch/catch.hpp"
 
 using namespace lethe;
 
@@ -16,17 +16,16 @@ TEST_CASE("sharedMemory/structor", "Test shared memory construction and destruct
   filename << getProcessId();
 
   // Try to open an existing shared memory file that doesn't exist
-  REQUIRE_THROWS_AS(shm1 = new SharedMemory(filename.str() + "-test1", 0), std::bad_syscall);
+  REQUIRE_THROWS_AS(shm1 = new SharedMemory(filename.str() + "-test1"), std::bad_syscall);
 
   // Create a new shared memory
-  shm1 = new SharedMemory(filename.str() + "-test2", 1000);
+  shm1 = new SharedMemory(1000, filename.str() + "-test2");
 
   // Make sure it fails if we try to overwrite it
-  REQUIRE_THROWS_AS(shm2 = new SharedMemory(filename.str() + "-test2", 500), std::bad_syscall);
-  // shm2 = new SharedMemory(filename.str() + "-test2", 500);
+  REQUIRE_THROWS_AS(shm2 = new SharedMemory(500, filename.str() + "-test2"), std::bad_syscall);
 
   // Open existing shared memory
-  shm2 = new SharedMemory(shm1->name(), 0);
+  shm2 = new SharedMemory(shm1->name());
 
   // Check parameters
   REQUIRE(shm1->name() == filename.str() + "-test2");
@@ -40,7 +39,7 @@ TEST_CASE("sharedMemory/structor", "Test shared memory construction and destruct
   delete shm2;
 
   // Make sure shared memory files are gone
-  REQUIRE_THROWS_AS(shm1 = new SharedMemory(filename.str() + "-test2", 0), std::bad_syscall);
+  REQUIRE_THROWS_AS(shm1 = new SharedMemory(filename.str() + "-test2"), std::bad_syscall);
 }
 
 // This doesn't test across separate process or threads, but with the way memory mapping
@@ -52,8 +51,8 @@ TEST_CASE("sharedMemory/data", "Test passing data through shared memory")
   std::stringstream filename;
   filename << getProcessId() << "-test3";
 
-  SharedMemory shm1(filename.str(), shmSize);
-  SharedMemory shm2(filename.str(), 0);
+  SharedMemory shm1(shmSize, filename.str());
+  SharedMemory shm2(filename.str());
 
   // Check parameters
   REQUIRE(shm1.name() == filename.str());

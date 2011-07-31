@@ -1,21 +1,26 @@
 #include "LetheInternal.h"
 #include "LetheFunctions.h"
 
-uint32_t lethe::getEndTime(uint32_t timeout)
+uint64_t lethe::getEndTime(uint32_t timeout)
 {
-  if(timeout != INFINITE)
-    timeout += getTime();
-  return timeout;
-}
+  uint64_t endTime = timeout;
 
-uint32_t lethe::getTimeout(uint32_t endTime)
-{
-  if(endTime != INFINITE)
-  {
-    uint32_t currentTime = getTime();
-    endTime = ((currentTime > endTime) ? 0 : (endTime - currentTime));
-  }
+  if(timeout != INFINITE)
+    endTime = timeout + getTime();
 
   return endTime;
+}
+
+uint64_t lethe::getTimeout(uint64_t endTime)
+{
+  uint64_t timeout = endTime;
+
+  if(endTime != INFINITE)
+  {
+    uint64_t currentTime = getTime();
+    timeout = ((currentTime > endTime) ? 0 : (endTime - currentTime));
+  }
+
+  return timeout;
 }
 

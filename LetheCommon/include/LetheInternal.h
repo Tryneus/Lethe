@@ -14,8 +14,8 @@
 
 namespace lethe
 {
-  uint32_t getEndTime(uint32_t timeout);
-  uint32_t getTimeout(uint32_t endTime);
+  uint64_t getEndTime(uint32_t timeout);
+  uint64_t getTimeout(uint64_t endTime);
 }
 
 #endif

@@ -12,6 +12,7 @@ Requirements:
 
   Visual Studio:
     Requires TR1 headers to be installed (feature pack/service pack)
+    Requires WinRAR to be installed at "C:\Program Files\WinRAR" for the thirdParty.proj pre-build actions.  If not, do the extract/copy manually
 
   GCC:
     Requires -std=c++0x (for std::atomic)

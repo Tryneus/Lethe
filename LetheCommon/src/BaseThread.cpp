@@ -28,7 +28,7 @@ BaseThread::~BaseThread()
     stop();
     WaitForObject(m_exitedEvent, INFINITE);
   }
-  catch(std::bad_syscall& ex)
+  catch(std::bad_syscall&)
   {
     // If the stop fails because the event is not valid for some reason, try more drastic measures
     // TODO: more drastic measures
@@ -99,7 +99,7 @@ void BaseThread::threadMain()
 
       m_mutex.unlock();
     }
-    catch(std::runtime_error& ex)
+    catch(std::runtime_error&)
     {
       // Problem with the mutex, possibly destroyed, abandon the operation
     }
@@ -119,7 +119,7 @@ void BaseThread::threadMain()
   {
     m_stoppedEvent.set();
   }
-  catch(std::bad_syscall& ex)
+  catch(std::bad_syscall&)
   {
     // Thread may already be destroyed, ignore
   }
@@ -128,7 +128,7 @@ void BaseThread::threadMain()
   {
     m_exitedEvent.set();
   }
-  catch(std::bad_syscall& ex)
+  catch(std::bad_syscall&)
   {
     // Thread may already be destroyed, ignore
   }

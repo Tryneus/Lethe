@@ -8,7 +8,6 @@
 /*
  * The LinuxMutex class is extremely similar to LinuxSemaphore, being a
  *  semaphore with a maximum value of 1.
- *
  */
 namespace lethe
 {

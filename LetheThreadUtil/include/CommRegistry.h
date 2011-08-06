@@ -77,11 +77,11 @@ namespace lethe
     void* receiveProcessStream(StreamType& type, uint32_t timeout);
 
     Mutex m_mutex;
-    
+
     struct ConnectionInfo
     {
       ConnectionInfo(StreamType type, Handle handle, void* stream, void* connection);
-      
+
       StreamType m_type;
       Handle m_handle;
       void* m_stream;

@@ -3,6 +3,8 @@
 #include "LetheFunctions.h"
 #include "LetheException.h"
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <fcntl.h>
 #include "eventfd.h"
 #include <errno.h>

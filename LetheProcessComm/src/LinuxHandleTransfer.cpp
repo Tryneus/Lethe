@@ -2,6 +2,8 @@
 #include "LinuxHandleTransfer.h"
 #include <sstream>
 #include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <sys/un.h>
 
 using namespace lethe;

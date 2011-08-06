@@ -97,15 +97,15 @@ bool MutexTestThread::isIterating()
 //  Event, or WaitSet.
 TEST_CASE("mutex/autolock", "Test auto-lock and unlock with multiple waiting threads")
 {
-  const uint32_t threadCount(20);
+  const uint32_t threadCount(64); // Can't wait on more than 64 things at once on Windows
   MutexTestThread* threadArray[threadCount];
   WaitSet activeThreads;
   Mutex mutex(true);
-  Event event(false, true);
+  Event exitEvent(false, true);
 
   for(uint32_t i(0); i < threadCount; ++i)
   {
-    threadArray[i] = new MutexTestThread(mutex, event);
+    threadArray[i] = new MutexTestThread(mutex, exitEvent);
     activeThreads.add(*threadArray[i]);
     threadArray[i]->start();
   }
@@ -119,16 +119,16 @@ TEST_CASE("mutex/autolock", "Test auto-lock and unlock with multiple waiting thr
     Handle exitedThread;
 
     // Wait some time to make sure no threads exit prematurely
-    REQUIRE(activeThreads.waitAny(100, exitedThread) == WaitTimeout);
+    REQUIRE(activeThreads.waitAny(30, exitedThread) == WaitTimeout);
 
     // Loop through the threads, make sure exactly one is in iterate
     for(uint32_t i(0); i < threadCount; ++i)
       iterateCount += threadArray[i]->isIterating();
-
+ 
     REQUIRE(iterateCount == 1);
 
     // Set the event to let the thread exit
-    event.set();
+    exitEvent.set();
 
     // Check that the thread finishes
     REQUIRE(activeThreads.waitAny(1000, exitedThread) == WaitSuccess);

@@ -27,7 +27,7 @@ namespace lethe
     static const std::string s_nameBase;
     static const mode_t s_filePermissions;
 
-    const std::string m_shmName;
+    const std::string m_fullName;
     const std::string m_name;
     void* m_data;
     uint32_t m_size;

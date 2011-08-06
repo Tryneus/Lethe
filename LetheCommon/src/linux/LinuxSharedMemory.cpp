@@ -14,13 +14,13 @@ const std::string LinuxSharedMemory::s_nameBase("/");
 const mode_t LinuxSharedMemory::s_filePermissions(0666);
 
 LinuxSharedMemory::LinuxSharedMemory(const std::string& name, uint32_t size) :
-  m_shmName(s_nameBase + name),
+  m_fullName(s_nameBase + name),
   m_name(name),
   m_data(NULL),
   m_size(size)
 {
   const int openFlags = O_RDWR | ((m_size == 0) ? 0 : (O_CREAT | O_EXCL));
-  const Handle handle = shm_open(m_shmName.c_str(), openFlags, s_filePermissions);
+  const Handle handle = shm_open(m_fullName.c_str(), openFlags, s_filePermissions);
 
   if(handle == INVALID_HANDLE_VALUE)
     throw std::bad_syscall("shm_open", lastError());
@@ -33,7 +33,7 @@ LinuxSharedMemory::LinuxSharedMemory(const std::string& name, uint32_t size) :
     {
       std::string errorString = lastError();
       close(handle);
-      shm_unlink(m_shmName.c_str());
+      shm_unlink(m_fullName.c_str());
       throw std::bad_syscall("fstat", errorString);
     }
     
@@ -45,7 +45,7 @@ LinuxSharedMemory::LinuxSharedMemory(const std::string& name, uint32_t size) :
     {
       std::string errorString = lastError();
       close(handle);
-      shm_unlink(m_shmName.c_str());
+      shm_unlink(m_fullName.c_str());
       throw std::bad_syscall("ftruncate", errorString);
     }
   }
@@ -56,7 +56,7 @@ LinuxSharedMemory::LinuxSharedMemory(const std::string& name, uint32_t size) :
   {
     std::string errorString = lastError();
     close(handle);
-    shm_unlink(m_shmName.c_str());
+    shm_unlink(m_fullName.c_str());
     throw std::bad_syscall("mmap", errorString);
   }
 
@@ -65,7 +65,7 @@ LinuxSharedMemory::LinuxSharedMemory(const std::string& name, uint32_t size) :
 
 LinuxSharedMemory::~LinuxSharedMemory()
 {
-  shm_unlink(m_shmName.c_str());
+  shm_unlink(m_fullName.c_str());
   munmap(m_data, m_size);
 }
 

@@ -144,6 +144,7 @@ EchoThread::~EchoThread()
   catch(std::logic_error&)
   {
     // A logic error is thrown when receive is called with nothing to receive
+    // This is just to make sure we clear out the whole queue
   }
 
   // If this runs out of space, oh well

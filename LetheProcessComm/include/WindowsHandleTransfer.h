@@ -1,16 +1,19 @@
 #ifndef _WINDOWSHANDLETRANSFER_H
 #define _WINDOWSHANDLETRANSFER_H
 
-#include "Lethe.h"
+#include "BaseHandleTransfer.h"
 #include <string>
 
 namespace lethe
 {
-  class WindowsHandleTransfer
+  class WindowsHandleTransfer : public BaseHandleTransfer
   {
   public:
     WindowsHandleTransfer(ByteStream& stream, // Stream to synchronize with
                           uint32_t timeout);  // Amount of time to allow
+
+    WindowsHandleTransfer(uint32_t remoteProcessId,
+                          uint32_t timeout);  // Create own stream
 
     ~WindowsHandleTransfer();
 
@@ -30,13 +33,10 @@ namespace lethe
     WindowsHandleTransfer(const WindowsHandleTransfer&);
     WindowsHandleTransfer& operator = (const WindowsHandleTransfer&);
 
-    static const char s_semaphoreType = 'S';
-    static const char s_timerType = 'T';
-    static const char s_eventType = 'E';
-    static const char s_pipeType = 'P';
-
     void sendInternal(const std::string& name, char type);
     const std::string recvInternal(char type, uint32_t timeout);
+
+    ByteStream* m_stream;
   };
 }
 

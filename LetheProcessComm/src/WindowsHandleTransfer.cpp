@@ -7,9 +7,22 @@ using namespace lethe;
 
 WindowsHandleTransfer::WindowsHandleTransfer(ByteStream& stream,
                                              uint32_t timeout) :
-  m_stream(stream)
+  m_stream(&stream)
 {
   // TODO: Synchronize with other side?
+}
+
+WindowsHandleTransfer(uint32_t remoteProcessId,
+                      uint32_t timeout) :
+  m_stream(NULL)
+{
+  processMutex->lock(timeout);
+
+  fifoInName << getProcessId() << "-to-" << remoteProcessId;
+  fifoOutName << remoteProcessId << "-to-" << getProcessId();
+
+  Pipe tempFifo(fifoInName.str(), true, fifoOutName.str(), true);
+  
 }
 
 WindowsHandleTransfer::~WindowsHandleTransfer()

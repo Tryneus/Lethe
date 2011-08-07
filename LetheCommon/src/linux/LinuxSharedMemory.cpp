@@ -7,20 +7,24 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sstream>
 
 using namespace lethe;
 
-const std::string LinuxSharedMemory::s_nameBase("/");
+const std::string LinuxSharedMemory::s_nameBase("/lethe-shm-");
+LinuxAtomic LinuxSharedMemory::s_uniqueId(0);
 const mode_t LinuxSharedMemory::s_filePermissions(0666);
 
-LinuxSharedMemory::LinuxSharedMemory(uint32_t size, const std::string& name) :
-  m_fullName(s_nameBase + name),
-  m_name(name),
+LinuxSharedMemory::LinuxSharedMemory(uint32_t size) :
   m_data(NULL),
   m_size(size)
 {
+  std::stringstream str;
+  str << getProcessId() << "-" << s_uniqueId.increment();
+  m_name.assign(str.str());
+
   const int openFlags = O_RDWR | O_CREAT | O_EXCL;
-  const Handle handle = shm_open(m_fullName.c_str(), openFlags, s_filePermissions);
+  const Handle handle = shm_open((s_nameBase + m_name).c_str(), openFlags, s_filePermissions);
 
   if(handle == INVALID_HANDLE_VALUE)
     throw std::bad_syscall("shm_open", lastError());
@@ -39,7 +43,39 @@ LinuxSharedMemory::LinuxSharedMemory(uint32_t size, const std::string& name) :
   catch(...)
   {
     close(handle);
-    shm_unlink(m_fullName.c_str());
+    shm_unlink((s_nameBase + m_name).c_str());
+    throw;
+  }
+
+  close(handle);
+}
+
+LinuxSharedMemory::LinuxSharedMemory(uint32_t size, const std::string& name) :
+  m_name(name),
+  m_data(NULL),
+  m_size(size)
+{
+  const int openFlags = O_RDWR | O_CREAT | O_EXCL;
+  const Handle handle = shm_open((s_nameBase + m_name).c_str(), openFlags, s_filePermissions);
+
+  if(handle == INVALID_HANDLE_VALUE)
+    throw std::bad_syscall("shm_open", lastError());
+
+  try
+  {
+    // Set the size of shared memory
+    if(ftruncate(handle, m_size) != 0)
+      throw std::bad_syscall("ftruncate", lastError());
+
+    m_data = mmap(NULL, m_size, PROT_READ | PROT_WRITE, MAP_SHARED, handle, 0);
+
+    if(m_data == MAP_FAILED)
+      throw std::bad_syscall("mmap", lastError());
+  }
+  catch(...)
+  {
+    close(handle);
+    shm_unlink((s_nameBase + m_name).c_str());
     throw;
   }
 
@@ -47,13 +83,12 @@ LinuxSharedMemory::LinuxSharedMemory(uint32_t size, const std::string& name) :
 }
 
 LinuxSharedMemory::LinuxSharedMemory(const std::string& name) :
-  m_fullName(s_nameBase + name),
   m_name(name),
   m_data(NULL),
   m_size(0)
 {
   const int openFlags = O_RDWR;
-  const Handle handle = shm_open(m_fullName.c_str(), openFlags, s_filePermissions);
+  const Handle handle = shm_open((s_nameBase + m_name).c_str(), openFlags, s_filePermissions);
 
   if(handle == INVALID_HANDLE_VALUE)
     throw std::bad_syscall("shm_open", lastError());
@@ -75,7 +110,7 @@ LinuxSharedMemory::LinuxSharedMemory(const std::string& name) :
   catch(...)
   {
     close(handle);
-    shm_unlink(m_fullName.c_str());
+    shm_unlink((s_nameBase + m_name).c_str());
     throw;
   }
 
@@ -84,7 +119,7 @@ LinuxSharedMemory::LinuxSharedMemory(const std::string& name) :
 
 LinuxSharedMemory::~LinuxSharedMemory()
 {
-  shm_unlink(m_fullName.c_str());
+  shm_unlink((s_nameBase + m_name).c_str());
   munmap(m_data, m_size);
 }
 

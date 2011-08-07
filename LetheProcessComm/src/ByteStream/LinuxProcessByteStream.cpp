@@ -21,7 +21,6 @@ LinuxProcessByteStream::LinuxProcessByteStream(uint32_t remoteProcessId,
   if(remoteProcessId == getProcessId())
     throw std::logic_error("cannot create a ProcessByteStream within a single process");
 
-  char done = '\0';
   uint32_t endTime = getEndTime(timeout);
   std::stringstream fifoInName;
   std::stringstream fifoOutName;

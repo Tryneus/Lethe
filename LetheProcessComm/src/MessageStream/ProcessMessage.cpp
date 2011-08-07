@@ -53,27 +53,27 @@ bool ProcessMessage::overflowCheck()
   return (m_magic == FIRST_MAGIC) && (getSecondMagic() == SECOND_MAGIC);
 }
 
-uint32_t ProcessMessage::getOffset()
+uint32_t ProcessMessage::getOffset() const
 {
   return m_offset;
 }
 
-uint32_t ProcessMessage::getPrev()
+uint32_t ProcessMessage::getPrev() const
 {
   return m_prev;
 }
 
-uint32_t ProcessMessage::getNext()
+uint32_t ProcessMessage::getNext() const
 {
   return m_next;
 }
 
-uint32_t ProcessMessage::getLastOnStack()
+uint32_t ProcessMessage::getLastOnStack() const
 {
   return m_lastOnStack;
 }
 
-uint32_t ProcessMessage::getNextOnStack()
+uint32_t ProcessMessage::getNextOnStack() const
 {
   return m_offset + m_size;
 }

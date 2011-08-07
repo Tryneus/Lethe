@@ -43,11 +43,11 @@ namespace lethe
   public:
     ProcessMessage(uint32_t offset, uint32_t size, State state);
 
-    uint32_t getOffset();
-    uint32_t getPrev();
-    uint32_t getNext();
-    uint32_t getLastOnStack();
-    uint32_t getNextOnStack();
+    uint32_t getOffset() const;
+    uint32_t getPrev() const;
+    uint32_t getNext() const;
+    uint32_t getLastOnStack() const;
+    uint32_t getNextOnStack() const;
     uint32_t getSize() const;
     State getState() const;
 

@@ -15,7 +15,7 @@ namespace lethe
   class WindowsTimer : public WaitObject
   {
   public:
-    WindowsTimer(uint32_t timeout);
+    explicit WindowsTimer(uint32_t timeout);
     ~WindowsTimer();
 
     void start(uint32_t timeout);

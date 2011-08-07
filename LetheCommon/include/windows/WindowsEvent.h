@@ -15,8 +15,7 @@ namespace lethe
   class WindowsEvent : public WaitObject
   {
   public:
-    WindowsEvent(bool initialState,
-                 bool autoReset);
+    WindowsEvent(bool initialState, bool autoReset);
     ~WindowsEvent();
 
     void set();

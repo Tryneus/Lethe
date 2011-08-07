@@ -9,7 +9,7 @@ namespace lethe
   class WindowsAtomic32
   {
   public:
-    WindowsAtomic32(const uint32_t value);
+    explicit WindowsAtomic32(const uint32_t value);
 
     uint32_t add(uint32_t value); // return result
     uint32_t bitwiseAnd(uint32_t value); // return original value
@@ -31,7 +31,7 @@ namespace lethe
   class WindowsAtomic64
   {
   public:
-    WindowsAtomic64(const uint64_t value);
+    explicit WindowsAtomic64(const uint64_t value);
 
     uint64_t add(uint64_t value); // return result // not available on x86
     uint64_t bitwiseAnd(uint64_t value); // return original value

@@ -14,7 +14,7 @@ namespace lethe
   class WindowsMutex : public WaitObject
   {
   public:
-    WindowsMutex(bool locked);
+    explicit WindowsMutex(bool locked);
     ~WindowsMutex();
 
     void lock(uint32_t timeout = INFINITE);

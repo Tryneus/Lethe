@@ -43,7 +43,7 @@ namespace lethe
   class WindowsThread : public BaseThread
   {
   public:
-    WindowsThread(uint32_t timeout);
+    explicit WindowsThread(uint32_t timeout);
     virtual ~WindowsThread();
 
   private:

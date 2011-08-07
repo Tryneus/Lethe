@@ -10,12 +10,9 @@ namespace lethe
   class WindowsSharedMemory
   {
   public:
-    WindowsSharedMemory(uint32_t size);
-
-    WindowsSharedMemory(uint32_t size,
-                        const std::string& name);
-
-    WindowsSharedMemory(const std::string& name);
+    explicit WindowsSharedMemory(uint32_t size);
+    explicit WindowsSharedMemory(const std::string& name);
+    WindowsSharedMemory(uint32_t size, const std::string& name);
 
     ~WindowsSharedMemory();
 

@@ -13,8 +13,7 @@ namespace lethe
   class WindowsSemaphore : public WaitObject
   {
   public:
-    WindowsSemaphore(uint32_t maxCount,
-                     uint32_t initialCount);
+    WindowsSemaphore(uint32_t maxCount, uint32_t initialCount);
     ~WindowsSemaphore();
 
     void lock(uint32_t timeout = INFINITE);

@@ -17,6 +17,7 @@ OBJECT_FILES :=Log.o \
                WaitObject.o \
                ByteStream.o \
                MessageStream.o \
+               linux/LinuxAtomic.o \
                linux/LinuxTimer.o \
                linux/LinuxEvent.o \
                linux/LinuxFunctions.o \

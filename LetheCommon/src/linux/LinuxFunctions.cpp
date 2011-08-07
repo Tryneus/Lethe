@@ -17,7 +17,7 @@
 void lethe::sleep_ms(uint32_t timeout)
 {
   struct timespec remaining;
-  
+
   remaining.tv_sec = timeout / 1000;
   remaining.tv_nsec = (timeout % 1000) * 1000000;
 

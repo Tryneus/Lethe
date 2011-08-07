@@ -10,7 +10,8 @@ namespace lethe
   class LinuxSharedMemory
   {
   public:
-    LinuxSharedMemory(const std::string& name, uint32_t size);
+    LinuxSharedMemory(uint32_t size, const std::string& name);
+    LinuxSharedMemory(const std::string& name);
     ~LinuxSharedMemory();
 
     void* begin() const;

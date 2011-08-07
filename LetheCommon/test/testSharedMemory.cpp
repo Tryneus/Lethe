@@ -34,7 +34,7 @@ TEST_CASE("sharedMemory/structor", "Test shared memory construction and destruct
   REQUIRE((uint8_t*)shm2->end() - (uint8_t*)shm2->begin() == 1000);
   REQUIRE(shm1->size() == 1000);
   REQUIRE(shm2->size() == 1000);
-  
+
   delete shm1;
   delete shm2;
 

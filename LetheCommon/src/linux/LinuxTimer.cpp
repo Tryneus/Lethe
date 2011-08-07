@@ -11,11 +11,13 @@
 
 using namespace lethe;
 
-LinuxTimer::LinuxTimer() :
+LinuxTimer::LinuxTimer(uint32_t timeout) :
   WaitObject(timerfd_create(CLOCK_MONOTONIC, O_NONBLOCK))
 {
   if(getHandle() == INVALID_HANDLE_VALUE)
     throw std::bad_syscall("timerfd_create", lastError());
+
+  start(timeout);
 }
 
 LinuxTimer::LinuxTimer(Handle handle) :
@@ -45,7 +47,6 @@ void LinuxTimer::start(uint32_t timeout)
   elapseTime.it_value.tv_nsec = (timeout % 1000) * 1000000;
   elapseTime.it_interval.tv_sec = 0;
   elapseTime.it_interval.tv_nsec = 0;
-
 
   if(timerfd_settime(getHandle(), 0, &elapseTime, NULL) != 0)
     throw std::bad_syscall("timerfd_settime", lastError());

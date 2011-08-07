@@ -16,7 +16,7 @@ namespace lethe
   class LinuxTimer : public WaitObject
   {
   public:
-    LinuxTimer();
+    LinuxTimer(uint32_t timeout);
     ~LinuxTimer();
 
     void start(uint32_t timeout);

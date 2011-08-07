@@ -1,8 +1,8 @@
 INCLUDE_FLAGS:=-I../include \
-               -I../../thirdParty/mct/include
+               -I../../thirdParty
 
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
-HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')
+HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*' 2>&-)
 
 COMPILE_FLAGS:=-c -std=c++0x -Wall -Wextra -Werror -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS :=-rcv
@@ -17,6 +17,7 @@ OBJECT_FILES :=Log.o \
                WaitObject.o \
                ByteStream.o \
                MessageStream.o \
+               linux/LinuxAtomic.o \
                linux/LinuxTimer.o \
                linux/LinuxEvent.o \
                linux/LinuxFunctions.o \

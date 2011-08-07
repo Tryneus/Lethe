@@ -252,7 +252,7 @@ Handle LinuxHandleTransfer::recvInternal(char handleType, uint32_t timeout)
 
   if(poll(&event, 1, timeout) == -1)
     throw std::bad_syscall("poll", lastError());
-    
+
   if(!(event.revents & POLLIN))
   {
     if(event.revents == 0)

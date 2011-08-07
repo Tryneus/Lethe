@@ -1,10 +1,10 @@
 INCLUDE_FLAGS:=-I../include \
-               -I../../thirdParty/catch \
+               -I../../thirdParty \
                -I../../LetheCommon/include \
                -I../../LetheThreadComm/include
 
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
-HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*')
+HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*' 2>&-)
 
 COMPILE_FLAGS:=-c -std=c++0x -Wall -Wextra -Wno-sign-compare -O3 -g $(INCLUDE_FLAGS)
 LINKER_FLAGS :=-L/usr/lib/gcc/i486-linux-gnu/4.3.2/ -lrt -lstdc++

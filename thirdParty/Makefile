@@ -5,11 +5,10 @@ catch: catch.tar.gz
 	touch catch
 
 # This skips the configure step and just uses a hard-coded configure file
+# Only extract the header files
 mct: mct.tar.gz
-	tar -zxf mct.tar.gz
-	mkdir mct/include
-	cp -r mct/mct mct/include
-	cp mct.linux.config.hpp mct/include/mct/config.hpp
+	tar --strip-components=1 -xvf mct.tar.gz mct/mct
+	cp mct.linux.config.hpp mct/config.hpp
 	patch -p0 -i mct.gcc.patch
 
 clean:

@@ -35,8 +35,6 @@ LinuxProcessByteStream::LinuxProcessByteStream(uint32_t remoteProcessId,
   Pipe tempFifo(fifoInName.str(), true, fifoOutName.str(), true);
 
   doSetup(tempFifo, endTime);
-
-
 }
 
 LinuxProcessByteStream::LinuxProcessByteStream(ByteStream& stream,

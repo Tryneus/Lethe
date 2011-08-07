@@ -2,6 +2,7 @@
 #define _LINUXSHAREDMEMORY_H
 
 #include "LetheTypes.h"
+#include "LinuxAtomic.h"
 #include <sys/types.h>
 #include <string>
 
@@ -10,8 +11,10 @@ namespace lethe
   class LinuxSharedMemory
   {
   public:
+    explicit LinuxSharedMemory(uint32_t size);
+    explicit LinuxSharedMemory(const std::string& name);
     LinuxSharedMemory(uint32_t size, const std::string& name);
-    LinuxSharedMemory(const std::string& name);
+
     ~LinuxSharedMemory();
 
     void* begin() const;
@@ -25,11 +28,11 @@ namespace lethe
     LinuxSharedMemory(const LinuxSharedMemory&);
     LinuxSharedMemory& operator = (const LinuxSharedMemory&);
 
-    static const std::string s_nameBase;
     static const mode_t s_filePermissions;
+    static const std::string s_nameBase;
+    static LinuxAtomic s_uniqueId;
 
-    const std::string m_fullName;
-    const std::string m_name;
+    std::string m_name;
     void* m_data;
     uint32_t m_size;
   };

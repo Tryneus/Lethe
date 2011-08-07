@@ -9,7 +9,7 @@ namespace lethe
   class LinuxAtomic32
   {
   public:
-    LinuxAtomic32(const uint32_t value);
+    explicit LinuxAtomic32(const uint32_t value);
 
     uint32_t add(uint32_t value); // return result
     uint32_t bitwiseAnd(uint32_t value); // return original value
@@ -26,12 +26,12 @@ namespace lethe
     std::atomic<uint32_t> m_data;;
   };
 
-  #if defined(_M_IA64) || defined(_M_X64)
+  #if defined(__x86_64)
 
   class LinuxAtomic64
   {
   public:
-    LinuxAtomic64(const uint64_t value);
+    explicit LinuxAtomic64(const uint64_t value);
 
     uint64_t add(uint64_t value); // return result // not available on x86
     uint64_t bitwiseAnd(uint64_t value); // return original value

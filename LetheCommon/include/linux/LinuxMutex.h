@@ -14,7 +14,7 @@ namespace lethe
   class LinuxMutex : public WaitObject
   {
   public:
-    LinuxMutex(bool locked = false);
+    explicit LinuxMutex(bool locked);
     ~LinuxMutex();
 
     void lock(uint32_t timeout = INFINITE);

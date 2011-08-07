@@ -40,7 +40,7 @@ namespace lethe
   class LinuxThread : public BaseThread
   {
   public:
-    LinuxThread(uint32_t timeout);
+    explicit LinuxThread(uint32_t timeout);
     virtual ~LinuxThread();
 
   private:

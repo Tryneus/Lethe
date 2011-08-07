@@ -6,6 +6,29 @@
 
 namespace lethe
 {
+  /**
+   * The MessageStream class is an interface for all messaging objects that
+   *  operate in a message-based fashion, such as UDP.  Send and receive is
+   *  meant to be done in-place (zero-copy).  Any object acting as a
+   *  MessageStream must implement the following functions:
+   *
+   * allocate() - allocates a buffer of the requested size, that data may be
+   *   written to by a user.  If this buffer cannot be allocated, a
+   *   std::out_of_memory exception is thrown.
+   *
+   * send() - sends an allocated buffer to the remote side
+   *
+   * receive() - returns the next buffer in the receive queue
+   *
+   * release() - releases a received buffer, so more data may be sent from the
+   *   remore side, may also be used to release an allocated but unsent buffer
+   *
+   * operator WaitObject&() - returns a reference to a WaitObject that will be
+   *   triggered whenever there is data to receive
+   *
+   * getHandle() - returns the handle corresponding to the WaitObject that will
+   *   be triggered whenever there is data to receive.
+   */
   class MessageStream
   {
   public:

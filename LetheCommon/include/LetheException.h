@@ -8,6 +8,8 @@
 namespace std // Not using lethe namespace since this is an extension of std::exception
 {
 
+  // An exception that will be thrown when a system call fails, containing the name of
+  //  the system call and any error information that can be provided
   class bad_syscall : public std::exception
   {
   public:

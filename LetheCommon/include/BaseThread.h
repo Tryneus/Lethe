@@ -13,6 +13,40 @@ namespace lethe
   // Class prototype for friending
   class CommRegistry;
 
+  /**
+   * The BaseThread class provides the common framework used by the WindowsThread
+   *   and LinuxThread objects.
+   *
+   * BaseThread() - Sets the new thread's iteration timeout.  The new thread will
+   *   iterate every time the timeout expires, unless another WaitObject triggers
+   *   the thread first.  A thread can also be used as a WaitObject, which will
+   *   trigger when the thread is exiting, and will stay set until the thread
+   *   is destroyed.
+   *
+   * Public interface:
+   * start() - resumes the thread's execution from the stopped state.  The thread
+   *   begins stopped, and this must be called to start execution.
+   * stop() - pauses the thread's execution.
+   * isStopping() - returns true if the thread is in the process or has already
+   *   stopped.
+   * getError() - if the thread was stopped by a std::exception, getError will
+   *   return the exception's what() string.
+   * 
+   * Protected interface, to be used by user implementation threads:
+   * setup() - user-defined, called at the very beginning of the thread, from the
+   *   thread's context.
+   * iterate() - user-defined, called every time the iterate timeout expires, or
+   *   a registered WaitObject triggers.  The handle parameter is the handle of the
+   *   triggered WaitObject, or INVALID_HANDLE_VALUE if a timeout occurred.
+   * abandoned() - user-defined, called every time a registered WaitObject returns
+   *   an abandoned status. The handle parameter is the handle of the triggered
+   *   WaitObject.
+   * addWaitObject() - called to register a WaitObject with the thread.  Iterate
+   *   will be called when the WaitObject triggers.
+   * removeWaitObject() - called to unregister a WaitObject from the thread.
+   * setWaitTimeout() - changes the iteration timeout that was set in the
+   *   constructor
+   */
   class BaseThread
   {
   public:

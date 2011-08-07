@@ -6,6 +6,24 @@
 
 namespace lethe
 {
+  /**
+   * The ByteStream class is an interface for all messaging objects that operate
+   *  on a stream of bytes, such as a pipe or TCP connection.  Any object acting
+   *  as a ByteStream must implement the following functions:
+   *
+   * send() - copies the given buffer data into the object, or, if the object is
+   *   completely full, will throw a std::out_of_memory exception until space is
+   *   available.
+   *
+   * receive() - Receives data from the stream and copies it into the provided
+   *   buffer, and returns the number of bytes received.
+   *
+   * operator WaitObject&() - returns a reference to a WaitObject that will be
+   *   triggered whenever there is data to receive
+   *
+   * getHandle() - returns the handle corresponding to the WaitObject that will
+   *   be triggered whenever there is data to receive.
+   */
   class ByteStream
   {
   public:

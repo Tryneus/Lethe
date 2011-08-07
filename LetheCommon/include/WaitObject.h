@@ -10,6 +10,30 @@ namespace lethe
   class WindowsWaitSet;
   class LinuxWaitSet;
 
+  /**
+   * The WaitObject class provides the framework for cross-thread and cross-
+   *   process synchronization objects to be used by WaitSets and the
+   *   WaitForObject function.
+   *
+   * getHandle() - returns the handle corresponding to the wait object.  This
+   *   is the value used with the operating system for synchronization calls.
+   *   On Windows, this is a HANDLE (void*), and on Linux, this is a file
+   *   descriptor (int).
+   *
+   * setHandle() - used if the Handle of the WaitObject is not known at
+   *   construction of the base class, changes the handle that will be used.
+   *   To avoid problems, this should never be used after the object has been
+   *   constructed.
+   *
+   * preWaitCallback() - called before a wait occurs concerning this WaitObject,
+   *   this can be defined by the user to instantly indicate that the wait was
+   *   successful (return true), or to let the wait happen normally (return
+   *   false). 
+   *
+   * postWaitCallback() - called after a wait occurs concerning this WaitObject,
+   *   this will always be called regardless of if the wait was successful or
+   *   not.
+   */
   class WaitObject
   {
   public:

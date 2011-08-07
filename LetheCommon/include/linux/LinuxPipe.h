@@ -1,6 +1,7 @@
 #ifndef _LINUXPIPE_H
 #define _LINUXPIPE_H
 
+#include "LinuxAtomic.h"
 #include "WaitObject.h"
 #include "ByteStream.h"
 #include "LetheTypes.h"
@@ -26,8 +27,12 @@ namespace lethe
     LinuxPipe(const std::string& pipeIn, bool createIn, const std::string& pipeOut, bool createOut); // Constructor for a named pipe
     ~LinuxPipe();
 
+    bool flush(uint32_t timeout = INFINITE);
     void send(const void* buffer, uint32_t bufferSize);
     uint32_t receive(void* buffer, uint32_t bufferSize);
+
+    const std::string& getNameIn() const;
+    const std::string& getNameOut() const;
 
     // It's a little sloppy to be both a waitobject and a bytestream
     operator WaitObject&();
@@ -45,6 +50,7 @@ namespace lethe
     static const std::string s_fifoPath;
     static const std::string s_fifoBaseName;
     static const uint32_t s_maxAsyncEvents = 10;
+    static LinuxAtomic s_uniqueId;
 
     void cleanup();
     void asyncWrite(const void* buffer, uint32_t bufferSize);
@@ -58,11 +64,11 @@ namespace lethe
     struct aiocb m_asyncArray[s_maxAsyncEvents];
     bool m_blockingWrite;
 
-    // Variables used in the case of a named pipe (FIFO)
-    const std::string m_fifoReadName;
-    const std::string m_fifoWriteName;
-    const bool m_inCreated;
-    const bool m_outCreated;
+    std::string m_fifoReadName;
+    std::string m_fifoWriteName;
+
+    bool m_inCreated;
+    bool m_outCreated;
   };
 }
 

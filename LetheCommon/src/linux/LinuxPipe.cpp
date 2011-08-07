@@ -2,6 +2,8 @@
 #include "LetheTypes.h"
 #include "LetheFunctions.h"
 #include "LetheException.h"
+#include "LetheInternal.h"
+#include <sstream>
 #include <queue>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -15,6 +17,7 @@ using namespace lethe;
 
 const std::string LinuxPipe::s_fifoPath("/tmp/lethe/");
 const std::string LinuxPipe::s_fifoBaseName("lethe-fifo-");
+LinuxAtomic LinuxPipe::s_uniqueId(0);
 
 LinuxPipe::LinuxPipe() :
   m_waitObject(NULL),
@@ -26,22 +29,30 @@ LinuxPipe::LinuxPipe() :
   m_inCreated(false),
   m_outCreated(false)
 {
-  int pipes[2];
+  // Make sure the fifo path exists
+  if(mkdir(s_fifoPath.c_str(), 0777) != 0 && errno != EEXIST)
+    throw std::bad_syscall("mkdir", lastError());
+
+  // No name provided, auto-generate one
+  std::stringstream str;
+  str << s_fifoPath << s_fifoBaseName << getProcessId() << "-" << s_uniqueId.increment();
+  m_fifoReadName.assign(str.str());
+  m_fifoWriteName.assign(str.str());
 
   try
   {
-    if(pipe(pipes) != 0 ||
-       pipes[0] == INVALID_HANDLE_VALUE ||
-       pipes[1] == INVALID_HANDLE_VALUE)
-      throw std::bad_syscall("pipe", lastError());
+    // This is a one-way pipe, so both sides open the same file
+    if(mkfifo(m_fifoReadName.c_str(), 0777) != 0 && errno != EEXIST) // TODO: permissions?
+      throw std::bad_syscall("mkfifo", lastError());
 
-    m_pipeRead = pipes[0];
-    m_pipeWrite = pipes[1];
+    m_inCreated = true;
+    m_outCreated = true;
 
-    if(fcntl(m_pipeRead, F_SETFL, O_NONBLOCK) != 0 ||
-       fcntl(m_pipeWrite, F_SETFL, O_NONBLOCK) != 0)
-      throw std::bad_syscall("fcntl", lastError());
+    m_pipeRead = open(m_fifoReadName.c_str(), O_RDWR | O_NONBLOCK);
+    if(m_pipeRead == INVALID_HANDLE_VALUE)
+      throw std::bad_syscall("open", lastError() + ", " + m_fifoReadName);
 
+    m_pipeWrite = m_pipeRead;
     m_waitObject = new WaitObject(m_pipeRead);
   }
   catch(...)
@@ -67,8 +78,8 @@ LinuxPipe::LinuxPipe(const std::string& pipeIn, bool createIn, const std::string
   m_blockingWrite(false),
   m_fifoReadName(pipeIn.empty() ? "" : s_fifoPath + s_fifoBaseName + pipeIn),
   m_fifoWriteName(pipeOut.empty() ? "" : s_fifoPath + s_fifoBaseName + pipeOut),
-  m_inCreated(createIn),
-  m_outCreated(createOut)
+  m_inCreated(false),
+  m_outCreated(false)
 {
   // Make sure the fifo path exists
   if(mkdir(s_fifoPath.c_str(), 0777) != 0 && errno != EEXIST)
@@ -78,8 +89,16 @@ LinuxPipe::LinuxPipe(const std::string& pipeIn, bool createIn, const std::string
   {
     if(!m_fifoReadName.empty())
     {
-      if(createIn && mkfifo(m_fifoReadName.c_str(), 0777) != 0 && errno != EEXIST) // TODO: permissions?
-        throw std::bad_syscall("mkfifo", lastError());
+      if(createIn)
+      {
+        if(mkfifo(m_fifoReadName.c_str(), 0777) != 0) // TODO: permissions?
+        {
+          if(errno != EEXIST)
+            throw std::bad_syscall("mkfifo", lastError());
+        }
+        else
+          m_inCreated = true;
+      }
 
       m_pipeRead = open(m_fifoReadName.c_str(), O_RDWR | O_NONBLOCK);
       if(m_pipeRead == INVALID_HANDLE_VALUE)
@@ -88,8 +107,16 @@ LinuxPipe::LinuxPipe(const std::string& pipeIn, bool createIn, const std::string
 
     if(!m_fifoWriteName.empty())
     {
-      if(createOut && mkfifo(m_fifoWriteName.c_str(), 0777) != 0 && errno != EEXIST)
-        throw std::bad_syscall("mkfifo", lastError());
+      if(createOut)
+      {
+        if(mkfifo(m_fifoWriteName.c_str(), 0777) != 0)
+        {
+          if(errno != EEXIST)
+            throw std::bad_syscall("mkfifo", lastError());
+        }
+        else
+          m_outCreated = true;
+      }
 
       m_pipeWrite = open(m_fifoWriteName.c_str(), O_RDWR | O_NONBLOCK);
       if(m_pipeWrite == INVALID_HANDLE_VALUE)
@@ -142,39 +169,37 @@ LinuxPipe::LinuxPipe(Handle pipeRead, Handle pipeWrite) :
   {
     m_asyncArray[i].aio_fildes = m_pipeWrite;
   }
-
 }
 
 LinuxPipe::~LinuxPipe()
 {
-  std::queue<aiocb*> unfinishedEvents;
-
   // Destroy any asynchronous events and delete buffers
+  aio_cancel(m_pipeWrite, NULL);
+
   for(uint32_t i = m_asyncStart; i != m_asyncEnd; i = (i + 1) % s_maxAsyncEvents)
   {
-    if(aio_cancel(m_pipeWrite, &m_asyncArray[i]) != AIO_CANCELED)
-      unfinishedEvents.push(&m_asyncArray[i]);
-    else
-      delete [] reinterpret_cast<volatile uint8_t*>(m_asyncArray[i].aio_buf);
+    delete [] reinterpret_cast<volatile uint8_t*>(m_asyncArray[i].aio_buf);
   }
 
   cleanup();
+}
 
-  while(!unfinishedEvents.empty())
+bool LinuxPipe::flush(uint32_t timeout)
+{
+  uint64_t endTime = getEndTime(timeout);
+  getAsyncResults();
+
+  // TODO: polling sucks, maybe rewrite to use kernel-based aio with eventfd rather than libc-based aio
+  while(m_asyncStart != m_asyncEnd)
   {
-    int status = EINPROGRESS;
+    if(getTimeout(endTime) != 0)
+      return false;
 
-    // TODO: polling sucks, maybe rewrite to use kernel-based aio with eventfd rather than libc-based aio
-    while(status == EINPROGRESS || status == EAGAIN)
-    {
-      Sleep(5);
-      status = aio_error(unfinishedEvents.front());
-    }
-
-    delete [] reinterpret_cast<volatile uint8_t*>(unfinishedEvents.front()->aio_buf);
-    aio_return(unfinishedEvents.front());
-    unfinishedEvents.pop();
+    Sleep(10);
+    getAsyncResults();
   }
+
+  return true;
 }
 
 void LinuxPipe::cleanup()
@@ -185,14 +210,24 @@ void LinuxPipe::cleanup()
   if(m_pipeWrite != INVALID_HANDLE_VALUE)
     close(m_pipeWrite);
 
-  if(!m_fifoReadName.empty() && m_inCreated)
+  if(m_inCreated)
     unlink(m_fifoReadName.c_str());
 
-  if(!m_fifoWriteName.empty() && m_outCreated)
-    unlink(m_fifoWriteName.c_str());
+  if(m_outCreated && m_fifoReadName != m_fifoWriteName)
+      unlink(m_fifoWriteName.c_str());
 
   delete m_waitObject;
   m_waitObject = NULL;
+}
+
+const std::string& LinuxPipe::getNameIn() const
+{
+  return m_fifoReadName;
+}
+
+const std::string& LinuxPipe::getNameOut() const
+{
+  return m_fifoWriteName;
 }
 
 void LinuxPipe::getAsyncResults()
@@ -262,7 +297,6 @@ void LinuxPipe::send(const void* buffer, uint32_t bufferSize)
     fcntl(m_pipeWrite, F_SETFL, 0);
     asyncWrite(((uint8_t*)buffer) + bytesWritten, bufferSize - bytesWritten);
   }
-
 }
 
 uint32_t LinuxPipe::receive(void* buffer, uint32_t bufferSize)
@@ -270,7 +304,12 @@ uint32_t LinuxPipe::receive(void* buffer, uint32_t bufferSize)
   ssize_t bytesRead(read(m_pipeRead, buffer, bufferSize));
 
   if(bytesRead < 0)
-    throw std::bad_syscall("read from pipe", lastError());
+  {
+    if(errno != EAGAIN)
+      throw std::bad_syscall("read from pipe", lastError());
+    else
+      bytesRead = 0;
+  }
 
   return bytesRead;
 }

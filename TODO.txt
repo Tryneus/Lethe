@@ -24,7 +24,7 @@ Fixes (see limitations):
   eventfd linux kernel patch - probably not going to happen, investigate fixing for epoll_ctl(ADD)
   timerfd linux kernel patch
   Windows WaitForMultiple is limited to 64 handles, add limit to WaitSets
-  Pipe destruction - what to do with pending writes - don't want to block, but what if an async write is only partially done
   MessageStream/ByteStream behavior when receive is called with nothing to receive - exception or NULL/0 return - should be consistent
   Windows LetheCommonTest/waitSet/abandoned not implemented - figure out how to force abandoned wait result
+  Pipe needs a way to specify whether construction should fail if the files already exist (or attempt to remove the files)
 

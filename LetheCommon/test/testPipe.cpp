@@ -220,7 +220,7 @@ TEST_CASE("pipe/largedata", "Test sending data buffers too large to fit in the p
   for(uint32_t i = 0; i < bufferCount * sends; ++i)
     success &= (dataBuffer[i % bufferCount] == remoteBufferInt[i]);
 
-  REQUIRE(success);
+  REQUIRE(success); // TODO: intermittent test failure on Linux here
   thread.unlock();
 
   thread.stop();

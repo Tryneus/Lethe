@@ -227,12 +227,3 @@ TEST_CASE("pipe/largedata", "Test sending data buffers too large to fit in the p
   delete [] dataBuffer;
 }
 
-TEST_CASE("pipe/exception", "Test pipe error conditions")
-{
-  // Not many exceptions that can be triggered reliably
-  // Try to read from a pipe with no data
-  Pipe pipe;
-  uint8_t buffer[1];
-
-  REQUIRE_THROWS_AS(pipe.receive(buffer, 1), std::bad_syscall);
-}

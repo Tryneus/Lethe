@@ -11,6 +11,7 @@ namespace lethe
   {
   public:
     LinuxSharedMemory(uint32_t size, const std::string& name);
+    LinuxSharedMemory(const std::string& name);
     ~LinuxSharedMemory();
 
     void* begin() const;

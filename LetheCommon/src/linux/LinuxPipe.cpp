@@ -195,7 +195,7 @@ bool LinuxPipe::flush(uint32_t timeout)
     if(getTimeout(endTime) != 0)
       return false;
 
-    Sleep(10);
+    sleep_ms(10);
     getAsyncResults();
   }
 

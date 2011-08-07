@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libProcessComm"
-	ProjectGUID="{D2A5BC3E-F1A8-453D-8991-BA1BBA67F243}"
-	RootNamespace="libProcessComm"
+	Name="LetheThreadUtil"
+	ProjectGUID="{AE54056E-549E-404C-B08E-3293ACB8EA8F}"
+	RootNamespace="LetheThreadUtil"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -277,12 +277,14 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
+			<File
+				RelativePath="..\include\CommRegistry.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\ThreadRegistry.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

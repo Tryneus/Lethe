@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libCommonTest"
-	ProjectGUID="{9A61EDD0-01D1-4701-9F53-DC266AAC51A4}"
-	RootNamespace="libCommonTest"
+	Name="LetheProcessCommTest"
+	ProjectGUID="{FC599098-162D-4BBA-9385-0F3760ADB1E0}"
+	RootNamespace="LetheProcessCommTest"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;../thirdParty/catch"
+				AdditionalIncludeDirectories="include;../LetheCommon/include;../thirdParty"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="bin/libCommon.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="../LetheCommon/bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib bin/$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
@@ -116,7 +116,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;../thirdParty/catch"
+				AdditionalIncludeDirectories="include;../LetheCommon/include;../thirdParty"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -135,7 +135,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="bin/libCommon.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="../LetheCommon/bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib bin/$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
@@ -190,7 +190,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;../thirdParty/catch"
+				AdditionalIncludeDirectories="include;../LetheCommon/include;../thirdParty"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
@@ -208,7 +208,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="bin/libCommon.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="../LetheCommon/bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib bin/$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -264,7 +264,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;../thirdParty/catch"
+				AdditionalIncludeDirectories="include;../LetheCommon/include;../thirdParty"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
@@ -282,7 +282,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="bin/libCommon.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="../LetheCommon/bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib bin/$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -320,57 +320,9 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\test\testEvent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\test\testFunctions.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\test\testLog.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\test\testMain.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\test\testMutex.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\test\testPipe.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\test\testSemaphore.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\test\testThread.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\test\testTimer.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\test\testWaitSet.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
 		</Filter>
 	</Files>
 	<Globals>

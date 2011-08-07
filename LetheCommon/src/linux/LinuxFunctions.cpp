@@ -14,7 +14,7 @@
 #include <iomanip>
 #include <ctime>
 
-void lethe::Sleep(uint32_t timeout)
+void lethe::sleep_ms(uint32_t timeout)
 {
   struct timespec remaining;
 

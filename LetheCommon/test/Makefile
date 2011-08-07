@@ -1,5 +1,5 @@
 INCLUDE_FLAGS:=-I../include \
-               -I../../thirdParty/catch
+               -I../../thirdParty
 
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))
 HEADER_FILES :=$(shell find $(INCLUDE_DIRS) -name '*.h*' 2>&-)

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libThreadCommTest"
-	ProjectGUID="{7AC4E25D-4515-41A1-AF89-D872A5BD925F}"
-	RootNamespace="libThreadCommTest"
+	Name="LetheSocketComm"
+	ProjectGUID="{612469FA-7E4E-46D9-9B39-9E95192D4FD8}"
+	RootNamespace="LetheSocketComm"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -21,8 +21,8 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="bin"
-			IntermediateDirectory="test\$(ConfigurationName).$(PlatformName)"
-			ConfigurationType="1"
+			IntermediateDirectory="src\$(ConfigurationName).$(PlatformName)"
+			ConfigurationType="4"
 			CharacterSet="2"
 			>
 			<Tool
@@ -43,13 +43,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;../libCommon/include;../thirdParty/catch"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				WarningLevel="3"
-				DebugInformationFormat="3"
+				DebugInformationFormat="4"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -61,18 +59,11 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libThreadComm.$(ConfigurationName).$(PlatformName).lib"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -82,9 +73,6 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -93,8 +81,8 @@
 		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="bin"
-			IntermediateDirectory="test\$(ConfigurationName).$(PlatformName)"
-			ConfigurationType="1"
+			IntermediateDirectory="src\$(ConfigurationName).$(PlatformName)"
+			ConfigurationType="4"
 			CharacterSet="2"
 			>
 			<Tool
@@ -116,11 +104,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;../libCommon/include;../thirdParty/catch"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -134,18 +120,11 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libThreadComm.$(ConfigurationName).$(PlatformName).lib"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
-				TargetMachine="17"
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -157,17 +136,14 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="bin"
-			IntermediateDirectory="test\$(ConfigurationName).$(PlatformName)"
-			ConfigurationType="1"
+			IntermediateDirectory="src\$(ConfigurationName).$(PlatformName)"
+			ConfigurationType="4"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
@@ -190,10 +166,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;../libCommon/include;../thirdParty/catch"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -207,19 +181,11 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libThreadComm.$(ConfigurationName).$(PlatformName).lib"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
-				GenerateDebugInformation="false"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -231,17 +197,14 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
 			OutputDirectory="bin"
-			IntermediateDirectory="test\$(ConfigurationName).$(PlatformName)"
-			ConfigurationType="1"
+			IntermediateDirectory="src\$(ConfigurationName).$(PlatformName)"
+			ConfigurationType="4"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
@@ -265,10 +228,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;../libCommon/include;../thirdParty/catch"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -282,19 +243,11 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib bin/libThreadComm.$(ConfigurationName).$(PlatformName).lib"
-				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
-				GenerateDebugInformation="false"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="17"
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -304,9 +257,6 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -321,37 +271,11 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath=".\test\EchoThread.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\test\SenderThread.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\test\testMain.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
-			<File
-				RelativePath=".\test\EchoThread.h"
-				>
-			</File>
-			<File
-				RelativePath=".\test\SenderThread.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
 	</Files>

@@ -1,5 +1,5 @@
-*** mct/include/mct/impl/closed-hash-table.hpp.bak	2011-02-04 21:29:14.027511916 +0100
---- mct/include/mct/impl/closed-hash-table.hpp	2011-02-04 21:30:06.965751600 +0100
+*** mct/impl/closed-hash-table.hpp.bak	2011-02-04 21:29:14.027511916 +0100
+--- mct/impl/closed-hash-table.hpp	2011-02-04 21:30:06.965751600 +0100
 ***************
 *** 261,271 ****
         {  return 0;  }

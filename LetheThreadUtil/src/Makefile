@@ -1,5 +1,5 @@
 INCLUDE_FLAGS:=-I../include \
-               -I../../thirdParty/mct/include \
+               -I../../thirdParty \
                -I../../LetheCommon/include \
                -I../../LetheThreadComm/include \
                -I../../LetheProcessComm/include \

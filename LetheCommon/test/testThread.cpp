@@ -1,9 +1,8 @@
 #include "Lethe.h"
 #include "LetheException.h"
 #include "LetheInternal.h"
-#include "catch.hpp"
 #include "testCommon.h"
-#include <stdio.h>
+#include "catch/catch.hpp"
 
 using namespace lethe;
 
@@ -134,7 +133,7 @@ TEST_CASE("thread/run", "Test running threads")
       sem2.unlock(1);
     }
 
-    Sleep(40);
+    sleep_ms(40);
 
     REQUIRE(thread.getError() == "");
     REQUIRE(thread.getPrimaryIterations() == 75);
@@ -160,7 +159,7 @@ TEST_CASE("thread/exception", "Test thread exception handling")
 
   thread.start();
 
-  Sleep(1000);
+  sleep_ms(1000);
 
   REQUIRE(thread.isStopping() == true);
   REQUIRE(thread.getError() == "exception thread");
@@ -214,7 +213,7 @@ protected:
     ++m_iterationCount;
 
     if(m_iterationCount == 1)
-      Sleep(1000);
+      sleep_ms(1000);
     else if(m_iterationCount == 2)
       stop();
     else if(m_iterationCount == 3)
@@ -228,7 +227,7 @@ protected:
 TEST_CASE("thread/stop", "Test stopping threads")
 {
   Event event(false, true);
-  uint32_t startTime;
+  uint64_t startTime;
   TestStopThread thread(event);
 
   REQUIRE(thread.isStopping()); // Thread should start out stopped
@@ -247,7 +246,7 @@ TEST_CASE("thread/stop", "Test stopping threads")
   thread.start();
   REQUIRE_FALSE(thread.isStopping());
   event.set(); // Thread should now iterate, it will sleep 1 second the first time
-  Sleep(20);
+  sleep_ms(20);
   thread.stop(); // Stop the thread, even though it's blocked in the iterate loop
   REQUIRE(thread.isStopping());
   REQUIRE(WaitForObject(thread, 1000) == WaitSuccess); // Wait for the thread to stop

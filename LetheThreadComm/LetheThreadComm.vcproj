@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libCommon"
-	ProjectGUID="{C58DF22D-5605-402A-849D-EECC4EC713BA}"
-	RootNamespace="libCommon"
+	Name="LetheThreadComm"
+	ProjectGUID="{6FB08F84-4214-420B-86D2-04CDB4AE638E}"
+	RootNamespace="LetheThreadComm"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -43,8 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;../thirdParty/mct/include"
-				PreprocessorDefinitions="NOMINMAX"
+				AdditionalIncludeDirectories="include;../LetheCommon/include"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -107,8 +106,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;../thirdParty/mct/include"
-				PreprocessorDefinitions="NOMINMAX"
+				AdditionalIncludeDirectories="include;../LetheCommon/include"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -170,15 +168,18 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="3"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;../thirdParty/mct/include"
-				PreprocessorDefinitions="NOMINMAX"
+				FavorSizeOrSpeed="1"
+				AdditionalIncludeDirectories="include;../LetheCommon/include"
 				RuntimeLibrary="2"
+				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CallingConvention="2"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -235,15 +236,20 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="3"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;../thirdParty/mct/include"
-				PreprocessorDefinitions="NOMINMAX"
+				FavorSizeOrSpeed="1"
+				AdditionalIncludeDirectories="include;../LetheCommon/include"
 				RuntimeLibrary="2"
+				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="0"
 				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
 				WarningLevel="3"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="2"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -283,55 +289,47 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath=".\src\BaseThread.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LetheException.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Log.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\WaitObject.cpp"
-				>
-			</File>
 			<Filter
-				Name="Windows"
+				Name="ByteStream"
 				>
 				<File
-					RelativePath=".\src\WindowsEvent.cpp"
+					RelativePath=".\src\ByteStream\ThreadByteConnection.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsFunctions.cpp"
+					RelativePath=".\src\ByteStream\ThreadByteStream.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="MessageStream"
+				>
+				<File
+					RelativePath=".\src\MessageStream\ThreadMessage.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsMutex.cpp"
+					RelativePath=".\src\MessageStream\ThreadMessageConnection.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsPipe.cpp"
+					RelativePath=".\src\MessageStream\ThreadMessageHeader.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsSemaphore.cpp"
+					RelativePath=".\src\MessageStream\ThreadMessageList.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsThread.cpp"
+					RelativePath=".\src\MessageStream\ThreadMessageReceiveList.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsTimer.cpp"
+					RelativePath=".\src\MessageStream\ThreadMessageStream.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\WindowsWaitSet.cpp"
+					RelativePath=".\src\MessageStream\ThreadMessageUnallocList.cpp"
 					>
 				</File>
 			</Filter>
@@ -342,91 +340,53 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\include\Lethe.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\LetheBasic.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\LetheComplex.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\LetheFunctions.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\LetheTypes.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\BaseThread.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\LetheException.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\Log.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\Singleton.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\StaticSingleton.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\stdint.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\WaitObject.h"
+				RelativePath=".\include\ThreadComm.h"
 				>
 			</File>
 			<Filter
-				Name="Windows"
+				Name="MessageStream"
 				>
 				<File
-					RelativePath=".\include\windows\WindowsEvent.h"
+					RelativePath=".\include\MessageStream\ThreadMessage.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\windows\WindowsMutex.h"
+					RelativePath=".\include\MessageStream\ThreadMessageConnection.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\windows\WindowsPipe.h"
+					RelativePath=".\include\MessageStream\ThreadMessageHeader.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\windows\WindowsSemaphore.h"
+					RelativePath=".\include\MessageStream\ThreadMessageList.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\windows\WindowsThread.h"
+					RelativePath=".\include\MessageStream\ThreadMessageReceiveList.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\windows\WindowsTimer.h"
+					RelativePath=".\include\MessageStream\ThreadMessageStream.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\windows\WindowsWaitSet.h"
+					RelativePath=".\include\MessageStream\ThreadMessageUnallocList.h"
 					>
 				</File>
 			</Filter>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
+			<Filter
+				Name="ByteStream"
+				>
+				<File
+					RelativePath=".\include\ByteStream\ThreadByteConnection.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\ByteStream\ThreadByteStream.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

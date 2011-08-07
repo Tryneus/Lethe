@@ -21,6 +21,9 @@ namespace lethe
   protected:
     void setWaitHandle(Handle handle);
 
+    virtual bool preWaitCallback();
+    virtual void postWaitCallback(WaitResult result);
+
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used
     WaitObject(const WaitObject&);
@@ -28,13 +31,10 @@ namespace lethe
 
     Handle m_handle;
 
-    // Friend WaitSets (and single-object wait), so they can access callbacks
+    // Friend WaitSets (and single-object wait), so they can access pre/post-wait callbacks
     friend WaitResult WaitForObject(WaitObject& obj, uint32_t timeout);
     friend class WindowsWaitSet;
     friend class LinuxWaitSet;
-
-    virtual bool preWaitCallback();
-    virtual void postWaitCallback(WaitResult result);
   };
 }
 

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libThreadUtilTest"
-	ProjectGUID="{6D2886AC-838E-40F0-8AC7-2114A9D0CA22}"
-	RootNamespace="libThreadUtilTest"
+	Name="LetheThreadCommTest"
+	ProjectGUID="{7AC4E25D-4515-41A1-AF89-D872A5BD925F}"
+	RootNamespace="LetheThreadCommTest"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;../libCommon/include;../libThreadComm/include;../libSocketComm/include;../libProcessComm/include;../thirdParty/catch"
+				AdditionalIncludeDirectories="include;../LetheCommon/include;../thirdParty"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).$(PlatformName).lib ../libProcessComm/bin/libProcessComm.$(ConfigurationName).$(PlatformName).lib ../libSocketComm/bin/libSocketComm.$(ConfigurationName).$(PlatformName).lib bin/libThreadUtil.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="../LetheCommon/bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib bin/LetheThreadComm.$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
@@ -116,7 +116,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;../libCommon/include;../libThreadComm/include;../libSocketComm/include;../libProcessComm/include;../thirdParty/catch"
+				AdditionalIncludeDirectories="include;../LetheCommon/include;../thirdParty"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -135,7 +135,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).$(PlatformName).lib ../libProcessComm/bin/libProcessComm.$(ConfigurationName).$(PlatformName).lib ../libSocketComm/bin/libSocketComm.$(ConfigurationName).$(PlatformName).lib bin/libThreadUtil.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="../LetheCommon/bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib bin/LetheThreadComm.$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).pdb"
@@ -190,7 +190,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;../libCommon/include;../libThreadComm/include;../libSocketComm/include;../libProcessComm/include;../thirdParty/catch"
+				AdditionalIncludeDirectories="include;../LetheCommon/include;../thirdParty"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
@@ -208,8 +208,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).$(PlatformName).lib ../libProcessComm/bin/libProcessComm.$(ConfigurationName).$(PlatformName).lib ../libSocketComm/bin/libSocketComm.$(ConfigurationName).$(PlatformName).lib bin/libThreadUtil.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="../LetheCommon/bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib bin/LetheThreadComm.$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
+				GenerateDebugInformation="false"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -264,7 +265,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;../libCommon/include;../libThreadComm/include;../libSocketComm/include;../libProcessComm/include;../thirdParty/catch"
+				AdditionalIncludeDirectories="include;../LetheCommon/include;../thirdParty"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				ProgramDataBaseFileName="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).lib"
@@ -282,8 +283,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../libCommon/bin/libCommon.$(ConfigurationName).$(PlatformName).lib ../libThreadComm/bin/libThreadComm.$(ConfigurationName).$(PlatformName).lib ../libProcessComm/bin/libProcessComm.$(ConfigurationName).$(PlatformName).lib ../libSocketComm/bin/libSocketComm.$(ConfigurationName).$(PlatformName).lib bin/libThreadUtil.$(ConfigurationName).$(PlatformName).lib"
+				AdditionalDependencies="../LetheCommon/bin/LetheCommon.$(ConfigurationName).$(PlatformName).lib bin/LetheThreadComm.$(ConfigurationName).$(PlatformName).lib"
 				OutputFile="$(OutDir)\$(ProjectName).$(ConfigurationName).$(PlatformName).exe"
+				GenerateDebugInformation="false"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="17"
@@ -320,21 +322,17 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\test\testByteStream.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\test\testMain.cpp"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
+			<File
+				RelativePath=".\test\testMessageStream.cpp"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

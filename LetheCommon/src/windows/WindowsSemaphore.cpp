@@ -6,28 +6,29 @@
 
 using namespace lethe;
 
-const std::string WindowsSemaphore::s_baseName("Global\\lethe-semaphore-");
-std::atomic<uint32_t> WindowsSemaphore::s_nextId(0);
+const std::string WindowsSemaphore::s_semaphoreBaseName("Global\\lethe-semaphore-");
+WindowsAtomic WindowsSemaphore::s_uniqueId(0);
 
 WindowsSemaphore::WindowsSemaphore(uint32_t maxCount, uint32_t initialCount) :
   WaitObject(INVALID_HANDLE_VALUE)
 {
-  std::stringstream name;
-  name << s_baseName << getProcessId() << "-" << s_nextId.fetch_add(1);
+  std::stringstream str;
+  str << s_semaphoreBaseName << getProcessId() << "-" << s_uniqueId.increment();
+  m_name.assign(str.str());
 
-  m_name.assign(name.str());
+  setWaitHandle(CreateSemaphore(NULL, initialCount, maxCount, m_name.c_str()));
 
-  setHandle(CreateSemaphore(NULL, initialCount, maxCount, m_name.c_str()))
-
-  if(getHandle() == INVALID_HANDLE_VALUE)
+  if(getHandle() == NULL)
     throw std::bad_syscall("CreateSemaphore", lastError());
 }
 
-WindowsSemaphore::WindowsSemaphore(const std::string& name)
-  WaitObject(OpenSemaphore(SEMAPHORE_MODIFY_STATE | SYNCHRONIZE, false, name.c_str())),
+WindowsSemaphore::WindowsSemaphore(const std::string& name) : 
+  WaitObject(NULL),
   m_name(name)
 {
-  if(getHandle() == INVALID_HANDLE_VALUE)
+  setWaitHandle(OpenSemaphore(SEMAPHORE_MODIFY_STATE | SYNCHRONIZE, false, name.c_str()));
+
+  if(getHandle() == NULL)
     throw std::bad_syscall("CreateSemaphore", lastError());
 }
 

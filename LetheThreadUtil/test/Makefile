@@ -1,5 +1,5 @@
 INCLUDE_FLAGS:=-I../include \
-               -I../../thirdParty/catch \
+               -I../../thirdParty \
                -I../../LetheCommon/include
 
 INCLUDE_DIRS :=$(subst -I,,$(INCLUDE_FLAGS))

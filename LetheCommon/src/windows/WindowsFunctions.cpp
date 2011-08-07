@@ -8,9 +8,24 @@
 #include <sstream>
 #include <iomanip>
 
-std::ostream& operator << (std::ostream& out, const lethe::Handle& handle)
+std::ostream& lethe::operator << (std::ostream& out, const lethe::Handle& handle)
 {
-  return out << static_cast<uint32_t>(handle);
+  std::ios_base::fmtflags flags = out.flags(std::ios_base::hex);
+
+  if(sizeof(handle) == sizeof(uint32_t))
+    out << "0x" << (uint32_t)handle;
+  else if(sizeof(handle) == sizeof(uint64_t))
+    out << "0x" << (uint32_t)handle;
+  else
+    out << "<unexpected handle length>";
+
+  out.flags(flags);
+  return out;
+}
+
+void lethe::sleep_ms(uint32_t timeout)
+{
+  Sleep(timeout);
 }
 
 std::string lethe::getErrorString(uint32_t errorCode)
@@ -133,7 +148,7 @@ lethe::WaitResult lethe::WaitForObject(lethe::WaitObject& obj, uint32_t timeout)
 
 lethe::WaitResult lethe::WaitForObject(lethe::Handle handle, uint32_t timeout)
 {
-  switch(WaitForSingleObject(obj.getHandle(), timeout))
+  switch(WaitForSingleObject(handle, timeout))
   {
   case WAIT_OBJECT_0:
     return lethe::WaitSuccess;

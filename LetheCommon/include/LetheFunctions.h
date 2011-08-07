@@ -14,6 +14,7 @@
   namespace lethe
   {
     std::ostream& operator << (std::ostream& out, const Handle& handle);
+    void sleep_ms(uint32_t timeout);
   }
 
 #elif defined(__linux__)
@@ -22,7 +23,7 @@
 
   namespace lethe
   {
-    void Sleep(uint32_t timeout);
+    void sleep_ms(uint32_t timeout);
   }
 
 #else

@@ -2,6 +2,7 @@
 #define _WINDOWSSHAREDMEMORY_H
 
 #include "LetheTypes.h"
+#include "WindowsAtomic.h"
 #include <string>
 
 namespace lethe
@@ -9,7 +10,13 @@ namespace lethe
   class WindowsSharedMemory
   {
   public:
-    WindowsSharedMemory(const std::string& name, uint32_t size);
+    WindowsSharedMemory(uint32_t size);
+
+    WindowsSharedMemory(uint32_t size,
+                        const std::string& name);
+
+    WindowsSharedMemory(const std::string& name);
+
     ~WindowsSharedMemory();
 
     void* begin() const;
@@ -23,8 +30,13 @@ namespace lethe
     WindowsSharedMemory(const WindowsSharedMemory&);
     WindowsSharedMemory& operator = (const WindowsSharedMemory&);
 
-    static const std::string s_nameBase;
-    const std::string m_name;
+    static const std::string s_shmBaseName;
+    static WindowsAtomic s_uniqueId;
+
+    static uint32_t getShmSize(void* addr);
+    static void* mapShmFile(Handle handle, uint32_t size);
+
+    std::string m_name;
     Handle m_handle;
     void* m_data;
     uint32_t m_size;

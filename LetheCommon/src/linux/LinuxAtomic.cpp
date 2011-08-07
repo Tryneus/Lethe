@@ -68,7 +68,7 @@ uint32_t LinuxAtomic32::bitwiseXor(uint32_t value) // return original value
   return original;
 }
 
-#if defined(_M_IA64) || defined(_M_X64)
+#if defined(__x86_64)
 
 LinuxAtomic64::LinuxAtomic64(const uint64_t value) :
   m_data(value)

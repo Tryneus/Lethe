@@ -44,11 +44,14 @@ void ProcessMessageUnallocList::unallocate(ProcessMessage* message)
   pushFront(message);
 }
 
-ProcessMessage* ProcessMessageUnallocList::allocate(uint32_t size)
+ProcessMessage& ProcessMessageUnallocList::allocate(uint32_t size)
 {
+  ProcessMessage* message;
+  ProcessMessage* extra;
+
   if(m_front != 0)
   {
-    ProcessMessage* message = getMessage(m_front);
+    message = getMessage(m_front);
 
     while(message->getNext() != 0 && message->getSize() < size)
     {
@@ -60,13 +63,13 @@ ProcessMessage* ProcessMessageUnallocList::allocate(uint32_t size)
 
     remove(message);
 
-    ProcessMessage* extra = message->split(size);
+    extra = message->split(size);
     if(extra != NULL)
       pushFront(extra);
 
     message->setState(ProcessMessage::Alloc);
 
-    return message;
+    return *message;
   }
 
   throw std::bad_alloc();

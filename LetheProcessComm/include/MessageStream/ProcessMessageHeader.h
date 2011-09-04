@@ -15,10 +15,10 @@ namespace lethe
     ProcessMessageHeader(uint32_t size);
     ~ProcessMessageHeader();
 
-    void* allocate(uint32_t size);
-    void send(void* msg);
-    void* receive();
-    bool release(void* msg);
+    ProcessMessage& allocate(uint32_t size);
+    void send(ProcessMessage* message);
+    ProcessMessage* receive();
+    bool release(ProcessMessage* message);
 
     uint32_t getSize() const;
 

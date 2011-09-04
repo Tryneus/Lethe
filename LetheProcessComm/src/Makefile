@@ -11,14 +11,15 @@ LINKER_FLAGS :=-rcv
 LIBRARY_DIR  :=../bin
 LIBRARY_FILE :=$(LIBRARY_DIR)/LetheProcessComm.a
 
-OBJECT_FILES :=ByteStream/LinuxProcessByteStream.o \
-               MessageStream/LinuxProcessMessageStream.o \
+OBJECT_FILES :=ByteStream/ProcessByteStream.o \
+               MessageStream/ProcessMessageStream.o \
                MessageStream/ProcessMessageHeader.o \
                MessageStream/ProcessMessageList.o \
                MessageStream/ProcessMessageReceiveList.o \
                MessageStream/ProcessMessageUnallocList.o \
                MessageStream/ProcessMessage.o \
-               LinuxHandleTransfer.o
+               LinuxHandleTransfer.o \
+               TempProcessStream.o
 
 all: $(LIBRARY_FILE)
 

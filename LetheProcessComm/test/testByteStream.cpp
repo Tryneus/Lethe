@@ -1,5 +1,5 @@
 #include "ProcessComm.h"
-#include "catch.hpp"
+#include "catch/catch.hpp"
 
 using namespace lethe;
 

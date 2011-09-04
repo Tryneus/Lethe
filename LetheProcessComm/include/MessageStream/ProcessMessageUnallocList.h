@@ -13,7 +13,7 @@ namespace lethe
     ProcessMessageUnallocList(uint32_t offset, uint32_t firstMessage, uint32_t size);
 
     void unallocate(ProcessMessage* message);
-    ProcessMessage* allocate(uint32_t size);
+    ProcessMessage& allocate(uint32_t size);
 
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used

@@ -20,7 +20,7 @@ ProcessMessageHeader::ProcessMessageHeader(uint32_t size) :
     ProcessMessage(s_secondBufferOffset, sizeof(ProcessMessage), ProcessMessage::Pend);
 
   ProcessMessage* thirdMessage = new ((uint8_t*)this + s_thirdBufferOffset)
-    ProcessMessage(s_thirdBufferOffset, m_size - 2 * sizeof(ProcessMessage), ProcessMessage::Free);
+    ProcessMessage(s_thirdBufferOffset, m_size - s_thirdBufferOffset, ProcessMessage::Free);
 
   secondMessage->setLastOnStack(s_firstBufferOffset);
   thirdMessage->setLastOnStack(s_secondBufferOffset);
@@ -36,7 +36,7 @@ uint32_t ProcessMessageHeader::getSize() const
   return m_size;
 }
 
-void* ProcessMessageHeader::allocate(uint32_t size)
+ProcessMessage& ProcessMessageHeader::allocate(uint32_t size)
 {
   ProcessMessage* message = m_releaseList.pop();
 
@@ -49,14 +49,13 @@ void* ProcessMessageHeader::allocate(uint32_t size)
   return m_unallocList.allocate(size);
 }
 
-void ProcessMessageHeader::send(void* buffer)
+void ProcessMessageHeader::send(ProcessMessage* message)
 {
-  ProcessMessage* message = reinterpret_cast<ProcessMessage*>(buffer);
   message->setState(ProcessMessage::Sent);
   m_receiveList.pushBack(message);
 }
 
-void* ProcessMessageHeader::receive()
+ProcessMessage* ProcessMessageHeader::receive()
 {
   ProcessMessage* extraMessage;
   ProcessMessage* message = m_receiveList.receive(extraMessage);
@@ -70,10 +69,8 @@ void* ProcessMessageHeader::receive()
   return message;
 }
 
-bool ProcessMessageHeader::release(void* buffer)
+bool ProcessMessageHeader::release(ProcessMessage* message)
 {
-  ProcessMessage* message = reinterpret_cast<ProcessMessage*>(buffer);
-
   if(reinterpret_cast<void*>(message) < reinterpret_cast<void*>(this) ||
     reinterpret_cast<void*>(message) > reinterpret_cast<void*>((uint8_t*)this + m_size))
     return false; // Message didn't belong to this side, but it might belong to the other side

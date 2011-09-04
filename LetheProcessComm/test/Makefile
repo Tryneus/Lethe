@@ -20,7 +20,7 @@ INCLUDE_LIBS :=../bin/LetheProcessComm.a \
                ../../LetheThreadComm/bin/LetheThreadComm.a \
                ../../LetheCommon/bin/LetheCommon.a
 
-all: $(BINARY_FILE)
+all: $(BINARY_FILE) testProcess
 
 clean:
 	rm -rf $(BINARY_FILE) $(OBJECT_FILES) runTest.log valTest.log
@@ -30,6 +30,11 @@ runTest: all
 
 valTest: all
 	valgrind --track-origins=yes --track-fds=yes $(BINARY_FILE) 2>&1 | tee valTest.log
+
+# Another rule to make the test process a different binary
+testProcess: testProcess.o $(INCLUDE_LIBS)
+	mkdir -p $(BINARY_DIR)
+	gcc $(LINKER_FLAGS) -o ../bin/testProcess testProcess.o $(INCLUDE_LIBS)
 
 $(BINARY_FILE): $(OBJECT_FILES) $(INCLUDE_LIBS)
 	mkdir -p $(BINARY_DIR)

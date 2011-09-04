@@ -62,14 +62,15 @@ class PipeTestThread : public Thread
 {
 public:
   PipeTestThread(uint32_t maxData, Pipe& pipe, Event& event);
-  ~PipeTestThread();
+  ~PipeTestThread() { delete [] m_dataBuffer; };
 
-  void lock();
-  void unlock();
+  void lock() { m_mutex.lock(); };
+  void unlock() { m_mutex.unlock(); };
   uint32_t getData(const char*& buffer) const;
 
 protected:
-  void abandoned(Handle handle);
+  void abandoned(Handle handle GCC_UNUSED) { throw std::logic_error("abandoned handle in pipe test thread"); };
+  void error(Handle handle GCC_UNUSED) { throw std::logic_error("error handle in pipe test thread"); };
   void iterate(Handle handle);
 
 private:
@@ -96,21 +97,6 @@ PipeTestThread::PipeTestThread(uint32_t maxData,
   m_mutex.unlock();
 }
 
-PipeTestThread::~PipeTestThread()
-{
-  delete [] m_dataBuffer;
-}
-
-void PipeTestThread::lock()
-{
-  m_mutex.lock();
-}
-
-void PipeTestThread::unlock()
-{
-  m_mutex.unlock();
-}
-
 uint32_t PipeTestThread::getData(const char*& buffer) const
 {
   buffer = m_dataBuffer;
@@ -132,11 +118,6 @@ void PipeTestThread::iterate(Handle handle)
   }
   else
     throw std::invalid_argument("invalid handle");
-}
-
-void PipeTestThread::abandoned(Handle handle GCC_UNUSED)
-{
-  throw std::logic_error("abandoned handle in pipe test thread");
 }
 
 TEST_CASE("pipe/data", "Test sending/receiving on a pipe")
@@ -217,8 +198,12 @@ TEST_CASE("pipe/largedata", "Test sending data buffers too large to fit in the p
   const int32_t* remoteBufferInt = reinterpret_cast<const int32_t*>(remoteBuffer);
 
   bool success = true;
+//  for(uint32_t i = 0; i < bufferCount * sends; ++i)
+//    success &= (dataBuffer[i % bufferCount] == remoteBufferInt[i]);
+
   for(uint32_t i = 0; i < bufferCount * sends; ++i)
-    success &= (dataBuffer[i % bufferCount] == remoteBufferInt[i]);
+    if(!(dataBuffer[i % bufferCount] == remoteBufferInt[i]))
+      REQUIRE(-1 == i);
 
   REQUIRE(success); // TODO: intermittent test failure on Linux here
   thread.unlock();

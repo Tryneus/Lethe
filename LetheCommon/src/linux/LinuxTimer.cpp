@@ -1,23 +1,39 @@
+#include "timerfd-lethe.h"
 #include "linux/LinuxTimer.h"
+#include "LetheInternal.h"
 #include "LetheTypes.h"
 #include "LetheFunctions.h"
 #include "LetheException.h"
-#include <sys/timerfd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 
 using namespace lethe;
 
-LinuxTimer::LinuxTimer(uint32_t timeout) :
-  WaitObject(timerfd_create(CLOCK_MONOTONIC, O_NONBLOCK))
+const std::string LinuxTimer::s_timerfdDevice("/dev/timerfd-lethe");
+
+LinuxTimer::LinuxTimer(uint32_t timeout, bool periodic, bool autoReset) :
+  WaitObject(open(s_timerfdDevice.c_str(), O_RDWR))
 {
   if(getHandle() == INVALID_HANDLE_VALUE)
-    throw std::bad_syscall("timerfd_create", lastError());
+    throw std::bad_syscall("timerfd open", lastError());
 
-  start(timeout);
+  if(!setCloseOnExec(getHandle()))
+  {
+    close(getHandle());
+    throw std::bad_syscall("fcntl", lastError());
+  }
+
+  if(ioctl(getHandle(), TFD_SET_WAITREAD_MODE, autoReset) != 0)
+  {
+    close(getHandle());
+    throw std::bad_syscall("timerfd ioctl TFD_SET_WAITREAD_MODE", lastError());
+  }
+
+  start(timeout, periodic);
 }
 
 LinuxTimer::LinuxTimer(Handle handle) :
@@ -27,10 +43,16 @@ LinuxTimer::LinuxTimer(Handle handle) :
     throw std::invalid_argument("handle");
 
   struct stat handleInfo;
-  if(fstat(handle, &handleInfo) != 0) // TODO: check if handle is for a timerfd
+  if(fstat(handle, &handleInfo) != 0 || handleInfo.st_dev != TIMERFD_LETHE_MAJOR)
   {
     close(handle);
-    throw std::bad_syscall("fstat", lastError());
+    throw std::bad_syscall("timerfd fstat", lastError());
+  }
+
+  if(!setCloseOnExec(getHandle()))
+  {
+    close(getHandle());
+    throw std::bad_syscall("fcntl", lastError());
   }
 }
 
@@ -39,28 +61,38 @@ LinuxTimer::~LinuxTimer()
   close(getHandle());
 }
 
-void LinuxTimer::start(uint32_t timeout)
+void LinuxTimer::start(uint32_t timeout, bool periodic)
 {
-  itimerspec elapseTime;
+  timespec elapseTime;
 
-  elapseTime.it_value.tv_sec = timeout / 1000;
-  elapseTime.it_value.tv_nsec = (timeout % 1000) * 1000000;
-  elapseTime.it_interval.tv_sec = 0;
-  elapseTime.it_interval.tv_nsec = 0;
+  elapseTime.tv_sec = timeout / 1000;
+  elapseTime.tv_nsec = (timeout % 1000) * 1000000;
 
-  if(timerfd_settime(getHandle(), 0, &elapseTime, NULL) != 0)
-    throw std::bad_syscall("timerfd_settime", lastError());
+  if(periodic)
+  {
+    if(ioctl(getHandle(), TFD_SET_PERIODIC_TIME, &elapseTime) != 0)
+      throw std::bad_syscall("timerfd ioctl TFD_SET_PERIODIC_TIME", lastError());
+  }
+  else
+  {
+    if(ioctl(getHandle(), TFD_SET_RELATIVE_TIME, &elapseTime) != 0)
+      throw std::bad_syscall("timerfd ioctl TFD_SET_RELATIVE_TIME", lastError());
+  }
 }
 
 void LinuxTimer::clear()
 {
-  itimerspec elapseTime;
+  timespec elapseTime;
 
-  elapseTime.it_value.tv_sec = 0;
-  elapseTime.it_value.tv_nsec = 0;
-  elapseTime.it_interval.tv_sec = 0;
-  elapseTime.it_interval.tv_nsec = 0;
+  elapseTime.tv_sec = 0;
+  elapseTime.tv_nsec = 0;
 
-  if(timerfd_settime(getHandle(), 0, &elapseTime, NULL) != 0)
-    throw std::bad_syscall("timerfd_settime", lastError());
+  if(ioctl(getHandle(), TFD_SET_RELATIVE_TIME, &elapseTime) != 0)
+    throw std::bad_syscall("timerfd ioctl TFD_SET_RELATIVE_TIME", lastError());
+}
+
+void LinuxTimer::error()
+{
+  if(ioctl(getHandle(), TFD_SET_ERROR, true) != 0)
+    throw std::bad_syscall("timerfd ioctl TFD_SET_ERROR", lastError());
 }

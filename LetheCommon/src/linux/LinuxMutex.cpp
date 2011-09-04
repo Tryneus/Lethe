@@ -1,18 +1,63 @@
 #include "linux/LinuxMutex.h"
+#include "LetheInternal.h"
 #include "LetheFunctions.h"
 #include "LetheException.h"
-#include <pthread.h>
-#include "eventfd.h"
+#include "eventfd-lethe.h"
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 using namespace lethe;
 
+const std::string LinuxMutex::s_eventfdDevice("/dev/eventfd-lethe");
+
 LinuxMutex::LinuxMutex(bool locked) :
-  WaitObject(eventfd((locked ? 0 : 1), (EFD_NONBLOCK | EFD_SEMAPHORE | EFD_WAITREAD))),
-  m_ownerThread(locked ? pthread_self() : INVALID_THREAD_ID),
-  m_lockCount(locked)
+  WaitObject(open(s_eventfdDevice.c_str(), O_RDWR))
 {
   if(getHandle() == INVALID_HANDLE_VALUE)
-    throw std::bad_syscall("eventfd", lastError());
+    throw std::bad_syscall("eventfd open", lastError());
+
+  if(!setCloseOnExec(getHandle()))
+  {
+    close(getHandle());
+    throw std::bad_syscall("fcntl", lastError());
+  }
+
+  if(ioctl(getHandle(), EFD_SET_MUTEX_MODE, locked) != 0)
+  {
+    close(getHandle());
+    throw std::bad_syscall("eventfd ioctl EFD_SET_MUTEX_MODE", lastError());
+  }
+
+  if(ioctl(getHandle(), EFD_SET_WAITREAD_MODE, true) != 0)
+  {
+    close(getHandle());
+    throw std::bad_syscall("eventfd ioctl EFD_SET_WAITREAD_MODE", lastError());
+  }
+}
+
+LinuxMutex::LinuxMutex(Handle handle) :
+  WaitObject(handle)
+{
+  if(getHandle() == INVALID_HANDLE_VALUE)
+    throw std::invalid_argument("handle");
+
+  // Make sure the handle is for an eventfd-lethe object
+  // TODO: Check the mode of the file descriptor
+  struct stat handleInfo;
+  if(fstat(handle, &handleInfo) != 0 || handleInfo.st_dev != EVENTFD_LETHE_MAJOR)
+  {
+    close(handle);
+    throw std::bad_syscall("eventfd fstat", lastError());
+  }
+
+  if(!setCloseOnExec(getHandle()))
+  {
+    close(getHandle());
+    throw std::bad_syscall("fcntl", lastError());
+  }
 }
 
 LinuxMutex::~LinuxMutex()
@@ -22,50 +67,20 @@ LinuxMutex::~LinuxMutex()
 
 void LinuxMutex::lock(uint32_t timeout)
 {
-  if(WaitForObject(*this, timeout) != WaitSuccess) // postWaitCallback will set owner
+  if(WaitForObject(*this, timeout) != WaitSuccess)
     throw std::runtime_error("failed to wait for mutex");
 }
 
 void LinuxMutex::unlock()
 {
-  if(m_ownerThread == pthread_self())
-  {
-    if(--m_lockCount == 0)
-    {
-      m_ownerThread = INVALID_THREAD_ID;
-
-      uint64_t buffer(1);
-      if(write(getHandle(), &buffer, sizeof(buffer)) != sizeof(buffer))
-        throw std::bad_syscall("write to eventfd", lastError());
-    }
-  }
-  else
-    throw std::logic_error("mutex unlocked by wrong thread");
+  uint64_t buffer(1);
+  if(write(getHandle(), &buffer, sizeof(buffer)) != sizeof(buffer))
+    throw std::bad_syscall("eventfd write", lastError());
 }
 
-bool LinuxMutex::preWaitCallback()
+void LinuxMutex::error()
 {
-  if(m_ownerThread == pthread_self())
-  {
-    ++m_lockCount;
-    return true;
-  }
-
-  return false;
+  if(ioctl(getHandle(), EFD_SET_ERROR, true) != 0)
+    throw std::bad_syscall("eventfd ioctl EFD_SET_ERROR", lastError());
 }
 
-void LinuxMutex::postWaitCallback(WaitResult result)
-{
-  if(result == WaitSuccess)
-  {
-    pthread_t self = pthread_self();
-
-    if(m_ownerThread == INVALID_THREAD_ID)
-    {
-      m_ownerThread = self;
-      ++m_lockCount;
-    }
-    else if(m_ownerThread != self)
-      throw std::runtime_error("inconsistent mutex data"); // thread/structor test encountered this, as does functions/wait
-  }
-}

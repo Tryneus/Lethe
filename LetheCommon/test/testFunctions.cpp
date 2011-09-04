@@ -150,10 +150,10 @@ TEST_CASE("functions/wait", "Test waiting for single WaitObjects")
   // TODO: add thread test
 
   // Timer
-  Timer timer(INFINITE);
+  Timer timer(INFINITE, false, false);
   REQUIRE(WaitForObject(timer, 20) == WaitTimeout);
   REQUIRE(WaitForObject(timer, 20) == WaitTimeout);
-  timer.start(1);
+  timer.start(1, false);
   REQUIRE(WaitForObject(timer, 20) == WaitSuccess);
   REQUIRE(WaitForObject(timer, 0) == WaitSuccess);
   timer.clear();

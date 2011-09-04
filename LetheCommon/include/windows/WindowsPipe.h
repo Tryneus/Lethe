@@ -103,7 +103,7 @@ namespace lethe
     WindowsSharedMemory* m_memoryIn;
     WindowsMutex* m_writeMutexIn;
     WindowsMutex* m_readMutexIn;
-  	WindowsEvent* m_readEventIn;
+    WindowsEvent* m_readEventIn;
     WindowsEvent* m_writeEventIn;
 
     // Variables used when writing
@@ -111,15 +111,11 @@ namespace lethe
     WindowsSharedMemory* m_memoryOut;
     WindowsMutex* m_writeMutexOut;
     WindowsMutex* m_readMutexOut;
-  	WindowsEvent* m_readEventOut;
+    WindowsEvent* m_readEventOut;
     WindowsEvent* m_writeEventOut;
 
     Handle m_asyncThread;
     bool m_destructing;
-
-    // WaitObject callbacks to be passed through to the actual wait Event
-    bool preWaitCallback();
-    void postWaitCallback(WaitResult result);
   };
 }
 

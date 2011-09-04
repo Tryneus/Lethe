@@ -19,6 +19,9 @@ namespace lethe
     void lock(uint32_t timeout = INFINITE);
     void unlock(uint32_t count);
 
+    void setError();
+    void clearError();
+
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used
     WindowsSemaphore(const WindowsSemaphore&);
@@ -32,6 +35,7 @@ namespace lethe
     static WindowsAtomic s_uniqueId;
 
     std::string m_name;
+    bool m_error;
   };
 }
 

@@ -56,22 +56,6 @@ size_t WindowsWaitSet::getSize() const
 WaitResult WindowsWaitSet::waitAny(uint32_t timeout, Handle& handle)
 {
   WaitResult result;
-
-  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i = m_waitObjects->begin(); i != m_waitObjects->cend(); ++i)
-  {
-    if(i->second->preWaitCallback())
-    {
-      handle = i->first;
-
-      i->second->postWaitCallback(WaitSuccess);
-
-      for(; i != m_waitObjects->begin(); --i)
-        i->second->postWaitCallback(WaitTimeout);
-
-      return WaitSuccess;
-    }
-  }
-
   DWORD retval = WaitForMultipleObjects(m_waitObjects->size(), m_handleArray + m_offset, false, timeout);
 
   if(retval >= WAIT_OBJECT_0 && retval < WAIT_OBJECT_0 + m_waitObjects->size())
@@ -91,24 +75,9 @@ WaitResult WindowsWaitSet::waitAny(uint32_t timeout, Handle& handle)
     result = WaitTimeout;
   }
   else
-  {
-    callPostWait(WaitError, INVALID_HANDLE_VALUE);
     throw std::bad_syscall("WaitForMultipleObjects", lastError());
-  }
 
-  callPostWait(result, handle);
   return result;
-}
-
-void WindowsWaitSet::callPostWait(WaitResult result, Handle handle)
-{
-  for(mct::closed_hash_map<Handle, WaitObject*>::iterator i = m_waitObjects->begin(); i != m_waitObjects->cend(); ++i)
-  {
-    if(i->first == handle)
-      i->second->postWaitCallback(result);
-    else
-      i->second->postWaitCallback(WaitTimeout);
-  }
 }
 
 void WindowsWaitSet::resizeEvents()

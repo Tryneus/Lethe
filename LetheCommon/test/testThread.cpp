@@ -16,6 +16,7 @@ public:
 protected:
   void iterate(Handle handle GCC_UNUSED) { /* Do nothing */ };
   void abandoned(Handle handle GCC_UNUSED) { throw std::logic_error("abandoned event in TestThreadDummyThread"); };
+  void error(Handle handle GCC_UNUSED) { throw std::logic_error("error event in TestThreadDummyThread"); };
 };
 
 // StopThread stops itself after the given timeout
@@ -28,6 +29,7 @@ public:
 protected:
   void iterate(Handle handle GCC_UNUSED) { stop(); };
   void abandoned(Handle handle GCC_UNUSED) { throw std::logic_error("abandoned event in StopThread"); };
+  void error(Handle handle GCC_UNUSED) { throw std::logic_error("error event in StopThread"); };
 };
 
 // WaitThread waits until the given object triggers, then stops
@@ -40,6 +42,7 @@ public:
 protected:
   void iterate(Handle handle GCC_UNUSED) { stop(); };
   void abandoned(Handle handle GCC_UNUSED) { throw std::logic_error("abandoned event in WaitThread"); };
+  void error(Handle handle GCC_UNUSED) { throw std::logic_error("error event in WaitThread"); };
 };
 
 TEST_CASE("thread/structor", "Test construction/destruction")

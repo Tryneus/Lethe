@@ -25,14 +25,6 @@ namespace lethe
    *   To avoid problems, this should never be used after the object has been
    *   constructed.
    *
-   * preWaitCallback() - called before a wait occurs concerning this WaitObject,
-   *   this can be defined by the user to instantly indicate that the wait was
-   *   successful (return true), or to let the wait happen normally (return
-   *   false). 
-   *
-   * postWaitCallback() - called after a wait occurs concerning this WaitObject,
-   *   this will always be called regardless of if the wait was successful or
-   *   not.
    */
   class WaitObject
   {
@@ -45,20 +37,12 @@ namespace lethe
   protected:
     void setWaitHandle(Handle handle);
 
-    virtual bool preWaitCallback();
-    virtual void postWaitCallback(WaitResult result);
-
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used
     WaitObject(const WaitObject&);
     WaitObject& operator = (const WaitObject&);
 
     Handle m_handle;
-
-    // Friend WaitSets (and single-object wait), so they can access pre/post-wait callbacks
-    friend WaitResult WaitForObject(WaitObject& obj, uint32_t timeout);
-    friend class WindowsWaitSet;
-    friend class LinuxWaitSet;
   };
 }
 

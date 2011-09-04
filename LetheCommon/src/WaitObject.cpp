@@ -24,13 +24,3 @@ void WaitObject::setWaitHandle(Handle handle)
   m_handle = handle;
 }
 
-bool WaitObject::preWaitCallback()
-{
-  return false;
-}
-
-void WaitObject::postWaitCallback(WaitResult result GCC_UNUSED)
-{
-  // Do nothing
-}
-

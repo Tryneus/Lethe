@@ -74,10 +74,14 @@ void BaseThread::threadMain()
             break;
 
           case WaitAbandoned:
-            if(handle == m_triggerEvent.getHandle())
-              throw std::logic_error("thread trigger event abandoned");
-
             abandoned(handle);
+            break;
+
+          case WaitError:
+            if(handle == m_triggerEvent.getHandle())
+              throw std::logic_error("thread trigger event error");
+
+            error(handle);
             break;
 
           default:
@@ -87,7 +91,6 @@ void BaseThread::threadMain()
 
         m_stoppedEvent.set();
       }
-
     }
   }
   catch(std::exception& ex)
@@ -231,6 +234,11 @@ void BaseThread::handleObjectQueue()
 void BaseThread::setWaitTimeout(uint32_t timeout)
 {
   m_timeout = timeout;
+}
+
+void BaseThread::error(Handle handle GCC_UNUSED)
+{
+  // Do nothing, optionally implemented by a derived class
 }
 
 void BaseThread::abandoned(Handle handle GCC_UNUSED)

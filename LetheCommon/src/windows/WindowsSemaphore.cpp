@@ -48,3 +48,7 @@ void WindowsSemaphore::unlock(uint32_t count)
   if(!ReleaseSemaphore(getHandle(), count, NULL))
     throw std::bad_syscall("ReleaseSemaphore", lastError());
 }
+
+void WindowsSemaphore::error()
+{
+}

@@ -16,11 +16,12 @@ namespace lethe
   class LinuxTimer : public WaitObject
   {
   public:
-    explicit LinuxTimer(uint32_t timeout);
+    LinuxTimer(uint32_t timeout, bool periodic, bool autoReset);
     ~LinuxTimer();
 
-    void start(uint32_t timeout);
+    void start(uint32_t timeout, bool periodic);
     void clear();
+    void error();
 
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used
@@ -30,6 +31,8 @@ namespace lethe
     // Allow LinuxTimer to be constructed by a handle transfer from another process
     friend class LinuxHandleTransfer;
     LinuxTimer(Handle handle);
+
+    static const std::string s_timerfdDevice;
   };
 }
 

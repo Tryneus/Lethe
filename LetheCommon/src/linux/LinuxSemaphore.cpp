@@ -1,8 +1,9 @@
 #include "linux/LinuxSemaphore.h"
+#include "LetheInternal.h"
 #include "LetheTypes.h"
 #include "LetheFunctions.h"
 #include "LetheException.h"
-#include "eventfd.h"
+#include "eventfd-lethe.h"
 #include <sstream>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -10,40 +11,65 @@
 
 using namespace lethe;
 
+const std::string LinuxSemaphore::s_eventfdDevice("/dev/eventfd-lethe");
+
 LinuxSemaphore::LinuxSemaphore(uint32_t maxCount,
                                uint32_t initialCount) :
-  WaitObject(eventfd(initialCount, (EFD_NONBLOCK | EFD_SEMAPHORE | EFD_WAITREAD))),
-  m_maxCount(maxCount),
-  m_count(initialCount)
+  WaitObject(open(s_eventfdDevice.c_str(), O_RDWR))
 {
   if(getHandle() == INVALID_HANDLE_VALUE)
-    throw std::bad_syscall("eventfd", lastError());
+    throw std::bad_syscall("eventfd open", lastError());
+
+  if(!setCloseOnExec(getHandle()))
+  {
+    close(getHandle());
+    throw std::bad_syscall("fcntl", lastError());
+  }
+
+  if(ioctl(getHandle(), EFD_SET_SEMAPHORE_MODE, initialCount) != 0)
+  {
+    close(getHandle());
+    throw std::bad_syscall("eventfd ioctl EFD_SET_SEMAPHORE_MODE", lastError());
+  }
+
+  if(ioctl(getHandle(), EFD_SET_MAX_VALUE, maxCount) != 0)
+  {
+    close(getHandle());
+    throw std::bad_syscall("eventfd ioctl EFD_SET_MAX_VALUE", lastError());
+  }
+
+  if(ioctl(getHandle(), EFD_SET_WAITREAD_MODE, true) != 0)
+  {
+    close(getHandle());
+    throw std::bad_syscall("eventfd ioctl EFD_SET_WAITREAD_MODE", lastError());
+  }
 }
 
 LinuxSemaphore::LinuxSemaphore(Handle handle) :
-  WaitObject(handle),
-  m_maxCount(0xFFFFFFFF),
-  m_count(0)
+  WaitObject(handle)
 {
   if(getHandle() == INVALID_HANDLE_VALUE)
     throw std::invalid_argument("handle");
 
+  // Make sure the handle is for an eventfd-lethe object
+  // TODO: Check the mode of the file descriptor
   struct stat handleInfo;
-  if(fstat(handle, &handleInfo) != 0) // TODO: check if handle is for an eventfd
+  if(fstat(handle, &handleInfo) != 0 || handleInfo.st_dev != EVENTFD_LETHE_MAJOR)
   {
     close(handle);
-    throw std::bad_syscall("fstat", lastError());
+    throw std::bad_syscall("eventfd fstat", lastError());
+  }
+
+  if(!setCloseOnExec(getHandle()))
+  {
+    close(getHandle());
+    throw std::bad_syscall("fcntl", lastError());
   }
 }
 
 LinuxSemaphore::~LinuxSemaphore()
 {
   close(getHandle());
-}
-
-const std::string& LinuxSemaphore::name() const
-{
-  return m_name;
 }
 
 void LinuxSemaphore::lock(uint32_t timeout)
@@ -54,20 +80,15 @@ void LinuxSemaphore::lock(uint32_t timeout)
 
 void LinuxSemaphore::unlock(uint32_t count)
 {
-  if(m_count.fetch_add(count) + count > m_maxCount)
-  {
-    m_count.fetch_sub(count);
-    throw std::bad_syscall("write", "semaphore full");
-  }
-
   uint64_t internalCount(count);
 
   if(write(getHandle(), &internalCount, sizeof(internalCount)) != sizeof(internalCount))
-    throw std::bad_syscall("write to eventfd", lastError());
+    throw std::bad_syscall("eventfd write", lastError());
 }
 
-void LinuxSemaphore::postWaitCallback(WaitResult result)
+void LinuxSemaphore::error()
 {
-  if(result == WaitSuccess)
-    m_count.fetch_sub(1);
+  if(ioctl(getHandle(), EFD_SET_ERROR, true) != 0)
+    throw std::bad_syscall("eventfd ioctl EFD_SET_ERROR", lastError());
 }
+

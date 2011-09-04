@@ -33,6 +33,11 @@
 
 namespace lethe
 {
+  // Runs the given command and returns the process ID
+  uint32_t createProcess(const std::string& command,
+                         const std::vector<std::string>& arguments = std::vector<std::string>(),
+                         const std::vector<std::pair<std::string, std::string> >& environment = std::vector<std::pair<std::string, std::string> >());
+
   // Returns the number of milliseconds since 12:00 AM Jan 1, 1970
   uint64_t    getTime();
   // Returns the current time of day as a string, format: "Month Day Hours:Minutes:Seconds:Milliseconds"
@@ -40,6 +45,9 @@ namespace lethe
 
   // Returns the ID of the current process
   uint32_t getProcessId();
+
+  // Returns the ID of the parent process to the current process
+  uint32_t getParentProcessId();
 
   // Returns the ID of the current thread
   uint32_t getThreadId();

@@ -39,7 +39,7 @@ TEST_CASE("waitSet/add", "Test adding WaitObjects")
   WaitSet waitSet;
   Mutex mutex(false);
   Event event(false, false);
-  Timer timer(INFINITE);
+  Timer timer(INFINITE, false, false);
   Semaphore semaphore(1, 1);
   WaitSetDummyThread thread;
   Pipe pipe;
@@ -93,7 +93,7 @@ TEST_CASE("waitSet/remove", "Test removing WaitObjects")
   WaitSet waitSet;
   Mutex mutex(false);
   Event event(false, false);
-  Timer timer(INFINITE);
+  Timer timer(INFINITE, false, false);
   Semaphore semaphore(1, 1);
   WaitSetDummyThread thread;
   Pipe pipe;
@@ -164,7 +164,7 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
 
   // Create wait objects initially unsignalled
   Event event(false, true);
-  Timer timer(INFINITE);
+  Timer timer(INFINITE, false, false);
   Semaphore semaphore(10, 0);
   WaitSetDummyThread thread;
   Pipe pipe;
@@ -187,7 +187,7 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
   REQUIRE(waitHandle == event.getHandle());
   REQUIRE(waitSet.waitAny(100, waitHandle) == WaitTimeout);
 
-  timer.start(1);
+  timer.start(1, false);
   REQUIRE(waitSet.waitAny(100, waitHandle) == WaitSuccess);
   REQUIRE(waitHandle == timer.getHandle());
   timer.clear(); // This may be changed if we support auto-reset in LinuxTimers
@@ -212,7 +212,7 @@ TEST_CASE("waitSet/waitAny", "Test waiting for any WaitObjects")
 
   // Now try triggering all the objects at once and make sure that every object finishes
   thread.stop();
-  timer.start(1);
+  timer.start(1, false);
   event.set();
   semaphore.unlock(1);
   pipe.send(buffer, 5);
@@ -247,7 +247,7 @@ TEST_CASE("waitSet/waitAny2", "Test behavior of waitAny in different conditions"
 {
   WaitSet waitSet;
   WaitSetDummyThread thread;
-  Timer timer(INFINITE);
+  Timer timer(INFINITE, false, false);
   Mutex mutex(false); // Unlocked
   Event event1(false, false); // Not yet set, manual reset
   Event event2(false, true); // Not yet set, autoreset
@@ -260,7 +260,7 @@ TEST_CASE("waitSet/waitAny2", "Test behavior of waitAny in different conditions"
   uint8_t buffer[5]; // Buffer to read out of pipe
 
   // Set the objects to signalled before adding them to the wait set
-  timer.start(1);
+  timer.start(1, false);
   event1.set();
   event2.set();
   sem2.unlock(1);
@@ -312,7 +312,7 @@ TEST_CASE("waitSet/waitAny2", "Test behavior of waitAny in different conditions"
   REQUIRE(waitHandle == INVALID_HANDLE_VALUE);
 }
 
-TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
+TEST_CASE("waitSet/error", "Test WaitSet behavior with errored objects")
 {
   // Construct two sets to try slightly different situations
   WaitSet waitSet;
@@ -329,9 +329,9 @@ TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
   Event event4(true, true);
   WaitSetDummyThread thread1;
   WaitSetDummyThread thread2;
-  Timer timer1(INFINITE);
-  Timer timer2(INFINITE);
-  Timer timer3(INFINITE);
+  Timer timer1(INFINITE, false, false);
+  Timer timer2(INFINITE, false, false);
+  Timer timer3(INFINITE, false, false);
   Pipe pipe1;
   Pipe pipe2;
   Semaphore sem1(10, 0);
@@ -340,8 +340,8 @@ TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
 
   // Create some different states (if not done at construction)
   thread2.start();
-  timer2.start(1);
-  timer3.start(10000);
+  timer2.start(1, false);
+  timer3.start(10000, false);
   pipe2.send("text", 5);
 
   // Add WaitObject handles to the sets
@@ -351,13 +351,9 @@ TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
   unfinished.insert(event2.getHandle());
   unfinished.insert(event3.getHandle());
   unfinished.insert(event4.getHandle());
-  unfinished.insert(thread1.getHandle());
-  unfinished.insert(thread2.getHandle());
   unfinished.insert(timer1.getHandle());
   unfinished.insert(timer2.getHandle());
   unfinished.insert(timer3.getHandle());
-  unfinished.insert(pipe1.getHandle());
-  unfinished.insert(pipe2.getHandle());
   unfinished.insert(sem1.getHandle());
   unfinished.insert(sem2.getHandle());
   unfinished.insert(sem3.getHandle());
@@ -370,13 +366,9 @@ TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
   waitSet.add(event2);
   waitSet.add(event3);
   waitSet.add(event4);
-  waitSet.add(thread1);
-  waitSet.add(thread2);
   waitSet.add(timer1);
   waitSet.add(timer2);
   waitSet.add(timer3);
-  waitSet.add(pipe1);
-  waitSet.add(pipe2);
   waitSet.add(sem1);
   waitSet.add(sem2);
   waitSet.add(sem3);
@@ -387,28 +379,32 @@ TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
   waitSet2.add(event2);
   waitSet2.add(event3);
   waitSet2.add(event4);
-  waitSet2.add(thread1);
-  waitSet2.add(thread2);
   waitSet2.add(timer1);
   waitSet2.add(timer2);
   waitSet2.add(timer3);
-  waitSet2.add(pipe1);
-  waitSet2.add(pipe2);
   waitSet2.add(sem1);
   waitSet2.add(sem2);
   waitSet2.add(sem3);
 
-#if defined(__linux__)
-  // Can't destroy objects because of callbacks, instead close handles manually
-  for(std::set<Handle>::const_iterator i = unfinished.begin(); i != unfinished.end(); ++i)
+  mutex1.error();
+  mutex2.error();
+  event1.error();
+  event2.error();
+  event3.error();
+  event4.error();
+  timer1.error();
+  timer2.error();
+  timer3.error();
+  sem1.error();
+  sem2.error();
+  sem3.error();
 
-    close(*i);
-
+  // TODO: figure out how to force error wait result in windows
   Handle waitHandle;
 
   while(!unfinished.empty())
   {
-    REQUIRE(waitSet.waitAny(0, waitHandle) == WaitAbandoned);
+    REQUIRE(waitSet.waitAny(0, waitHandle) == WaitError);
     REQUIRE(unfinished.erase(waitHandle) == 1);
     REQUIRE(waitSet.remove(waitHandle));
   }
@@ -418,13 +414,12 @@ TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
   //  balancing is done in the wait set on abandoned handles
   while(!unfinished2.empty())
   {
-    REQUIRE(waitSet2.waitAny(0, waitHandle) == WaitAbandoned);
+    REQUIRE(waitSet2.waitAny(0, waitHandle) == WaitError);
     REQUIRE(unfinished2.erase(waitHandle) == 1);
   }
-#elif defined(__WIN32__) || defined(_WIN32)
-  // TODO: figure out how to force abandoned wait result in windows
-#endif
 }
 
-
-
+TEST_CASE("waitSet/abandoned", "Test WaitSet behavior with abandoned objects")
+{
+  // TODO: implement waitSet/abandoned test
+}

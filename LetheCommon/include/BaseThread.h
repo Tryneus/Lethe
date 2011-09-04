@@ -38,9 +38,13 @@ namespace lethe
    * iterate() - user-defined, called every time the iterate timeout expires, or
    *   a registered WaitObject triggers.  The handle parameter is the handle of the
    *   triggered WaitObject, or INVALID_HANDLE_VALUE if a timeout occurred.
+   * error() - user-defined, called every time a registered WaitObject returns
+   *   an error status. The handle parameter is the handle of the triggered
+   *   WaitObject.
    * abandoned() - user-defined, called every time a registered WaitObject returns
    *   an abandoned status. The handle parameter is the handle of the triggered
-   *   WaitObject.
+   *   WaitObject.  Abandoned may only occur on mutex objects - when a mutex is
+   *   closed or otherwise abandoned while still locked by the thread.
    * addWaitObject() - called to register a WaitObject with the thread.  Iterate
    *   will be called when the WaitObject triggers.
    * removeWaitObject() - called to unregister a WaitObject from the thread.
@@ -66,6 +70,7 @@ namespace lethe
   protected:
     virtual void setup();
     virtual void iterate(Handle handle);
+    virtual void error(Handle handle);
     virtual void abandoned(Handle handle);
 
     friend class CommRegistry; // Workaround to allow access to addWaitObject, TODO: find a better solution

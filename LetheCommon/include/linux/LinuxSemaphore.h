@@ -27,8 +27,7 @@ namespace lethe
 
     void lock(uint32_t timeout = INFINITE);
     void unlock(uint32_t count);
-
-    const std::string& name() const;
+    void error();
 
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used
@@ -39,11 +38,7 @@ namespace lethe
     friend class LinuxHandleTransfer;
     LinuxSemaphore(Handle handle);
 
-    const uint32_t m_maxCount;
-    std::atomic<uint32_t> m_count;
-    std::string m_name;
-
-    void postWaitCallback(WaitResult result);
+    static const std::string s_eventfdDevice;
   };
 }
 

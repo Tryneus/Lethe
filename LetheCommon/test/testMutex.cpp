@@ -1,5 +1,6 @@
 #include "Lethe.h"
 #include "LetheException.h"
+#include "LetheInternal.h"
 #include "testCommon.h"
 #include "catch/catch.hpp"
 
@@ -40,8 +41,16 @@ TEST_CASE("mutex/structor", "Test construction/destruction")
 class MutexTestThread : public Thread
 {
 public:
-  MutexTestThread(Mutex& mutex, Event& event);
-  bool isIterating();
+  MutexTestThread(Mutex& mutex, Event& event) :
+    Thread(INFINITE),
+    m_mutex(mutex),
+    m_event(event),
+    m_iterating(false)
+  {
+    addWaitObject(m_mutex);
+  }
+
+  bool isIterating() { return m_iterating; };
 
 private:
   Mutex& m_mutex;
@@ -70,34 +79,16 @@ protected:
     m_iterating = false;
   };
 
-  void abandoned(Handle handle)
-  {
-    handle = INVALID_HANDLE_VALUE;
-    throw std::logic_error("mutex abandoned");
-  };
-
+  void abandoned(Handle handle GCC_UNUSED) { throw std::logic_error("abandoned mutex in MutexTestThread"); };
+  void error(Handle handle GCC_UNUSED) { throw std::logic_error("errored mutex in MutexTestThread"); };
 };
-
-MutexTestThread::MutexTestThread(Mutex& mutex, Event& event) :
-  Thread(INFINITE),
-  m_mutex(mutex),
-  m_event(event),
-  m_iterating(false)
-{
-  addWaitObject(m_mutex);
-}
-
-bool MutexTestThread::isIterating()
-{
-  return m_iterating;
-}
 
 // This requres Thread to work, which requires Event and WaitSet to work
 //  If this test case is failing, it could be due to a problem in Thread,
 //  Event, or WaitSet.
 TEST_CASE("mutex/autolock", "Test auto-lock and unlock with multiple waiting threads")
 {
-  const uint32_t threadCount(64); // Can't wait on more than 64 things at once on Windows
+  const uint32_t threadCount(2); // Can't wait on more than 64 things at once on Windows
   MutexTestThread* threadArray[threadCount];
   WaitSet activeThreads;
   Mutex mutex(true);
@@ -192,7 +183,7 @@ void runExceptionThread(Mutex& mutex)
   REQUIRE(thread.isStopping());
 
 #if defined(__linux__) // Different error message on linux
-  REQUIRE(thread.getError() == "mutex unlocked by wrong thread");
+  REQUIRE(thread.getError() == "eventfd write failed: Operation not permitted");
 #elif defined(__WIN32__) || defined(_WIN32)
   REQUIRE(thread.getError() == "ReleaseMutex failed: Attempt to release mutex not owned by caller. ");
 #endif
@@ -244,6 +235,25 @@ TEST_CASE("mutex/exception", "Test that thread id is enforced")
 
 TEST_CASE("mutex/lock", "Test manual locking behavior")
 {
+  Mutex mutex1(true);
+
+  mutex1.lock();
+  mutex1.lock();
+  mutex1.unlock();
+  mutex1.unlock();
+  mutex1.unlock();
+  REQUIRE_THROWS_AS(mutex1.unlock(), std::bad_syscall);
+  REQUIRE_THROWS_AS(mutex1.unlock(), std::bad_syscall);
+  
+  Mutex mutex2(false);
+
+  mutex2.lock();
+  mutex2.lock();
+  mutex2.unlock();
+  mutex2.unlock();
+  REQUIRE_THROWS_AS(mutex2.unlock(), std::bad_syscall);
+  REQUIRE_THROWS_AS(mutex2.unlock(), std::bad_syscall);
+  
   // TODO: implement mutex/lock
 }
 

@@ -26,6 +26,7 @@ namespace lethe
 
     void set();
     void reset();
+    void error();
 
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used
@@ -35,6 +36,8 @@ namespace lethe
     // Allow LinuxEvent to be constructed by a handle transfer from another process
     friend class LinuxHandleTransfer;
     LinuxEvent(Handle handle);
+
+    static const std::string s_eventfdDevice;
   };
 }
 

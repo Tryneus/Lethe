@@ -10,13 +10,13 @@ LINKER_FLAGS :=-rcv
 LIBRARY_DIR  :=../bin
 LIBRARY_FILE :=$(LIBRARY_DIR)/LetheCommon.a
 
-OBJECT_FILES :=Log.o \
-               LetheException.o \
+OBJECT_FILES :=LetheException.o \
                LetheInternal.o \
                BaseThread.o \
                WaitObject.o \
                ByteStream.o \
                MessageStream.o \
+               Log.o \
                linux/LinuxAtomic.o \
                linux/LinuxTimer.o \
                linux/LinuxEvent.o \

@@ -21,7 +21,10 @@ namespace lethe
    * receive() - returns the next buffer in the receive queue
    *
    * release() - releases a received buffer, so more data may be sent from the
-   *   remore side, may also be used to release an allocated but unsent buffer
+   *   remote side, may also be used to release an allocated but unsent buffer
+   *
+   * size() - returns the usable size of the buffer given as the parameter,
+   *   corresponding to the size originally allocated
    *
    * operator WaitObject&() - returns a reference to a WaitObject that will be
    *   triggered whenever there is data to receive
@@ -39,6 +42,8 @@ namespace lethe
     virtual void send(void*) = 0;
     virtual void* receive() = 0;
     virtual void release(void*) = 0;
+
+    virtual uint32_t size(void*) = 0;
 
     // A stream shall be usable as a wait object
     virtual operator WaitObject&() = 0;

@@ -28,8 +28,10 @@ namespace lethe
     LinuxSharedMemory(const LinuxSharedMemory&);
     LinuxSharedMemory& operator = (const LinuxSharedMemory&);
 
+    static const uint32_t s_maxSize;
+    static const uint32_t s_magic;
     static const mode_t s_filePermissions;
-    static const std::string s_nameBase;
+    static const std::string s_baseName;
     static LinuxAtomic s_uniqueId;
 
     std::string m_name;

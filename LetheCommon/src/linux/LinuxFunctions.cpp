@@ -13,6 +13,50 @@
 #include <sstream>
 #include <iomanip>
 #include <ctime>
+#include <iostream>
+
+uint32_t lethe::getParentProcessId()
+{
+  return getppid();
+}
+
+uint32_t lethe::createProcess(const std::string& command,
+                              const std::vector<std::string>& arguments,
+                              const std::vector<std::pair<std::string, std::string> >& environment)
+{
+  uint32_t pid = fork();
+
+  if(pid == 0)
+  {
+    std::vector<std::string> envConverted;
+    const char* argStrings[arguments.size() + 2];
+    const char* envStrings[environment.size() + 1];
+
+    // Convert environment into the correct format
+    for(size_t i = 0; i < environment.size(); ++i)
+    {
+      envConverted[i] = environment[i].first + "=" + environment[i].second;
+      envStrings[i] = envConverted[i].c_str();
+    }
+
+    envStrings[environment.size()] = NULL;
+
+    // The first argument should be the command being run
+    argStrings[0] = command.c_str();
+
+    for(size_t i = 0; i < arguments.size(); ++i)
+      argStrings[i + 1] = arguments[i].c_str();
+
+    argStrings[arguments.size() + 1] = NULL;
+
+    execve(command.c_str(), const_cast<char* const*>(argStrings), const_cast<char* const*>(envStrings));
+
+    // Exec should not return, if we get to this line, an error has occurred
+    throw std::bad_syscall("execve", lastError());
+  }
+
+  return pid;
+}
 
 void lethe::sleep_ms(uint32_t timeout)
 {
@@ -90,27 +134,6 @@ uint32_t lethe::getThreadId()
 
 lethe::WaitResult lethe::WaitForObject(lethe::WaitObject& obj, uint32_t timeout)
 {
-  lethe::WaitResult result = lethe::WaitSuccess;
-
-  if(!obj.preWaitCallback())
-  {
-    try
-    {
-      result = lethe::WaitForObject(obj.getHandle(), timeout);
-    }
-    catch(...)
-    {
-      obj.postWaitCallback(lethe::WaitError);
-      throw;
-    }
-  }
-
-  obj.postWaitCallback(result);
-  return result;
-}
-
-lethe::WaitResult lethe::WaitForObject(lethe::Handle handle, uint32_t timeout)
-{
   uint32_t endTime = lethe::getEndTime(timeout);
   lethe::WaitResult result = lethe::WaitSuccess;
   struct pollfd pollData;
@@ -118,7 +141,7 @@ lethe::WaitResult lethe::WaitForObject(lethe::Handle handle, uint32_t timeout)
 
   while(true)
   {
-    pollData.fd = handle;
+    pollData.fd = obj.getHandle();
     pollData.events = POLLIN | POLLERR | POLLHUP;
 
     pollResult = poll(&pollData, 1, timeout);
@@ -139,7 +162,7 @@ lethe::WaitResult lethe::WaitForObject(lethe::Handle handle, uint32_t timeout)
       timeout = lethe::getTimeout(endTime);
       continue;
     }
-    else if(errno == EBADF) // TODO: is this the right errno? maybe others too?
+    else if(errno == EBADF)
     {
       result = lethe::WaitAbandoned;
       break;

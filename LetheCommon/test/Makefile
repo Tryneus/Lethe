@@ -16,9 +16,9 @@ OBJECT_FILES :=testMain.o \
                testPipe.o \
                testTimer.o \
                testEvent.o \
+               testMutex.o \
                testThread.o \
                testSemaphore.o \
-               testMutex.o \
                testLog.o \
                testSharedMemory.o
 

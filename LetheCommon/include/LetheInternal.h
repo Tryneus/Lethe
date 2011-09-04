@@ -18,6 +18,11 @@ namespace lethe
   uint64_t getEndTime(uint32_t timeout);
   // Returns the difference between the current time and end time (in ms)
   uint64_t getTimeout(uint64_t endTime);
+
+  #if defined(__linux__)
+  // Helper function to set close-on-exec for a linux Handle
+  bool setCloseOnExec(Handle handle);
+  #endif
 }
 
 #endif

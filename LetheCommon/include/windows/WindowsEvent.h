@@ -21,6 +21,9 @@ namespace lethe
     void set();
     void reset();
 
+    void setError();
+    void clearError();
+
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used
     WindowsEvent(const WindowsEvent&);
@@ -38,6 +41,7 @@ namespace lethe
     static WindowsAtomic s_uniqueId;
 
     std::string m_name;
+    bool m_error;
   };
 }
 

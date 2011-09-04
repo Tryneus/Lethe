@@ -34,9 +34,9 @@
  * If the thread is destroyed while running, it will stop the thread and wait for it to
  *  exit before returning from the destructor.
  *
- * abandoned (optionally implemented in derived classes) is called when there is a
+ * error (optionally implemented in derived classes) is called when there is a
  *  problem with a user-provided handle.  Thread will not automatically remove this handle,
- *  but the user needs to fix or remove it, or abandoned will keep getting called.
+ *  but the user needs to fix or remove it, or error will keep getting called.
  */
 namespace lethe
 {

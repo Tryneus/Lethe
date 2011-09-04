@@ -3,7 +3,6 @@
 
 #include "WaitObject.h"
 #include "LetheTypes.h"
-#include <pthread.h>
 
 /*
  * The LinuxMutex class is extremely similar to LinuxSemaphore, being a
@@ -19,20 +18,18 @@ namespace lethe
 
     void lock(uint32_t timeout = INFINITE);
     void unlock();
-
-  protected:
-    bool preWaitCallback();
-    void postWaitCallback(WaitResult result);
+    void error();
 
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used
     LinuxMutex(const LinuxMutex&);
     LinuxMutex& operator = (const LinuxMutex&);
 
-    static const pthread_t INVALID_THREAD_ID = -1;
+    // Allow LinuxSemaphore to be constructed by a handle transfer from another process
+    friend class LinuxHandleTransfer;
+    LinuxMutex(Handle handle);
 
-    pthread_t m_ownerThread;
-    uint32_t m_lockCount;
+    static const std::string s_eventfdDevice;
   };
 }
 

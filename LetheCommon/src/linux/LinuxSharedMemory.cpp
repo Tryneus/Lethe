@@ -11,20 +11,25 @@
 
 using namespace lethe;
 
-const std::string LinuxSharedMemory::s_nameBase("/lethe-shm-");
+const uint32_t LinuxSharedMemory::s_maxSize(0x0FFFFFFF); // Set a maximum size of 256 MB
+const uint32_t LinuxSharedMemory::s_magic(0x47A01B7C);
+const std::string LinuxSharedMemory::s_baseName("/lethe-shm-");
 LinuxAtomic LinuxSharedMemory::s_uniqueId(0);
 const mode_t LinuxSharedMemory::s_filePermissions(0666);
 
 LinuxSharedMemory::LinuxSharedMemory(uint32_t size) :
   m_data(NULL),
-  m_size(size)
+  m_size(size + sizeof(uint32_t))
 {
+  if(size > s_maxSize)
+    throw std::invalid_argument("size");
+
   std::stringstream str;
   str << getProcessId() << "-" << s_uniqueId.increment();
   m_name.assign(str.str());
 
   const int openFlags = O_RDWR | O_CREAT | O_EXCL;
-  const Handle handle = shm_open((s_nameBase + m_name).c_str(), openFlags, s_filePermissions);
+  const Handle handle = shm_open((s_baseName + m_name).c_str(), openFlags, s_filePermissions);
 
   if(handle == INVALID_HANDLE_VALUE)
     throw std::bad_syscall("shm_open", lastError());
@@ -39,11 +44,14 @@ LinuxSharedMemory::LinuxSharedMemory(uint32_t size) :
 
     if(m_data == MAP_FAILED)
       throw std::bad_syscall("mmap", lastError());
+
+    // Indicate that shared memory is initialized
+    reinterpret_cast<uint32_t*>(m_data)[0] = s_magic;
   }
   catch(...)
   {
     close(handle);
-    shm_unlink((s_nameBase + m_name).c_str());
+    shm_unlink((s_baseName + m_name).c_str());
     throw;
   }
 
@@ -53,10 +61,13 @@ LinuxSharedMemory::LinuxSharedMemory(uint32_t size) :
 LinuxSharedMemory::LinuxSharedMemory(uint32_t size, const std::string& name) :
   m_name(name),
   m_data(NULL),
-  m_size(size)
+  m_size(size + sizeof(uint32_t))
 {
+  if(size > s_maxSize)
+    throw std::invalid_argument("size");
+
   const int openFlags = O_RDWR | O_CREAT | O_EXCL;
-  const Handle handle = shm_open((s_nameBase + m_name).c_str(), openFlags, s_filePermissions);
+  const Handle handle = shm_open((s_baseName + m_name).c_str(), openFlags, s_filePermissions);
 
   if(handle == INVALID_HANDLE_VALUE)
     throw std::bad_syscall("shm_open", lastError());
@@ -71,11 +82,14 @@ LinuxSharedMemory::LinuxSharedMemory(uint32_t size, const std::string& name) :
 
     if(m_data == MAP_FAILED)
       throw std::bad_syscall("mmap", lastError());
+
+    // Indicate that shared memory is initialized
+    reinterpret_cast<uint32_t*>(m_data)[0] = s_magic;
   }
   catch(...)
   {
     close(handle);
-    shm_unlink((s_nameBase + m_name).c_str());
+    shm_unlink((s_baseName + m_name).c_str());
     throw;
   }
 
@@ -88,7 +102,7 @@ LinuxSharedMemory::LinuxSharedMemory(const std::string& name) :
   m_size(0)
 {
   const int openFlags = O_RDWR;
-  const Handle handle = shm_open((s_nameBase + m_name).c_str(), openFlags, s_filePermissions);
+  const Handle handle = shm_open((s_baseName + m_name).c_str(), openFlags, s_filePermissions);
 
   if(handle == INVALID_HANDLE_VALUE)
     throw std::bad_syscall("shm_open", lastError());
@@ -101,16 +115,29 @@ LinuxSharedMemory::LinuxSharedMemory(const std::string& name) :
       throw std::bad_syscall("fstat", lastError());
 
     m_size = fileInfo.st_size;
-
     m_data = mmap(NULL, m_size, PROT_READ | PROT_WRITE, MAP_SHARED, handle, 0);
 
     if(m_data == MAP_FAILED)
       throw std::bad_syscall("mmap", lastError());
+ 
+    // Check that shared memory has been initialized
+    if(reinterpret_cast<uint32_t*>(m_data)[0] != s_magic)
+    {
+      // Sleep a little and try again, if it's still not done, fail
+      sleep_ms(10);
+      if(reinterpret_cast<uint32_t*>(m_data)[0] != s_magic)
+      {
+        close(handle);
+        shm_unlink((s_baseName + m_name).c_str());
+        munmap(m_data, m_size);
+        throw std::runtime_error("shared memory not fully initialized");
+      }
+    }
   }
   catch(...)
   {
     close(handle);
-    shm_unlink((s_nameBase + m_name).c_str());
+    shm_unlink((s_baseName + m_name).c_str());
     throw;
   }
 
@@ -119,13 +146,13 @@ LinuxSharedMemory::LinuxSharedMemory(const std::string& name) :
 
 LinuxSharedMemory::~LinuxSharedMemory()
 {
-  shm_unlink((s_nameBase + m_name).c_str());
+  shm_unlink((s_baseName + m_name).c_str());
   munmap(m_data, m_size);
 }
 
 void* LinuxSharedMemory::begin() const
 {
-  return m_data;
+  return reinterpret_cast<uint8_t*>(m_data) + sizeof(uint32_t);
 }
 
 void* LinuxSharedMemory::end() const
@@ -135,7 +162,7 @@ void* LinuxSharedMemory::end() const
 
 uint32_t LinuxSharedMemory::size() const
 {
-  return m_size;
+  return m_size - sizeof(uint32_t);
 }
 
 const std::string& LinuxSharedMemory::name() const

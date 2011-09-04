@@ -8,6 +8,107 @@
 #include <sstream>
 #include <iomanip>
 
+uint32_t getParentProcessId()
+{
+  Handle toolhelp = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+  uint32_t processId = GetCurrentProcessId();
+  PROCESSENTRY32 processInfo;
+
+  if(toolhelp == INVALID_HANDLE_VALUE)
+    throw std::bad_syscall("CreateToolhelp32Snapshot", lastError());
+
+  processInfo.dwSize = sizeof(PROCESSENTRY32);
+
+  if(!Process32First(toolhelp, &process))
+  {
+    CloseHandle(toolhelp);
+    throw std::runtime_error("parent process id not found");
+  }
+
+  while(processInfo.th32ProcessID != processId)
+  {
+    if(!Process32Next(toolhelp, &processInfo))
+    {
+      CloseHandle(toolhelp);
+      throw std::runtime_error("parent process id not found");
+    }
+  }
+  
+  CloseHandle(toolhelp);
+
+  return processInfo.th32ProcessID;
+}
+
+uint32_t lethe::createProcess(const std::string& command,
+                              const std::vector<std::string>& arguments,
+                              const std::vector<std::pair<std::string, std::string> >& environment)
+{
+  std::vector<std::string> envConverted;
+  PROCESS_INFORMATION processInfo;
+  STARTUPINFO startupInfo;
+  uint32_t commandLength = command.length() + 1;
+  uint32_t envLength = 1;
+  char* commandString;
+  char* envString;
+
+  // Get the length required for the environment string
+  for(size_t i = 0; i < environment.size(); ++i)
+    envLength += environment[i].first.length() + environment[i].second.length() + 2;
+
+  envString = new char[envLength];
+  envLength = 0;
+
+  // Copy the environment strings over
+  for(size_t i = 0; i < environment.size(); ++i)
+  {
+    memcpy(&envString[envLength], environment[i].first.c_str(), environment[i].first.length());
+    envLength += environment[i].first.length();
+
+    envString[envLength++] = '=';
+
+    memcpy(&envString[envLength], environment[i].second.c_str(), environment[i].second.length() + 1);
+    envLength += environment[i].second.length() + 1;
+  }
+
+  envString[envLength] = '\0';
+
+  // Get the length required for the command string
+  for(size_t i = 0; i < arguments.size(); ++i)
+    commandLength += arguments[i].length() + 1;
+
+  commandString = new char[commandLength];
+
+  memcpy(&commandString[0], command.c_str(), command.length());
+  commandLength = command.length();
+
+  // Copy the arguments over
+  for(size_t i = 0; i < arguments.size(); ++i)
+  {
+    commandString[commandLength++] = ' ';
+
+    memcpy(&commandString[commandLength], arguments[i].c_str(), arguments[i].length());
+    commandLength += arguments[i].length();
+  }
+
+  commandString[commandLength] = '\0';
+
+  memset(&startupInfo, 0, sizeof(startupInfo));
+  startupInfo.cb = sizeof(startupInfo);
+
+  bool result = CreateProcess("", command.c_str(), NULL, NULL, false, 0, envString, &startupInfo, &processInfo);
+
+  delete [] envString;
+  delete [] commandString;
+
+  if(!result)
+    throw std::bad_syscall("CreateProcess", lastError());
+
+  CloseHandle(processInfo.hProcess);
+  CloseHandle(processInfo.hThread);
+
+  return processInfo.dwProcessId;
+}
+
 std::ostream& lethe::operator << (std::ostream& out, const lethe::Handle& handle)
 {
   std::ios_base::fmtflags flags = out.flags(std::ios_base::hex);
@@ -128,27 +229,7 @@ uint32_t lethe::seedRandom(uint32_t seed)
 
 lethe::WaitResult lethe::WaitForObject(lethe::WaitObject& obj, uint32_t timeout)
 {
-  lethe::WaitResult result = WaitSuccess;
-
-  if(!obj.preWaitCallback())
-  {
-    try
-    {
-      result = lethe::WaitForObject(obj.getHandle(), timeout);
-    }
-    catch(...)
-    {
-      obj.postWaitCallback(lethe::WaitError);
-    }
-  }
-
-  obj.postWaitCallback(result);
-  return result;
-}
-
-lethe::WaitResult lethe::WaitForObject(lethe::Handle handle, uint32_t timeout)
-{
-  switch(WaitForSingleObject(handle, timeout))
+  switch(WaitForSingleObject(obj.getHandle(), timeout))
   {
   case WAIT_OBJECT_0:
     return lethe::WaitSuccess;

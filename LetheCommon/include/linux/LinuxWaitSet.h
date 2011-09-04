@@ -62,8 +62,6 @@ namespace lethe
                          std::allocator<std::pair<const Handle, WaitObject*> >,
                          false>* m_waitObjects;
 
-    std::vector<Handle> m_preWaitEvents;
-
     pollfd* m_waitArray;
     uint32_t m_eventOffset;
   };

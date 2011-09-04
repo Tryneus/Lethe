@@ -27,7 +27,9 @@ namespace lethe
     WindowsSharedMemory(const WindowsSharedMemory&);
     WindowsSharedMemory& operator = (const WindowsSharedMemory&);
 
-    static const std::string s_shmBaseName;
+    static const uint32_t s_maxSize;
+    static const uint32_t s_magic;
+    static const std::string s_baseName;
     static WindowsAtomic s_uniqueId;
 
     static uint32_t getShmSize(void* addr);

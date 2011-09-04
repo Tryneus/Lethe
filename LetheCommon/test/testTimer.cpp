@@ -14,18 +14,18 @@ TEST_CASE("timer/structor", "Test construction/destruction")
   for(uint32_t i(0); i < numTimers; ++i)
   {
     // Use 'i' to determine the parameters
-    timerArray[i] = new Timer(INFINITE);
+    timerArray[i] = new Timer(INFINITE, false, false);
   }
 
   // Put the timers into some different states
   for(uint32_t i(0); i < numTimers; ++i)
   {
     if(i & bit1)
-      timerArray[i]->start(2000);
+      timerArray[i]->start(2000, false);
     if(i & bit2)
       timerArray[i]->clear();
     if(i & bit3)
-      timerArray[i]->start(1000);
+      timerArray[i]->start(1000, false);
     if(i & bit4)
       timerArray[i]->clear();
   }
@@ -41,12 +41,12 @@ TEST_CASE("timer/structor", "Test construction/destruction")
 
 TEST_CASE("timer/wait", "Test waiting for timers")
 {
-  Timer timer(INFINITE);
+  Timer timer(INFINITE, false, false);
   uint64_t startTime;
   uint64_t endTime;
 
   startTime = getTime();
-  timer.start(1000);
+  timer.start(1000, false);
   REQUIRE(WaitForObject(timer, 1050) == WaitSuccess);
   endTime = getTime();
   REQUIRE(endTime - startTime >= 1000);
@@ -56,7 +56,7 @@ TEST_CASE("timer/wait", "Test waiting for timers")
   REQUIRE(WaitForObject(timer, 0) == WaitTimeout);
 
   startTime = getTime();
-  timer.start(1);
+  timer.start(1, false);
   REQUIRE(WaitForObject(timer, 50) == WaitSuccess);
   endTime = getTime();
   REQUIRE(endTime - startTime >= 1);

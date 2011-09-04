@@ -1,6 +1,21 @@
 #include "LetheInternal.h"
 #include "LetheFunctions.h"
 
+#if defined(__linux__)
+#include <fcntl.h>
+
+bool lethe::setCloseOnExec(Handle handle)
+{
+  int flags = fcntl(handle, F_GETFD);
+
+  if(flags == -1 ||
+     fcntl(handle, F_SETFD, flags | FD_CLOEXEC) != 0)
+    return false;
+
+  return true;
+}
+#endif
+
 uint64_t lethe::getEndTime(uint32_t timeout)
 {
   uint64_t endTime = timeout;

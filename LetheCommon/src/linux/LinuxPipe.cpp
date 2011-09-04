@@ -52,6 +52,9 @@ LinuxPipe::LinuxPipe() :
     if(m_pipeRead == INVALID_HANDLE_VALUE)
       throw std::bad_syscall("open", lastError() + ", " + m_fifoReadName);
 
+    if(!setCloseOnExec(m_pipeRead))
+      throw std::bad_syscall("fcntl", lastError());
+
     m_pipeWrite = m_pipeRead;
     m_waitObject = new WaitObject(m_pipeRead);
   }
@@ -103,6 +106,9 @@ LinuxPipe::LinuxPipe(const std::string& pipeIn, bool createIn, const std::string
       m_pipeRead = open(m_fifoReadName.c_str(), O_RDWR | O_NONBLOCK);
       if(m_pipeRead == INVALID_HANDLE_VALUE)
         throw std::bad_syscall("open", lastError() + ", " + m_fifoReadName);
+
+      if(!setCloseOnExec(m_pipeRead))
+        throw std::bad_syscall("fcntl", lastError());
     }
 
     if(!m_fifoWriteName.empty())
@@ -121,6 +127,9 @@ LinuxPipe::LinuxPipe(const std::string& pipeIn, bool createIn, const std::string
       m_pipeWrite = open(m_fifoWriteName.c_str(), O_RDWR | O_NONBLOCK);
       if(m_pipeWrite == INVALID_HANDLE_VALUE)
         throw std::bad_syscall("open", lastError() + ", " + m_fifoWriteName);
+
+      if(!setCloseOnExec(m_pipeRead))
+        throw std::bad_syscall("fcntl", lastError());
     }
 
     m_waitObject = new WaitObject(m_pipeRead);

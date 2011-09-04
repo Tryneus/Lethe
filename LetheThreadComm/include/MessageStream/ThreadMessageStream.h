@@ -22,6 +22,8 @@ namespace lethe
     void* receive();
     void  release(void* msg);
 
+    uint32_t size(void* msg);
+
   private:
     ThreadMessageHeader& m_in;
     ThreadMessageHeader& m_out;

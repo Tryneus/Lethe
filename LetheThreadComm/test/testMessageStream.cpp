@@ -1,5 +1,6 @@
 #include "Lethe.h"
 #include "LetheException.h"
+#include "LetheInternal.h"
 #include "ThreadComm.h"
 #include "Log.h"
 #include "catch/catch.hpp"
@@ -12,7 +13,8 @@ public:
 
 private:
   void iterate(lethe::Handle handle);
-  void abandoned(lethe::Handle handle);
+  void abandoned(lethe::Handle handle GCC_UNUSED) { throw std::runtime_error("abandoned handle in SenderThread"); };
+  void error(lethe::Handle handle GCC_UNUSED) { throw std::runtime_error("errored handle in SenderThread"); };
   void receiveMessage();
   void sendMessages();
 
@@ -88,14 +90,6 @@ void SenderThread::sendMessages()
   catch(std::bad_alloc&) { }
 }
 
-void SenderThread::abandoned(lethe::Handle handle)
-{
-  if(handle == m_channel.getHandle())
-    throw std::runtime_error("handle abandoned");
-  else
-    LogError("Unrecognized handle abandoned");
-}
-
 void SenderThread::receiveMessage()
 {
   // Receive a message
@@ -114,7 +108,8 @@ public:
 
 private:
   void iterate(lethe::Handle handle);
-  void abandoned(lethe::Handle handle);
+  void abandoned(lethe::Handle handle GCC_UNUSED) { throw std::runtime_error("abandoned handle in EchoThread"); };
+  void error(lethe::Handle handle GCC_UNUSED) { throw std::runtime_error("errored handle in EchoThread"); };
   void receiveMessage();
   void sendReplies();
 
@@ -188,14 +183,6 @@ void EchoThread::sendReplies()
     }
   }
   catch(std::bad_alloc&) { }
-}
-
-void EchoThread::abandoned(lethe::Handle handle)
-{
-  if(handle == m_channel.getHandle())
-    throw std::logic_error("handle abandoned");
-  else
-    LogError("Unrecognized handle abandoned");
 }
 
 TEST_CASE("messageStream/stress", "Test echoing messages between threads at high rates")

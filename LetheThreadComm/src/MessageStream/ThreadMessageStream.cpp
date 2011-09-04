@@ -72,3 +72,8 @@ void ThreadMessageStream::release(void* msg)
   if(!m_in.release(*message) && !m_out.release(*message))
     throw std::invalid_argument("invalid buffer");
 }
+
+uint32_t ThreadMessageStream::size(void* msg)
+{
+  return ThreadMessage::getMessage(msg)->getSize();
+}

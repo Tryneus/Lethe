@@ -3,66 +3,38 @@
  *
  *  Copyright (C) 2007  Davide Libenzi <davidel@xmailserver.org>
  *
+ *  modified for Lethe
+ *
  */
 
-#ifndef _LINUX_EVENTFD_H
-#define _LINUX_EVENTFD_H
+#ifndef _LETHE_EVENTFD_H
+#define _LETHE_EVENTFD_H
 
 #include <linux/fcntl.h>
 #include <linux/file.h>
+#include <linux/ioctl.h>
 
-/*
- * CAREFUL: Check include/asm-generic/fcntl.h when defining
- * new flags, since they might collide with O_* ones. We want
- * to re-use O_* flags that couldn't possibly have a meaning
- * from eventfd, in order to leave a free define-space for
- * shared O_* flags.
- */
-#define EFD_SEMAPHORE (1 << 0)
-#define EFD_CLOEXEC O_CLOEXEC
-#define EFD_NONBLOCK O_NONBLOCK
-#define EFD_WAITREAD (1 << 10)
+// IOCTL operations that may be performed on the lethe-eventfd device
+#define EVENTFD_LETHE_MAJOR 245
 
-#define EFD_SHARED_FCNTL_FLAGS (O_CLOEXEC | O_NONBLOCK)
-#define EFD_FLAGS_SET (EFD_SHARED_FCNTL_FLAGS | EFD_SEMAPHORE | EFD_WAITREAD)
+#define EFD_SET_WAITREAD_MODE _IOW(EVENTFD_LETHE_MAJOR, 0, bool)
+#define EFD_SET_SEMAPHORE_MODE _IOW(EVENTFD_LETHE_MAJOR, 1, unsigned long)
+#define EFD_SET_MUTEX_MODE _IOW(EVENTFD_LETHE_MAJOR, 2, unsigned long)
+#define EFD_SET_EVENT_MODE _IOW(EVENTFD_LETHE_MAJOR, 3, unsigned long)
+#define EFD_SET_MAX_VALUE _IOW(EVENTFD_LETHE_MAJOR, 4, unsigned long)
+#define EFD_SET_ERROR _IOW(EVENTFD_LETHE_MAJOR, 5, bool)
 
-#ifdef CONFIG_EVENTFD
+int init_module(void);
+void cleanup_module(void);
 
-struct file *eventfd_file_create(unsigned int count, int flags);
-struct eventfd_ctx *eventfd_ctx_get(struct eventfd_ctx *ctx);
-void eventfd_ctx_put(struct eventfd_ctx *ctx);
-struct file *eventfd_fget(int fd);
-struct eventfd_ctx *eventfd_ctx_fdget(int fd);
-struct eventfd_ctx *eventfd_ctx_fileget(struct file *file);
-int eventfd_signal(struct eventfd_ctx *ctx, int n);
-
-#else /* CONFIG_EVENTFD */
-
-/*
- * Ugly ugly ugly error layer to support modules that uses eventfd but
- * pretend to work in !CONFIG_EVENTFD configurations. Namely, AIO.
- */
-static inline struct file *eventfd_file_create(unsigned int count, int flags)
-{
-  return ERR_PTR(-ENOSYS);
-}
-
-static inline struct eventfd_ctx *eventfd_ctx_fdget(int fd)
-{
-  return ERR_PTR(-ENOSYS);
-}
-
-static inline int eventfd_signal(struct eventfd_ctx *ctx, int n)
-{
-  return -ENOSYS;
-}
-
-static inline void eventfd_ctx_put(struct eventfd_ctx *ctx)
-{
-
-}
+int eventfd_open(struct inode* inode, struct file* file);
+long eventfd_ioctl(struct file* file, unsigned int ioctl_num, unsigned long ioctl_param);
+ssize_t eventfd_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos);
+unsigned int eventfd_poll(struct file *file, poll_table *wait);
+ssize_t eventfd_read(struct file *file, char __user *buf, size_t count, loff_t *ppos);
+void eventfd_ctx_do_read(struct eventfd_ctx* ctx, __u64* cnt);
+int eventfd_flush(struct file* file, fl_owner_t id);
+void eventfd_free(struct kref *kref);
+int eventfd_release(struct inode *inode, struct file *file);
 
 #endif
-
-#endif /* _LINUX_EVENTFD_H */
-

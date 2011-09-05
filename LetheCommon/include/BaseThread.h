@@ -51,7 +51,7 @@ namespace lethe
    * setWaitTimeout() - changes the iteration timeout that was set in the
    *   constructor
    */
-  class BaseThread
+  class BaseThread : public WaitObject
   {
   public:
     BaseThread(uint32_t timeout);
@@ -62,10 +62,6 @@ namespace lethe
 
     bool isStopping() const;
     std::string getError();
-
-    // Act like a WaitObject without actually being one - passthrough to m_stoppedEvent
-    operator WaitObject&();
-    Handle getHandle() const;
 
   protected:
     virtual void setup();

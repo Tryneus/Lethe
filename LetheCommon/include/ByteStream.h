@@ -17,25 +17,16 @@ namespace lethe
    *
    * receive() - Receives data from the stream and copies it into the provided
    *   buffer, and returns the number of bytes received.
-   *
-   * operator WaitObject&() - returns a reference to a WaitObject that will be
-   *   triggered whenever there is data to receive
-   *
-   * getHandle() - returns the handle corresponding to the WaitObject that will
-   *   be triggered whenever there is data to receive.
    */
-  class ByteStream
+  class ByteStream : public WaitObject
   {
   public:
-    ByteStream();
+    ByteStream(Handle handle);
     virtual ~ByteStream();
 
     virtual void send(const void*, uint32_t) = 0;
     virtual uint32_t receive(void*, uint32_t) = 0;
-
-    // A stream shall be usable as a wait object
-    virtual operator WaitObject&() = 0;
-    virtual Handle getHandle() const = 0;
+    virtual bool flush(uint32_t) = 0;
   };
 }
 

@@ -32,10 +32,10 @@ namespace lethe
    * getHandle() - returns the handle corresponding to the WaitObject that will
    *   be triggered whenever there is data to receive.
    */
-  class MessageStream
+  class MessageStream : public WaitObject
   {
   public:
-    MessageStream();
+    MessageStream(Handle handle);
     virtual ~MessageStream();
 
     virtual void* allocate(uint32_t) = 0;
@@ -44,10 +44,6 @@ namespace lethe
     virtual void release(void*) = 0;
 
     virtual uint32_t size(void*) = 0;
-
-    // A stream shall be usable as a wait object
-    virtual operator WaitObject&() = 0;
-    virtual Handle getHandle() const = 0;
   };
 }
 

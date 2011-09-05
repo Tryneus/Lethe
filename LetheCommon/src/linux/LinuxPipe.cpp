@@ -20,18 +20,13 @@ const std::string LinuxPipe::s_fifoBaseName("lethe-fifo-");
 LinuxAtomic LinuxPipe::s_uniqueId(0);
 
 LinuxPipe::LinuxPipe() :
-  m_waitObject(NULL),
+  ByteStream(INVALID_HANDLE_VALUE),
   m_pipeRead(INVALID_HANDLE_VALUE),
   m_pipeWrite(INVALID_HANDLE_VALUE),
-  m_asyncStart(0),
-  m_asyncEnd(0),
-  m_blockingWrite(false),
   m_inCreated(false),
   m_outCreated(false)
 {
-  // Make sure the fifo path exists
-  if(mkdir(s_fifoPath.c_str(), 0777) != 0 && errno != EEXIST)
-    throw std::bad_syscall("mkdir", lastError());
+  setupAsync();
 
   // No name provided, auto-generate one
   std::stringstream str;
@@ -41,6 +36,10 @@ LinuxPipe::LinuxPipe() :
 
   try
   {
+    // Make sure the fifo path exists
+    if(mkdir(s_fifoPath.c_str(), 0777) != 0 && errno != EEXIST)
+      throw std::bad_syscall("mkdir", lastError());
+
     // This is a one-way pipe, so both sides open the same file
     if(mkfifo(m_fifoReadName.c_str(), 0777) != 0 && errno != EEXIST) // TODO: permissions?
       throw std::bad_syscall("mkfifo", lastError());
@@ -56,7 +55,6 @@ LinuxPipe::LinuxPipe() :
       throw std::bad_syscall("fcntl", lastError());
 
     m_pipeWrite = m_pipeRead;
-    m_waitObject = new WaitObject(m_pipeRead);
   }
   catch(...)
   {
@@ -64,32 +62,26 @@ LinuxPipe::LinuxPipe() :
     throw;
   }
 
-  // Prepare async event structures
-  memset(m_asyncArray, 0, sizeof(m_asyncArray));
-  for(uint32_t i = 0; i < s_maxAsyncEvents; ++i)
-  {
-    m_asyncArray[i].aio_fildes = m_pipeWrite;
-  }
+  setHandle(m_pipeRead);
 }
 
 LinuxPipe::LinuxPipe(const std::string& pipeIn, bool createIn, const std::string& pipeOut, bool createOut) :
-  m_waitObject(NULL),
+  ByteStream(INVALID_HANDLE_VALUE),
   m_pipeRead(INVALID_HANDLE_VALUE),
   m_pipeWrite(INVALID_HANDLE_VALUE),
-  m_asyncStart(0),
-  m_asyncEnd(0),
-  m_blockingWrite(false),
   m_fifoReadName(pipeIn.empty() ? "" : s_fifoPath + s_fifoBaseName + pipeIn),
   m_fifoWriteName(pipeOut.empty() ? "" : s_fifoPath + s_fifoBaseName + pipeOut),
   m_inCreated(false),
   m_outCreated(false)
 {
-  // Make sure the fifo path exists
-  if(mkdir(s_fifoPath.c_str(), 0777) != 0 && errno != EEXIST)
-    throw std::bad_syscall("mkdir", lastError());
+  setupAsync();
 
   try
   {
+    // Make sure the fifo path exists
+    if(mkdir(s_fifoPath.c_str(), 0777) != 0 && errno != EEXIST)
+      throw std::bad_syscall("mkdir", lastError());
+
     if(!m_fifoReadName.empty())
     {
       if(createIn)
@@ -131,8 +123,6 @@ LinuxPipe::LinuxPipe(const std::string& pipeIn, bool createIn, const std::string
       if(!setCloseOnExec(m_pipeRead))
         throw std::bad_syscall("fcntl", lastError());
     }
-
-    m_waitObject = new WaitObject(m_pipeRead);
   }
   catch(...)
   {
@@ -140,31 +130,29 @@ LinuxPipe::LinuxPipe(const std::string& pipeIn, bool createIn, const std::string
     throw;
   }
 
-  // Prepare async event structures
-  memset(m_asyncArray, 0, sizeof(m_asyncArray));
-  for(uint32_t i = 0; i < s_maxAsyncEvents; ++i)
-  {
-    m_asyncArray[i].aio_fildes = m_pipeWrite;
-  }
+  setHandle(m_pipeRead);
 }
 
 LinuxPipe::LinuxPipe(Handle pipeRead, Handle pipeWrite) :
-  m_waitObject(NULL),
+  ByteStream(INVALID_HANDLE_VALUE),
   m_pipeRead(pipeRead),
   m_pipeWrite(pipeWrite),
-  m_asyncStart(0),
-  m_asyncEnd(0),
-  m_blockingWrite(false),
   m_inCreated(false),
   m_outCreated(false)
 {
+  setupAsync();
+
   try
   {
     if(fcntl(m_pipeRead, F_SETFL, O_NONBLOCK) != 0 ||
        fcntl(m_pipeWrite, F_SETFL, O_NONBLOCK) != 0)
       throw std::bad_syscall("fcntl", lastError());
 
-    m_waitObject = new WaitObject(m_pipeRead);
+    if(!setCloseOnExec(m_pipeRead))
+      throw std::bad_syscall("fcntl", lastError());
+
+    if(!setCloseOnExec(m_pipeWrite))
+      throw std::bad_syscall("fcntl", lastError());
   }
   catch(...)
   {
@@ -172,22 +160,41 @@ LinuxPipe::LinuxPipe(Handle pipeRead, Handle pipeWrite) :
     throw;
   }
 
-  // Prepare async event structures
-  memset(m_asyncArray, 0, sizeof(m_asyncArray));
-  for(uint32_t i = 0; i < s_maxAsyncEvents; ++i)
+  setHandle(m_pipeRead);
+}
+
+void LinuxPipe::setupAsync()
+{
+  if(pthread_attr_init(&m_async.attr) != 0)
+    throw std::bad_syscall("pthread_attr_init", lastError());
+
+  if(pthread_attr_setdetachstate(&m_async.attr, PTHREAD_CREATE_DETACHED) != 0)
   {
-    m_asyncArray[i].aio_fildes = m_pipeWrite;
+    pthread_attr_destroy(&m_async.attr);
+    throw std::bad_syscall("pthread_attr_setdetachstate", lastError());
   }
+
+  m_async.buffer = NULL;
+  m_async.result = 0;
 }
 
 LinuxPipe::~LinuxPipe()
 {
   // Destroy any asynchronous events and delete buffers
-  aio_cancel(m_pipeWrite, NULL);
-
-  for(uint32_t i = m_asyncStart; i != m_asyncEnd; i = (i + 1) % s_maxAsyncEvents)
+  if(m_async.buffer != NULL)
   {
-    delete [] reinterpret_cast<volatile uint8_t*>(m_asyncArray[i].aio_buf);
+    m_async.result = EINTR;
+
+    try
+    {
+      flush(30);
+    }
+    catch(std::bad_syscall&)
+    {
+      // Do nothing
+    }
+
+    delete [] reinterpret_cast<volatile uint8_t*>(m_async.buffer);
   }
 
   cleanup();
@@ -195,24 +202,32 @@ LinuxPipe::~LinuxPipe()
 
 bool LinuxPipe::flush(uint32_t timeout)
 {
-  uint64_t endTime = getEndTime(timeout);
-  getAsyncResults();
-
-  // TODO: polling sucks, maybe rewrite to use kernel-based aio with eventfd rather than libc-based aio
-  while(m_asyncStart != m_asyncEnd)
+  if(m_async.buffer != NULL)
   {
-    if(getTimeout(endTime) != 0)
-      return false;
+    uint64_t endTime = getEndTime(timeout);
 
-    sleep_ms(10);
-    getAsyncResults();
+    // Polling sucks, but can't get kernel eventfd-aio or libc aio to work with a full pipe
+    do
+    {
+      timeout = getTimeout(endTime);
+
+      if(timeout == 0)
+        return false;
+
+      sleep_ms((20 < timeout) ? 20 : timeout);
+    } while(m_async.buffer != NULL);
   }
+
+  if(m_async.result != 0)
+    throw std::bad_syscall("write", getErrorString(m_async.result));
 
   return true;
 }
 
 void LinuxPipe::cleanup()
 {
+  pthread_attr_destroy(&m_async.attr);
+
   if(m_pipeRead != INVALID_HANDLE_VALUE)
     close(m_pipeRead);
 
@@ -223,10 +238,7 @@ void LinuxPipe::cleanup()
     unlink(m_fifoReadName.c_str());
 
   if(m_outCreated && m_fifoReadName != m_fifoWriteName)
-      unlink(m_fifoWriteName.c_str());
-
-  delete m_waitObject;
-  m_waitObject = NULL;
+    unlink(m_fifoWriteName.c_str());
 }
 
 const std::string& LinuxPipe::getNameIn() const
@@ -239,55 +251,15 @@ const std::string& LinuxPipe::getNameOut() const
   return m_fifoWriteName;
 }
 
-void LinuxPipe::getAsyncResults()
-{
-  for(uint32_t i = m_asyncStart; i != m_asyncEnd; i = (i + 1) % s_maxAsyncEvents)
-  {
-    int asyncResult = aio_error(&m_asyncArray[i]);
-
-    if(asyncResult == EINPROGRESS || asyncResult == EAGAIN)
-      break;
-
-    aio_return(&m_asyncArray[i]);
-    delete [] reinterpret_cast<volatile uint8_t*>(m_asyncArray[i].aio_buf);
-    m_asyncStart = (m_asyncStart + 1) % s_maxAsyncEvents;
-  }
-}
-
-void LinuxPipe::asyncWrite(const void* buffer, uint32_t bufferSize)
-{
-  if(m_asyncStart == (m_asyncEnd + 1) % s_maxAsyncEvents)
-    throw std::bad_alloc();
-
-  struct aiocb* asyncEvent = &m_asyncArray[m_asyncEnd];
-
-  asyncEvent->aio_buf = new uint8_t[bufferSize];
-  asyncEvent->aio_nbytes = bufferSize;
-
-  memcpy(const_cast<void*>(asyncEvent->aio_buf), buffer, bufferSize);
-
-  if(aio_write(asyncEvent) != 0)
-  {
-    delete [] reinterpret_cast<volatile uint8_t*>(asyncEvent->aio_buf);
-    throw std::bad_syscall("aio_write", lastError());
-  }
-
-  m_asyncEnd = (m_asyncEnd + 1) % s_maxAsyncEvents;
-}
-
 void LinuxPipe::send(const void* buffer, uint32_t bufferSize)
 {
-  getAsyncResults();
+  // Check if a previous async write has failed
+  if(m_async.result != 0)
+    throw std::bad_syscall("write", getErrorString(m_async.result));
 
-  // If we've still got asynchronous operations waiting, queue this up
-  if(m_asyncStart != m_asyncEnd)
-    return asyncWrite(buffer, bufferSize);
-
-  if(m_blockingWrite)
-  {
-    fcntl(m_pipeWrite, F_SETFL, O_NONBLOCK);
-    m_blockingWrite = false;
-  }
+  // If there is currently a running async write, don't allow a new write
+  if(m_async.buffer != NULL)
+    throw std::bad_alloc();
 
   // Write as much as we can to the pipe, enqueue the rest asynchronously
   int bytesWritten = write(m_pipeWrite, buffer, bufferSize);
@@ -301,11 +273,7 @@ void LinuxPipe::send(const void* buffer, uint32_t bufferSize)
   }
 
   if(static_cast<uint32_t>(bytesWritten) < bufferSize)
-  {
-    m_blockingWrite = true;
-    fcntl(m_pipeWrite, F_SETFL, 0);
-    asyncWrite(((uint8_t*)buffer) + bytesWritten, bufferSize - bytesWritten);
-  }
+    startAsync(((uint8_t*)buffer) + bytesWritten, bufferSize - bytesWritten);
 }
 
 uint32_t LinuxPipe::receive(void* buffer, uint32_t bufferSize)
@@ -323,12 +291,42 @@ uint32_t LinuxPipe::receive(void* buffer, uint32_t bufferSize)
   return bytesRead;
 }
 
-LinuxPipe::operator WaitObject&()
+void LinuxPipe::startAsync(uint8_t* buffer, uint32_t size)
 {
-  return *m_waitObject;
+  m_async.buffer = new uint8_t[size];
+  m_async.size = size;
+  m_async.offset = 0;
+
+  memcpy(m_async.buffer, buffer, size);
+
+  if(pthread_create(&m_async.thread, &m_async.attr, &asyncThreadHook, this) != 0)
+    throw std::bad_syscall("pthread_create", lastError());
 }
 
-Handle LinuxPipe::getHandle() const
+void* LinuxPipe::asyncThreadHook(void* param)
 {
-  return m_waitObject->getHandle();
+  LinuxPipe* pipe = reinterpret_cast<LinuxPipe*>(param);
+  pipe->asyncThreadInternal();
+  return NULL;
+}
+
+void LinuxPipe::asyncThreadInternal()
+{
+  while(m_async.result == 0)
+  {
+    int bytesWritten = write(m_pipeWrite, &m_async.buffer[m_async.offset], m_async.size);
+
+    if(bytesWritten > 0)
+    {
+      m_async.offset += bytesWritten;
+      m_async.size -= bytesWritten;
+    }
+    else if(bytesWritten == 0 || errno == EAGAIN)
+      sleep_ms(20);
+    else
+      m_async.result = errno;
+  }
+
+  delete [] m_async.buffer;
+  m_async.buffer = NULL;
 }

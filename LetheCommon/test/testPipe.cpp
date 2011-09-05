@@ -169,21 +169,19 @@ TEST_CASE("pipe/largedata", "Test sending data buffers too large to fit in the p
 
   // This assumes that the pipe buffer is 64k - hardcoded in linux kernel after 2.6.11
   REQUIRE_NOTHROW(pipe.send(dataBuffer, bufferSize)); // First write should complete normally
+  pipe.send(dataBuffer, bufferSize); // Second write should be asynchronous
 
-  // The next sends should result in asynchronous sends, after a few more, we should get a bad_alloc
+  // Third write should fail
   try
   {
-    for(sends = 1; sends <= 11; ++sends)
-    {
-      pipe.send(dataBuffer, bufferSize);
-    }
-
-    FAIL("Asynchronous sends on the pipe did not result in a bad_alloc");
+    pipe.send(dataBuffer, bufferSize);
   }
-  catch(std::bad_alloc&)
+  catch(std::bad_alloc& ex)
   {
-    REQUIRE(sends > (uint32_t)1);
+    // expected
   }
+
+  sends = 2;
 
   thread.start();
 

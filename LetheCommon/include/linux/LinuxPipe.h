@@ -34,10 +34,6 @@ namespace lethe
     const std::string& getNameIn() const;
     const std::string& getNameOut() const;
 
-    // It's a little sloppy to be both a waitobject and a bytestream
-    operator WaitObject&();
-    Handle getHandle() const;
-
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used
     LinuxPipe(const LinuxPipe&);
@@ -49,26 +45,36 @@ namespace lethe
 
     static const std::string s_fifoPath;
     static const std::string s_fifoBaseName;
-    static const uint32_t s_maxAsyncEvents = 10;
     static LinuxAtomic s_uniqueId;
 
+    void setupAsync();
     void cleanup();
-    void asyncWrite(const void* buffer, uint32_t bufferSize);
-    void getAsyncResults();
 
-    WaitObject* m_waitObject;
     Handle m_pipeRead;
     Handle m_pipeWrite;
-    uint32_t m_asyncStart;
-    uint32_t m_asyncEnd;
-    struct aiocb m_asyncArray[s_maxAsyncEvents];
-    bool m_blockingWrite;
 
     std::string m_fifoReadName;
     std::string m_fifoWriteName;
 
     bool m_inCreated;
     bool m_outCreated;
+
+    // Since we can't make kernel or libc-based aio work reliably with a full pipe, do it ourselves
+    struct AsyncData
+    {
+      pthread_attr_t attr;
+      pthread_t thread;
+      uint8_t* buffer;
+      uint32_t size;
+      uint32_t offset;
+      int result;
+    };
+
+    void startAsync(uint8_t* buffer, uint32_t size);
+    static void* asyncThreadHook(void* param);
+    void asyncThreadInternal();
+
+    AsyncData m_async;
   };
 }
 

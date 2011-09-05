@@ -2,7 +2,8 @@
 
 using namespace lethe;
 
-MessageStream::MessageStream()
+MessageStream::MessageStream(Handle handle) :
+  WaitObject(handle)
 {
   // Do nothing
 }

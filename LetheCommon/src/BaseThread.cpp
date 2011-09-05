@@ -7,6 +7,7 @@
 using namespace lethe;
 
 BaseThread::BaseThread(uint32_t timeout) :
+  WaitObject(INVALID_HANDLE_VALUE),
   m_running(false),
   m_exit(false),
   m_triggerEvent(false, true),
@@ -16,6 +17,7 @@ BaseThread::BaseThread(uint32_t timeout) :
   m_timeout(timeout)
 {
   m_waitSet.add(m_triggerEvent);
+  setHandle(m_stoppedEvent.getHandle());
 }
 
 BaseThread::~BaseThread()
@@ -188,16 +190,6 @@ std::string BaseThread::getError()
   m_mutex.unlock();
 
   return error;
-}
-
-BaseThread::operator WaitObject&()
-{
-  return m_stoppedEvent;
-}
-
-Handle BaseThread::getHandle() const
-{
-  return m_stoppedEvent.getHandle();
 }
 
 void BaseThread::addWaitObject(WaitObject& obj)

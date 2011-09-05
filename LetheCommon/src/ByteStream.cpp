@@ -2,7 +2,8 @@
 
 using namespace lethe;
 
-ByteStream::ByteStream()
+ByteStream::ByteStream(Handle handle) :
+  WaitObject(handle)
 {
   // Do nothing
 }

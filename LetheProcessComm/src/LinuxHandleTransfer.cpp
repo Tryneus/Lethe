@@ -30,7 +30,7 @@ LinuxHandleTransfer::LinuxHandleTransfer(uint32_t remoteProcessId,
     serverSide = determineServer(stream);
 
     // Make sure the uds path exists
-    if(mkdir(s_udsPath.c_str(), 0777) != 0 && errno != EEXIST) // TODO: security concerns
+    if(mkdir(s_udsPath.c_str(), 0777) != 0 && errno != EEXIST)
       throw std::bad_syscall("mkdir", lastError());
 
     m_socket = socket(PF_UNIX, SOCK_STREAM, 0);
@@ -73,7 +73,7 @@ LinuxHandleTransfer::LinuxHandleTransfer(ByteStream& stream,
   serverSide = determineServer(stream);
 
   // Make sure the uds path exists
-  if(mkdir(s_udsPath.c_str(), 0777) != 0 && errno != EEXIST) // TODO: security concerns
+  if(mkdir(s_udsPath.c_str(), 0777) != 0 && errno != EEXIST)
     throw std::bad_syscall("mkdir", lastError());
 
   try

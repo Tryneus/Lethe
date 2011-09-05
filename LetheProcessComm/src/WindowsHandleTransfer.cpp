@@ -68,7 +68,7 @@ ByteStream* WindowsHandleTransfer::negotiateUniqueStream(ByteStream& stream, uin
 
   pipeOutName << s_baseName << "-" << getProcessId() << "-" << s_uniqueId.increment();
 
-  stream.write(pipeOutName.str().c_str(), pipeOutName.str().length());
+  stream.write(pipeOutName.str().c_str(), pipeOutName.str().length() + 1);
 
   if(WaitForObject(stream, getTimeout(endTime)) != WaitSuccess)
     throw std::runtime_error("WindowsHandleTransfer timed out waiting for done indication");

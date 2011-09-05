@@ -57,7 +57,7 @@ WindowsMutex::~WindowsMutex()
 
 void WindowsMutex::lock(uint32_t timeout)
 {
-  if(WaitForObject(*this, timeout) != WaitSuccess)
+  if(WaitForObject(getHandle(), timeout) != WaitSuccess)
     throw std::runtime_error("failed to wait for mutex");
 }
 

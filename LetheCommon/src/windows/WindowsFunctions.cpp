@@ -229,7 +229,12 @@ uint32_t lethe::seedRandom(uint32_t seed)
 
 lethe::WaitResult lethe::WaitForObject(lethe::WaitObject& obj, uint32_t timeout)
 {
-  switch(WaitForSingleObject(obj.getHandle(), timeout))
+  return WaitForObject(obj.getHandle(), timeout);
+}
+
+lethe::WaitResult lethe::WaitForObject(lethe::Handle handle, uint32_t timeout)
+{
+  switch(WaitForSingleObject(handle, timeout))
   {
   case WAIT_OBJECT_0:
     return lethe::WaitSuccess;

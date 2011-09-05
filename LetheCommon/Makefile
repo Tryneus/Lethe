@@ -1,16 +1,14 @@
 all:
 	cd src; make all
-	cd module; make all
 
-# Leaving this commented out right now since I don't trust it enough for people to install
 install:
-#	cd module; make install
+	cd module; make install
 
-runTest: all
-	cd test; make runTest
+check: all
+	cd test; make check
 
-valTest: all
-	cd test; make valTest
+valCheck: all
+	cd test; make valCheck
 
 clean:
 	cd src; make clean

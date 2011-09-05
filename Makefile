@@ -13,21 +13,21 @@ prepare:
 install: prepare
 	cd LetheCommon; make install
 
-runTest: prepare
-	cd LetheCommon; make runTest
-	cd LetheThreadComm; make runTest
-	cd LetheProcessComm; make runTest
-	cd LetheSocketComm; make runTest
-	cd LetheThreadUtil; make runTest
-
-valTest: prepare
-	cd LetheCommon; make valTest
-	cd LetheThreadComm; make valTest
-	cd LetheProcessComm; make valTest
-	cd LetheSocketComm; make valTest
-	cd LetheThreadUtil; make valTest
-
 check: prepare
+	cd LetheCommon; make check
+	cd LetheThreadComm; make check
+	cd LetheProcessComm; make check
+	cd LetheSocketComm; make check
+	cd LetheThreadUtil; make check
+
+valCheck: prepare
+	cd LetheCommon; make valCheck
+	cd LetheThreadComm; make valCheck
+	cd LetheProcessComm; make valCheck
+	cd LetheSocketComm; make valCheck
+	cd LetheThreadUtil; make valCheck
+
+cppcheck: prepare
 	cppcheck --quiet --enable=all \
                  -ILetheCommon/include \
                  -ILetheThreadComm/include \
@@ -42,7 +42,7 @@ check: prepare
                  LetheThreadUtil/test \
           2>&1 | tee check.log
 
-checkTest: prepare
+cppcheckTest: prepare
 	cppcheck --quiet --enable=all \
                  -ILetheCommon/include \
                  -ILetheThreadComm/include \

@@ -23,13 +23,13 @@ INCLUDE_LIBS :=../bin/LetheProcessComm.a \
 all: $(BINARY_FILE) testProcess
 
 clean:
-	rm -rf $(BINARY_FILE) $(OBJECT_FILES) runTest.log valTest.log
+	rm -rf $(BINARY_FILE) $(OBJECT_FILES) check.log valCheck.log
 
-runTest: all
-	$(BINARY_FILE) 2>&1 | tee runTest.log
+check: all
+	$(BINARY_FILE) 2>&1 | tee check.log
 
-valTest: all
-	valgrind --track-origins=yes --track-fds=yes $(BINARY_FILE) 2>&1 | tee valTest.log
+valCheck: all
+	valgrind --track-origins=yes --track-fds=yes $(BINARY_FILE) 2>&1 | tee valCheck.log
 
 # Another rule to make the test process a different binary
 testProcess: testProcess.o $(INCLUDE_LIBS)

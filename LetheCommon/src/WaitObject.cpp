@@ -19,7 +19,7 @@ Handle WaitObject::getHandle() const
   return m_handle;
 }
 
-void WaitObject::setWaitHandle(Handle handle)
+void WaitObject::setHandle(Handle handle)
 {
   m_handle = handle;
 }

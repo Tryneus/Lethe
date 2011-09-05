@@ -46,12 +46,17 @@ LinuxEvent::LinuxEvent(Handle handle) :
     throw std::invalid_argument("handle");
 
   // Make sure the handle is for an eventfd-lethe object
-  // TODO: Check the mode of the file descriptor
   struct stat handleInfo;
   if(fstat(handle, &handleInfo) != 0 || handleInfo.st_dev != EVENTFD_LETHE_MAJOR)
   {
     close(handle);
     throw std::bad_syscall("eventfd fstat", lastError());
+  }
+
+  if(ioctl(getHandle(), EFD_GET_MODE) != EFD_EVENT_MODE)
+  {
+    close(getHandle());
+    throw std::runtime_error("eventfd ioctl in unexpected mode");
   }
 
   if(!setCloseOnExec(getHandle()))

@@ -22,8 +22,8 @@ namespace lethe
    *
    * setHandle() - used if the Handle of the WaitObject is not known at
    *   construction of the base class, changes the handle that will be used.
-   *   To avoid problems, this should never be used after the object has been
-   *   constructed.
+   *   To avoid problems, this should never be used after the derived object
+   *   has finished construction.
    *
    */
   class WaitObject
@@ -35,7 +35,7 @@ namespace lethe
     Handle getHandle() const;
 
   protected:
-    void setWaitHandle(Handle handle);
+    void setHandle(Handle handle);
 
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used

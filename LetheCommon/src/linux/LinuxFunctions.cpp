@@ -13,7 +13,6 @@
 #include <sstream>
 #include <iomanip>
 #include <ctime>
-#include <iostream>
 
 uint32_t lethe::getParentProcessId()
 {

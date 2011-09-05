@@ -26,14 +26,6 @@
 #include <asm/current.h>
 #include "eventfd-internal.h"
 
-// Modes
-enum eventfd_mode_t
-{
-  EFD_SEMAPHORE_MODE,
-  EFD_MUTEX_MODE,
-  EFD_EVENT_MODE
-};
-
 void (*__wake_up_locked_keyPtr) (wait_queue_head_t *q, unsigned int mode, void *key); // offset from task_nice
 extern int task_nice(const struct task_struct *p);
 
@@ -516,6 +508,10 @@ long eventfd_ioctl(struct file* file,
     if (ctx->error && waitqueue_active(&ctx->wqh))
       __wake_up_locked_keyPtr(&ctx->wqh, TASK_NORMAL, (void *) (POLLERR));
     spin_unlock_irq(&ctx->wqh.lock);
+    break;
+
+  case EFD_GET_MODE:
+    retval = ctx->mode;
     break;
 
   default:

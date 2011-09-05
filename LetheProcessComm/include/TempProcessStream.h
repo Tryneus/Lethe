@@ -12,11 +12,9 @@ namespace lethe
     TempProcessStream(uint32_t remoteProcessId);
     ~TempProcessStream();
 
+    bool flush(uint32_t timeout);
     void send(const void* buffer, uint32_t size);
     uint32_t receive(void* buffer, uint32_t size);
-
-    operator WaitObject&();
-    Handle getHandle() const;
 
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used

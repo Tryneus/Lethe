@@ -7,26 +7,16 @@ using namespace lethe;
 ThreadMessageStream::ThreadMessageStream(ThreadMessageHeader& in,
                                          ThreadMessageHeader& out,
                                          WaitObject& obj) :
+  MessageStream(INVALID_HANDLE_VALUE),
   m_in(in),
-  m_out(out),
-  m_waitObject(obj)
+  m_out(out)
 {
-  // Do nothing
+  setHandle(obj.getHandle());
 }
 
 ThreadMessageStream::~ThreadMessageStream()
 {
   // Do nothing
-}
-
-ThreadMessageStream::operator WaitObject&()
-{
-  return m_waitObject;
-}
-
-Handle ThreadMessageStream::getHandle() const
-{
-  return m_waitObject.getHandle();
 }
 
 void* ThreadMessageStream::allocate(uint32_t size)

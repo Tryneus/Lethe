@@ -12,6 +12,7 @@ const std::string ProcessMessageStream::s_syncString("lethe-process-message-sync
 ProcessMessageStream::ProcessMessageStream(ByteStream& stream,
                                            uint32_t outgoingSize,
                                            uint32_t timeout) :
+  MessageStream(INVALID_HANDLE_VALUE),
   m_shmOut(checkSize(outgoingSize)),
   m_headerOut(new (m_shmOut.begin()) ProcessMessageHeader(m_shmOut.size())),
   m_semaphoreOut(UINT32_MAX, 0),
@@ -30,11 +31,13 @@ ProcessMessageStream::ProcessMessageStream(ByteStream& stream,
   }
 
   m_headerIn = reinterpret_cast<ProcessMessageHeader*>(m_shmIn->begin());
+  setHandle(m_semaphoreIn->getHandle());
 }
 
 ProcessMessageStream::ProcessMessageStream(uint32_t remoteProcessId,
                                            uint32_t outgoingSize,
                                            uint32_t timeout) :
+  MessageStream(INVALID_HANDLE_VALUE),
   m_shmOut(checkSize(outgoingSize)),
   m_headerOut(new (m_shmOut.begin()) ProcessMessageHeader(m_shmOut.size())),
   m_semaphoreOut(UINT32_MAX, 0),
@@ -55,6 +58,7 @@ ProcessMessageStream::ProcessMessageStream(uint32_t remoteProcessId,
   }
 
   m_headerIn = reinterpret_cast<ProcessMessageHeader*>(m_shmIn->begin());
+  setHandle(m_semaphoreIn->getHandle());
 }
 
 ProcessMessageStream::~ProcessMessageStream()
@@ -150,16 +154,6 @@ void ProcessMessageStream::doSetup(ByteStream& stream,
     throw std::runtime_error("message stream constructor received incorrect data when waiting for done indication");
 }
 
-ProcessMessageStream::operator WaitObject&()
-{
-  return *m_semaphoreIn;
-}
-
-Handle ProcessMessageStream::getHandle() const
-{
-  return m_semaphoreIn->getHandle();
-}
-
 void* ProcessMessageStream::allocate(uint32_t size)
 {
   size += sizeof(ProcessMessage);
@@ -184,10 +178,9 @@ void* ProcessMessageStream::receive()
   {
     return m_headerIn->receive()->getDataArea();
   }
-  catch(std:: &ex)
+  catch(std::exception &ex)
   {
-    // Other side has closed, cause an error on the incoming semaphore
-    m_semaphoreIn->setError();
+    return NULL;
   }
 }
 

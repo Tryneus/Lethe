@@ -13,9 +13,7 @@ namespace lethe
     ProcessByteStream(ByteStream& stream, uint32_t timeout);
     ~ProcessByteStream();
 
-    operator WaitObject&();
-    Handle getHandle() const;
-
+    bool flush(uint32_t timeout);
     void send(const void* buffer, uint32_t size);
     uint32_t receive(void* buffer, uint32_t size);
 

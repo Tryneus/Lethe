@@ -14,9 +14,6 @@ namespace lethe
                         WaitObject& obj);
     ~ThreadMessageStream();
 
-    operator WaitObject&();
-    Handle getHandle() const;
-
     void* allocate(uint32_t size);
     void  send(void* msg);
     void* receive();
@@ -27,7 +24,6 @@ namespace lethe
   private:
     ThreadMessageHeader& m_in;
     ThreadMessageHeader& m_out;
-    WaitObject& m_waitObject;
   };
 }
 

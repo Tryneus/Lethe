@@ -4,10 +4,11 @@
 using namespace lethe;
 
 ThreadByteStream::ThreadByteStream(Pipe& pipeIn, Pipe& pipeOut) :
+  ByteStream(INVALID_HANDLE_VALUE),
   m_pipeIn(pipeIn),
   m_pipeOut(pipeOut)
 {
-  // Do nothing
+  setHandle(m_pipeIn.getHandle());
 }
 
 ThreadByteStream::~ThreadByteStream()
@@ -15,14 +16,9 @@ ThreadByteStream::~ThreadByteStream()
   // Do nothing
 }
 
-ThreadByteStream::operator WaitObject&()
+bool ThreadByteStream::flush(uint32_t timeout)
 {
-  return m_pipeIn;
-}
-
-Handle ThreadByteStream::getHandle() const
-{
-  return m_pipeIn.getHandle();
+  return m_pipeOut.flush(timeout);
 }
 
 void ThreadByteStream::send(const void* buffer, uint32_t size)

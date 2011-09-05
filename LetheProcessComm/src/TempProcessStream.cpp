@@ -11,6 +11,7 @@ std::set<uint32_t> TempProcessStream::s_processInfo;
 Mutex TempProcessStream::s_mutex(false);
 
 TempProcessStream::TempProcessStream(uint32_t remoteProcessId) :
+  ByteStream(INVALID_HANDLE_VALUE),
   m_stream(NULL),
   m_remoteProcessId(remoteProcessId)
 {
@@ -36,6 +37,8 @@ TempProcessStream::TempProcessStream(uint32_t remoteProcessId) :
     releaseProcessLock(m_remoteProcessId);
     throw;
   }
+
+  setHandle(m_stream->getHandle());
 }
 
 TempProcessStream::~TempProcessStream()
@@ -63,6 +66,11 @@ void TempProcessStream::releaseProcessLock(uint32_t processId)
   s_mutex.unlock();
 }
 
+bool TempProcessStream::flush(uint32_t timeout)
+{
+  return m_stream->flush(timeout);
+}
+
 void TempProcessStream::send(const void* buffer, uint32_t size)
 {
   m_stream->send(buffer, size);
@@ -71,14 +79,4 @@ void TempProcessStream::send(const void* buffer, uint32_t size)
 uint32_t TempProcessStream::receive(void* buffer, uint32_t size)
 {
   return m_stream->receive(buffer, size);
-}
-
-TempProcessStream::operator WaitObject&()
-{
-  return *m_stream;
-}
-
-Handle TempProcessStream::getHandle() const
-{
-  return m_stream->getHandle();
 }

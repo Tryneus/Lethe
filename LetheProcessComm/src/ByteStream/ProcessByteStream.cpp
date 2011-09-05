@@ -7,6 +7,7 @@ using namespace lethe;
 
 ProcessByteStream::ProcessByteStream(uint32_t remoteProcessId,
                                      uint32_t timeout) :
+  ByteStream(INVALID_HANDLE_VALUE),
   m_pipeIn(NULL),
   m_pipeOut(new Pipe())
 {
@@ -15,10 +16,13 @@ ProcessByteStream::ProcessByteStream(uint32_t remoteProcessId,
 
   transfer.sendPipe(*m_pipeOut);
   m_pipeIn = transfer.recvPipe(getTimeout(endTime));
+
+  setHandle(m_pipeIn->getHandle());
 }
 
 ProcessByteStream::ProcessByteStream(ByteStream& stream,
                                      uint32_t timeout) :
+  ByteStream(INVALID_HANDLE_VALUE),
   m_pipeIn(NULL),
   m_pipeOut(new Pipe())
 {
@@ -27,6 +31,8 @@ ProcessByteStream::ProcessByteStream(ByteStream& stream,
 
   transfer.sendPipe(*m_pipeOut);
   m_pipeIn = transfer.recvPipe(getTimeout(endTime));
+
+  setHandle(m_pipeIn->getHandle());
 }
 
 ProcessByteStream::~ProcessByteStream()
@@ -35,14 +41,9 @@ ProcessByteStream::~ProcessByteStream()
   delete m_pipeIn;
 }
 
-ProcessByteStream::operator WaitObject&()
+bool ProcessByteStream::flush(uint32_t timeout)
 {
-  return *m_pipeIn;
-}
-
-Handle ProcessByteStream::getHandle() const
-{
-  return m_pipeIn->getHandle();
+  return m_pipeOut->flush(timeout);
 }
 
 void ProcessByteStream::send(const void* buffer, uint32_t size)

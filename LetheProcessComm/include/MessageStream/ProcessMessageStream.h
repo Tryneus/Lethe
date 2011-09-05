@@ -14,9 +14,6 @@ namespace lethe
     ProcessMessageStream(uint32_t remoteProcessId, uint32_t outgoingSize, uint32_t timeout);
     ~ProcessMessageStream();
 
-    operator WaitObject&();
-    Handle getHandle() const;
-
     void* allocate(uint32_t size);
     void send(void* buffer);
     void* receive();

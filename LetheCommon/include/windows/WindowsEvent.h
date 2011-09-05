@@ -20,9 +20,7 @@ namespace lethe
 
     void set();
     void reset();
-
-    void setError();
-    void clearError();
+    void error();
 
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used

@@ -19,9 +19,7 @@ namespace lethe
 
     void lock(uint32_t timeout = INFINITE);
     void unlock();
-
-    void setError();
-    void clearError();
+    void error();
 
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used

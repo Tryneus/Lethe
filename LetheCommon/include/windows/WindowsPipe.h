@@ -40,7 +40,7 @@
  */
 namespace lethe
 {
-  class WindowsPipe
+  class WindowsPipe : public ByteStream
   {
   public:
     WindowsPipe();
@@ -56,10 +56,6 @@ namespace lethe
     uint32_t receive(void* buffer, uint32_t bufferSize);
 
     bool flush(uint32_t timeout);
-
-    // Act like a wait object without actually being one - passthrough to m_readEventIn
-    operator WaitObject&();
-    Handle getHandle() const;
 
   private:
     // Private, undefined copy constructor and assignment operator so they can't be used

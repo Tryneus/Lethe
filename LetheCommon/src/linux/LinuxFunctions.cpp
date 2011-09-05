@@ -61,13 +61,19 @@ uint32_t lethe::createProcess(const std::string& command,
 void lethe::sleep_ms(uint32_t timeout)
 {
   struct timespec remaining;
+  uint32_t endTime = getEndTime(timeout);
 
   remaining.tv_sec = timeout / 1000;
   remaining.tv_nsec = (timeout % 1000) * 1000000;
 
   // Loop in case of EINTR - nanosleep should update remainder
-  // TODO: make sure there isn't a time leak here - update using the end time instead?
-  while(nanosleep(&remaining, &remaining) == -1 && errno == EINTR);
+  while(nanosleep(&remaining, NULL) == -1 && errno == EINTR);
+  {
+    timeout = getTimeout(endTime);
+
+    remaining.tv_sec = timeout / 1000;
+    remaining.tv_nsec = (timeout % 1000) * 1000000;
+  }
 }
 
 std::string lethe::getErrorString(uint32_t errorCode)
@@ -134,6 +140,11 @@ uint32_t lethe::getThreadId()
 
 lethe::WaitResult lethe::WaitForObject(lethe::WaitObject& obj, uint32_t timeout)
 {
+  return WaitForObject(obj.getHandle(), timeout);
+}
+
+lethe::WaitResult lethe::WaitForObject(lethe::Handle handle, uint32_t timeout)
+{
   uint32_t endTime = lethe::getEndTime(timeout);
   lethe::WaitResult result = lethe::WaitSuccess;
   struct pollfd pollData;
@@ -141,7 +152,7 @@ lethe::WaitResult lethe::WaitForObject(lethe::WaitObject& obj, uint32_t timeout)
 
   while(true)
   {
-    pollData.fd = obj.getHandle();
+    pollData.fd = handle;
     pollData.events = POLLIN | POLLERR | POLLHUP;
 
     pollResult = poll(&pollData, 1, timeout);

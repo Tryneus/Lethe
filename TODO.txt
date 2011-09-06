@@ -1,6 +1,7 @@
 Features:
   Common:
     Investigate replacing ostream-style Log interface with fastformat::write
+    implement errored synchronization objects in windows (if it's even possible)
   SocketComm:
     ByteStream
     MessageStream
@@ -10,6 +11,7 @@ Features:
 Tests:
   Common:
     finish mutex tests
+    test error behavior
   ThreadComm:
     ByteStream test
     More comprehensive MessageStream tests
@@ -21,8 +23,7 @@ Tests:
     all tests
 
 Fixes (see limitations):
-  Windows WaitForMultiple is limited to 64 handles, add limit to WaitSets
   MessageStream/ByteStream behavior when receive is called with nothing to receive - exception or NULL/0 return - should be consistent
-  Windows LetheCommonTest/waitSet/abandoned not implemented - figure out how to force abandoned wait result
+  Linux LetheCommonTest/waitSet/abandoned not implemented - figure out how to force abandoned wait result
   Pipe needs a way to specify whether construction should fail if the files already exist (or attempt to remove the files)
 

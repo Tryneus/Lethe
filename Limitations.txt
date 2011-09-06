@@ -1,15 +1,15 @@
 Known limitations or discrepancies between platforms:
 
-1. Linux events, semaphores, and mutexes don't support automatic reset
- - This has been fixed by use of a loadable kernel module (libCommon/module) which must be installed to use Mutexes, Semaphores, and Auto-Reset Events in Linux (otherwise their constructors will throw an exception)
+1. A loadable kernel module has been made to add auto-reset capability to Linux events, semaphores, mutexes, and timers
+ - see LetheCommon/module/eventfd-lethe.c and timerfd-lethe.c
+ - based off of existing eventfd and timerfd subsystems written by Davide Libenzi
  - A kernel patch for this probably will not happen due to complications with epoll_ctl(ADD)
    - When adding an fd to an epoll set, a poll will be done
    - This will do a read on the event/semaphore/mutex without notifying the user
    - In addition, poll/epoll will do a read even if POLLIN is not a selected event
 
-2. LinuxTimers do not support automatic reset
- - If the eventfd change goes over well, consider implementing the same thing for timerfd
-
-3. No method in Linux to wait for all file descriptors in a set before returning
+2. No method in Linux to wait for all file descriptors in a set before returning
  - No plan on implementing this at the moment, seems too easy to deadlock in Linux
  - Because of this, waitAll is not implemented for windows, either
+
+3. No method for causing an error on wait for Windows events, semaphores, mutexes, or timers

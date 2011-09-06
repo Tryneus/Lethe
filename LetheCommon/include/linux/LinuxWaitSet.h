@@ -55,6 +55,8 @@ namespace lethe
     WaitResult pollEvents(uint32_t timeout, uint32_t endTime);
     WaitResult getEvent(Handle& handle);
 
+    static const uint32_t s_maxWaitObjects;
+
     mct::closed_hash_map<Handle,
                          WaitObject*,
                          std::tr1::hash<Handle>,

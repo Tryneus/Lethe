@@ -6,6 +6,8 @@
 
 using namespace lethe;
 
+const uint32_t WindowsWaitSet::s_maxWaitObjects(64);
+
 WindowsWaitSet::WindowsWaitSet() :
   m_waitObjects(new mct::closed_hash_map<Handle, WaitObject*>),
   m_handleArray(NULL),
@@ -22,6 +24,10 @@ WindowsWaitSet::~WindowsWaitSet()
 bool WindowsWaitSet::add(WaitObject& obj)
 {
   DWORD handleInfo;
+
+  // Make sure there is size for the new wait object
+  if(m_waitObjects->size() >= s_maxWaitObjects)
+    return false;
 
   if(obj.getHandle() == INVALID_HANDLE_VALUE ||
      !GetHandleInformation(obj.getHandle(), &handleInfo))

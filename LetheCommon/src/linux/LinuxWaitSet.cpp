@@ -11,6 +11,8 @@
 
 using namespace lethe;
 
+const uint32_t LinuxWaitSet::s_maxWaitObjects(64);
+
 LinuxWaitSet::LinuxWaitSet() :
   m_waitObjects(new mct::closed_hash_map<Handle,
                                          WaitObject*,
@@ -32,9 +34,13 @@ LinuxWaitSet::~LinuxWaitSet()
 
 bool LinuxWaitSet::add(WaitObject& obj)
 {
+  // Make sure there is size for the new wait object
+  if(m_waitObjects->size() >= s_maxWaitObjects)
+    return false;
+
   // Make sure handle is valid
   if(fcntl(obj.getHandle(), F_GETFL) == -1 && errno == EBADF)
-    throw std::bad_syscall("fcntl", lastError());
+    throw std::invalid_argument("invalid handle");
 
   if(!m_waitObjects->insert(std::make_pair(obj.getHandle(), &obj)).second)
     return false;

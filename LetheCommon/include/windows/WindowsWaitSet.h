@@ -52,6 +52,8 @@ namespace lethe
     void resizeEvents();
     void callPostWait(WaitResult result, Handle handle);
 
+    static const uint32_t s_maxWaitObjects;
+
     mct::closed_hash_map<Handle,
                          WaitObject*,
                          std::tr1::hash<Handle>,
